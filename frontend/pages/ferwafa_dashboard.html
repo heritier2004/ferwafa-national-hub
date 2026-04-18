@@ -188,23 +188,65 @@
                 </div>
             </section>
 
-            <!-- ⚡ TAB: NATIONAL LEDGER (CHECK ALL USERS/CLUBS) -->
+            <!-- ⚡ TAB: NATIONAL LEDGER (FULL CRUD CONTROL) -->
             <section id="ledger" class="tab-pane">
                 <div class="hero-banner">
                     <h1>National Registry Ledger</h1>
-                    <p style="color: var(--text-dim);">The authoritative database of all football personnel and institutions.</p>
+                    <p style="color: var(--text-dim);">Full control over all football personnel and institutions in Rwanda.</p>
                 </div>
 
-                <div style="margin: 2rem 0; display: flex; gap: 10px;">
+                <div style="margin: 2rem 0; display: flex; gap: 10px; align-items: center;">
                     <button class="tab-btn-pill active" id="btn-show-users" onclick="toggleLedger('users')">All Personnel</button>
                     <button class="tab-btn-pill" id="btn-show-clubs" onclick="toggleLedger('clubs')">All Institutions</button>
                     <div style="flex: 1;"></div>
-                    <input type="text" id="ledger-search" class="btn-glass" placeholder="Search by Name or Email..." style="width: 300px; padding: 10px;">
+                    <button class="btn btn-primary" style="padding: 10px 20px; font-size: 0.8rem;" onclick="toggleFerwafaAction('user')" id="btn-add-user">+ Add User</button>
+                    <button class="btn btn-glass" style="padding: 10px 20px; font-size: 0.8rem;" onclick="toggleFerwafaAction('inst')" id="btn-add-inst">+ Add Institution</button>
+                    <input type="text" id="ledger-search" class="btn-glass" placeholder="Search by Name or Email..." style="width: 280px; padding: 10px;">
                 </div>
 
+                <!-- [ACTION HUB] Add User Form -->
+                <div id="ferwafa-add-user" class="command-card" style="display:none; margin-bottom: 1.5rem; border-color: var(--jade);">
+                    <h3 style="color: var(--jade); margin-bottom: 1rem;">Register New Personnel</h3>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
+                        <input type="text" id="fw-name" class="btn-glass" placeholder="Full Name" style="padding:12px;">
+                        <input type="email" id="fw-email" class="btn-glass" placeholder="Official Email" style="padding:12px;">
+                        <input type="password" id="fw-pass" class="btn-glass" placeholder="Password" style="padding:12px;">
+                        <select id="fw-role" class="btn-glass" style="padding:12px;" onchange="document.getElementById('fw-inst-wrap').style.display = (this.value==='FERWAFA'||this.value==='SCOUT') ? 'none' : 'block';">
+                            <option value="CLUB">Club Administrator</option>
+                            <option value="SCHOOL">School Official</option>
+                            <option value="ACADEMY">Academy Lead</option>
+                            <option value="SCOUT">National Scout</option>
+                        </select>
+                        <div id="fw-inst-wrap">
+                            <select id="fw-inst" class="btn-glass" style="padding:12px; width:100%;"></select>
+                        </div>
+                        <button class="btn btn-primary" style="padding:12px;" onclick="ferwafaCreateUser()">Authorize Account</button>
+                    </div>
+                </div>
+
+                <!-- [ACTION HUB] Add Institution Form -->
+                <div id="ferwafa-add-inst" class="command-card" style="display:none; margin-bottom: 1.5rem; border-color: var(--gold-premium);">
+                    <h3 style="color: var(--gold-premium); margin-bottom: 1rem;">Register New Institution</h3>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
+                        <input type="text" id="fi-name" class="btn-glass" placeholder="Institution Name" style="padding:12px;">
+                        <select id="fi-type" class="btn-glass" style="padding:12px;">
+                            <option value="club">Club</option>
+                            <option value="school">School</option>
+                            <option value="academy">Academy</option>
+                        </select>
+                        <input type="text" id="fi-code" class="btn-glass" placeholder="Code (e.g. KIG-FC)" style="padding:12px;">
+                        <input type="text" id="fi-stadium" class="btn-glass" placeholder="Stadium Name" style="padding:12px;">
+                        <input type="text" id="fi-province" class="btn-glass" placeholder="Province" style="padding:12px;">
+                        <input type="text" id="fi-district" class="btn-glass" placeholder="District" style="padding:12px;">
+                        <input type="text" id="fi-sector" class="btn-glass" placeholder="Sector" style="padding:12px;">
+                        <input type="text" id="fi-cell" class="btn-glass" placeholder="Cell" style="padding:12px;">
+                        <button class="btn btn-primary" style="padding:12px; background: var(--gold-premium); color: #000;" onclick="ferwafaCreateInst()">Register Institution</button>
+                    </div>
+                </div>
+
+                <!-- [LEDGER] Data Table -->
                 <div class="command-card" style="padding: 0;">
                     <div id="ledger-content">
-                        <!-- Content Injected via JS -->
                         <div style="padding: 2rem; text-align: center; color: var(--text-dim);">Loading National Records...</div>
                     </div>
                 </div>
@@ -352,14 +394,112 @@
             allUsers = await uRes.json();
             const cRes = await fetch('/api/ferwafa/entities/all');
             allClubs = await cRes.json();
+            // Populate institution dropdown for user creation
+            const instSelect = document.getElementById('fw-inst');
+            if(instSelect) {
+                instSelect.innerHTML = allClubs.map(c => `<option value="${c.id}">${c.name} (${c.type})</option>`).join('');
+            }
             renderUsers();
         }
 
         function toggleLedger(type) {
             document.getElementById('btn-show-users').classList.toggle('active', type === 'users');
             document.getElementById('btn-show-clubs').classList.toggle('active', type === 'clubs');
+            // Show the right add button
+            document.getElementById('btn-add-user').style.display = type === 'users' ? '' : 'none';
+            document.getElementById('btn-add-inst').style.display = type === 'clubs' ? '' : 'none';
             if(type === 'users') renderUsers();
             else renderClubs();
+        }
+
+        function toggleFerwafaAction(type) {
+            const userPanel = document.getElementById('ferwafa-add-user');
+            const instPanel = document.getElementById('ferwafa-add-inst');
+            if(type === 'user') {
+                userPanel.style.display = userPanel.style.display === 'none' ? 'block' : 'none';
+                instPanel.style.display = 'none';
+            } else {
+                instPanel.style.display = instPanel.style.display === 'none' ? 'block' : 'none';
+                userPanel.style.display = 'none';
+            }
+        }
+
+        async function ferwafaCreateUser() {
+            const name = document.getElementById('fw-name').value;
+            const email = document.getElementById('fw-email').value;
+            const pass = document.getElementById('fw-pass').value;
+            const role = document.getElementById('fw-role').value;
+            const instId = document.getElementById('fw-inst').value;
+            if(!name || !email || !pass) return alert('Please fill all fields.');
+
+            let url = `/api/ferwafa/users/manage?email=${encodeURIComponent(email)}&full_name=${encodeURIComponent(name)}&password=${encodeURIComponent(pass)}&role=${role}&institution_id=${instId}`;
+            try {
+                const res = await fetch(url, { method: 'POST' });
+                const data = await res.json();
+                if(!res.ok) throw new Error(data.detail || 'Failed');
+                alert(data.message);
+                document.getElementById('fw-name').value = '';
+                document.getElementById('fw-email').value = '';
+                document.getElementById('fw-pass').value = '';
+                document.getElementById('ferwafa-add-user').style.display = 'none';
+                loadLedger();
+            } catch(e) { alert('Error: ' + e.message); }
+        }
+
+        async function ferwafaCreateInst() {
+            const name = document.getElementById('fi-name').value;
+            const type = document.getElementById('fi-type').value;
+            const code = document.getElementById('fi-code').value;
+            const stadium = document.getElementById('fi-stadium').value;
+            const province = document.getElementById('fi-province').value;
+            const district = document.getElementById('fi-district').value;
+            const sector = document.getElementById('fi-sector').value;
+            const cell = document.getElementById('fi-cell').value;
+            if(!name || !code) return alert('Name and Code are required.');
+
+            let url = `/api/ferwafa/entities/create?name=${encodeURIComponent(name)}&type=${type}&code=${encodeURIComponent(code)}&stadium_name=${encodeURIComponent(stadium)}&province=${encodeURIComponent(province)}&district=${encodeURIComponent(district)}&sector=${encodeURIComponent(sector)}&cell=${encodeURIComponent(cell)}`;
+            try {
+                const res = await fetch(url, { method: 'POST' });
+                const data = await res.json();
+                if(!res.ok) throw new Error(data.detail || 'Failed');
+                alert(data.message);
+                ['fi-name','fi-code','fi-stadium','fi-province','fi-district','fi-sector','fi-cell'].forEach(id => document.getElementById(id).value = '');
+                document.getElementById('ferwafa-add-inst').style.display = 'none';
+                loadLedger();
+            } catch(e) { alert('Error: ' + e.message); }
+        }
+
+        async function ferwafaEditUser(id) {
+            const name = prompt('Update Full Name:');
+            const email = prompt('Update Email:');
+            if(!name && !email) return;
+            let url = `/api/ferwafa/users/${id}?`;
+            if(name) url += `full_name=${encodeURIComponent(name)}&`;
+            if(email) url += `email=${encodeURIComponent(email)}`;
+            try {
+                const res = await fetch(url, { method: 'PUT' });
+                const data = await res.json();
+                alert(data.message);
+                loadLedger();
+            } catch(e) { alert('Update failed.'); }
+        }
+
+        async function ferwafaDeleteUser(id) {
+            if(!confirm('This will permanently remove this user from the national system. Proceed?')) return;
+            try {
+                const res = await fetch(`/api/ferwafa/users/${id}`, { method: 'DELETE' });
+                const data = await res.json();
+                alert(data.message);
+                loadLedger();
+            } catch(e) { alert('Deletion failed.'); }
+        }
+
+        async function ferwafaToggleUser(id, currentActive) {
+            const newStatus = !currentActive;
+            try {
+                await fetch(`/api/ferwafa/users/${id}?is_active=${newStatus}`, { method: 'PUT' });
+                loadLedger();
+            } catch(e) {}
         }
 
         function renderUsers() {
@@ -374,10 +514,12 @@
                                 <td style="font-weight:600;">${u.full_name}</td>
                                 <td style="color: var(--text-dim); font-size: 0.8rem;">${u.email}</td>
                                 <td><span class="badge" style="background:rgba(255,255,255,0.05);">${u.role}</span></td>
-                                <td>${u.institution}</td>
+                                <td>${u.institution || 'N/A'}</td>
                                 <td>${u.is_active ? '<span style="color:var(--jade);">ACTIVE</span>' : '<span style="color:var(--accent);">LOCKED</span>'}</td>
-                                <td>
-                                    <button class="btn btn-glass" style="padding: 4px 10px; font-size: 0.7rem;" onclick="bossAction('user', '${u.id}')">EDIT</button>
+                                <td style="display:flex; gap:5px;">
+                                    <button class="btn btn-glass" style="padding:4px 10px; font-size:0.7rem;" onclick="ferwafaEditUser(${u.id})">EDIT</button>
+                                    <button class="btn btn-glass" style="padding:4px 10px; font-size:0.7rem; border-color:var(--gold-premium); color:var(--gold-premium);" onclick="ferwafaToggleUser(${u.id}, ${u.is_active})">${u.is_active ? 'LOCK' : 'UNLOCK'}</button>
+                                    <button class="btn btn-glass" style="padding:4px 10px; font-size:0.7rem; border-color:#ef4444; color:#ef4444;" onclick="ferwafaDeleteUser(${u.id})">DELETE</button>
                                 </td>
                             </tr>
                         `).join('')}
@@ -391,23 +533,41 @@
             const html = `
                 <table class="ledger-table">
                     <thead>
-                        <tr><th>Logo</th><th>Name</th><th>Code</th><th>Stadium</th><th>Pitch</th><th>Logistics</th></tr>
+                        <tr><th>Logo</th><th>Name</th><th>Type</th><th>Code</th><th>Stadium</th><th>Province</th><th>Actions</th></tr>
                     </thead>
                     <tbody>
                         ${allClubs.map(c => `
                             <tr>
                                 <td><div class="team-logo-small">${c.logo_url ? `<img src="${c.logo_url}" style="width:100%;">` : '⚽'}</div></td>
                                 <td style="font-weight:600;">${c.name}</td>
+                                <td><span class="badge" style="background:rgba(255,255,255,0.05);">${c.type}</span></td>
                                 <td>${c.code}</td>
                                 <td>${c.stadium_name || 'N/A'}</td>
-                                <td>${c.pitch_type}</td>
-                                <td><button class="btn btn-glass" style="padding: 4px 10px; font-size: 0.7rem;" onclick="bossAction('inst', '${c.id}')">UPDATE</button></td>
+                                <td>${c.province || 'N/A'}</td>
+                                <td>
+                                    <button class="btn btn-glass" style="padding:4px 10px; font-size:0.7rem;" onclick="ferwafaEditInst(${c.id})">UPDATE</button>
+                                </td>
                             </tr>
                         `).join('')}
                     </tbody>
                 </table>
             `;
             document.getElementById('ledger-content').innerHTML = html;
+        }
+
+        async function ferwafaEditInst(id) {
+            const name = prompt('Update Institution Name:');
+            const stadium = prompt('Update Stadium Name:');
+            if(!name && !stadium) return;
+            let url = `/api/ferwafa/entities/${id}?`;
+            if(name) url += `name=${encodeURIComponent(name)}&`;
+            if(stadium) url += `stadium_name=${encodeURIComponent(stadium)}`;
+            try {
+                const res = await fetch(url, { method: 'PUT' });
+                const data = await res.json();
+                alert(data.message);
+                loadLedger();
+            } catch(e) { alert('Update failed.'); }
         }
 
         async function wizardNext(step) {
