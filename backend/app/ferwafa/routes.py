@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from backend.app.config.database import get_db
-from backend.app.database.models import Institution, Match, Fixture, Player, AIAnalysis, User, SystemActivity
+from backend.app.database.models import Institution, Match, Fixture, Player, AIAnalysis, User, SystemActivity, MatchSession
 from backend.app.auth.security import get_password_hash
+from sqlalchemy import text
 import random
 from datetime import datetime, timedelta
 
@@ -287,3 +288,34 @@ def get_match_history(db: Session = Depends(get_db)):
 def get_global_forensics(db: Session = Depends(get_db)):
     # Monitor everything happened in the system
     return db.query(SystemActivity).order_by(SystemActivity.timestamp.desc()).limit(50).all()
+
+# 🗄️ NATIONAL DATABASE EXPLORER
+@router.get("/db/browse/{table_name}")
+def browse_national_database(table_name: str, db: Session = Depends(get_db)):
+    """Secure database browsing for FERWAFA National Authority"""
+    SAFE_TABLES = {
+        "players": Player,
+        "institutions": Institution,
+        "matches": Match,
+        "users": User,
+        "system_activity": SystemActivity,
+    }
+    
+    if table_name not in SAFE_TABLES:
+        raise HTTPException(status_code=403, detail=f"Access denied to table '{table_name}'")
+    
+    model = SAFE_TABLES[table_name]
+    rows = db.query(model).limit(200).all()
+    
+    # Convert ORM objects to dicts
+    results = []
+    for row in rows:
+        d = {}
+        for col in row.__table__.columns:
+            val = getattr(row, col.name)
+            if hasattr(val, 'isoformat'):
+                val = val.isoformat()
+            d[col.name] = val
+        results.append(d)
+    
+    return {"table": table_name, "count": len(results), "rows": results}
