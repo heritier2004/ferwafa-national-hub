@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Club Hub | Intelligence System</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        .player-suggestion {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            background: rgba(255,136,0,0.05);
+            border: 1px solid rgba(255,136,0,0.1);
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            gap: 15px;
+        }
+        .scout-badge {
+            background: var(--secondary);
+            color: black;
+            font-size: 0.65rem;
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- 📟 Sidebar Navigation -->
+        <aside class="sidebar glass">
+            <div class="sidebar-header" style="display:flex; flex-direction:column; align-items:center; text-align:center;">
+                <div id="club-logo-container" class="team-logo-small" style="width: 80px; height: 80px; margin-bottom: 1rem;">⚽</div>
+                <div class="logo" id="club-title" style="font-size: 1.2rem;">CLUB HUB</div>
+                <div id="stadium-display" style="font-size: 0.7rem; color: var(--text-dim); margin-top: 5px; text-transform: uppercase; letter-spacing: 1px;">Home Stadium</div>
+            </div>
+            <nav class="sidebar-nav" id="main-nav"></nav>
+            <div class="sidebar-footer">
+                <div class="nav-item" onclick="logout()" style="color: var(--accent);">
+                    <span>🚪</span> Logout
+                </div>
+            </div>
+        </aside>
+
+        <!-- 🖥️ Main Workspace -->
+        <main class="main-stage">
+            
+            <!-- Tab: Team Analytics -->
+            <section id="overview" class="tab-pane active">
+                <div class="hero-banner">
+                    <h1>Squad Performance</h1>
+                    <p style="color: var(--text-dim);">Live AI analysis of your players' performance and development.</p>
+                </div>
+                <div class="dashboard-grid">
+                    <div class="card glass">
+                        <h3>Team Efficiency</h3>
+                        <div class="stat-value">7.8 ★</div>
+                        <p style="color: var(--text-dim); font-size: 0.85rem;">National Average: 6.5 ★</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab: Upcoming Matches -->
+            <section id="fixtures" class="tab-pane">
+                <div class="hero-banner">
+                    <h1>My Match Schedule</h1>
+                    <p style="color: var(--text-dim);">National league fixtures assigned by FERWAFA.</p>
+                </div>
+                <div class="card glass" style="margin-top: 1rem;">
+                    <div id="my-fixture-list">
+                        <p style="padding: 2rem; color: var(--text-dim);">Fetching scheduled matches...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab: Match Control -->
+            <section id="match" class="tab-pane">
+                <div class="hero-banner" style="border-color: var(--accent);">
+                    <h1 style="color: var(--accent);">⚡ Match Control</h1>
+                    <p style="color: var(--text-dim);">Set up squads, configure kits, and manage live matches with AI tracking.</p>
+                </div>
+                <div style="margin-top: 2rem; display:grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.5rem;">
+                    <div class="card glass" style="padding: 2rem; text-align:center; border-color: rgba(255,51,85,0.25); cursor:pointer; transition: all 0.2s;"
+                         onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 12px 40px rgba(255,51,85,0.15)'"
+                         onmouseout="this.style.transform='';this.style.boxShadow=''"
+                         onclick="window.open('../pages/match_control.html','_blank')">
+                        <div style="font-size:2.5rem; margin-bottom: 1rem;">⚡</div>
+                        <h3 style="color: var(--accent);">Open Match Control</h3>
+                        <p style="font-size: 0.8rem; color: var(--text-dim); margin-top: 0.5rem;">Create match sessions, assign squad, set kit colors, record events, and view live AI tracking.</p>
+                        <div style="margin-top: 1.5rem; background: rgba(255,51,85,0.1); border: 1px solid rgba(255,51,85,0.2); border-radius: 8px; padding: 0.6rem; font-size: 0.7rem; color: var(--accent); font-weight: 700; letter-spacing: 1px;">LAUNCH MATCH CENTER →</div>
+                    </div>
+                    <div class="card glass" style="padding: 2rem; text-align:center; border-color: rgba(0,212,255,0.4); transition: all 0.3s; background: linear-gradient(145deg, rgba(0,212,255,0.05) 0%, transparent 100%);"
+                         onmouseover="this.style.transform='translateY(-6px)';this.style.boxShadow='0 15px 45px rgba(0,212,255,0.2)'"
+                         onmouseout="this.style.transform='';this.style.boxShadow=''">
+                        <div style="font-size:2.8rem; margin-bottom: 0.5rem; filter: drop-shadow(0 0 10px rgba(0,212,255,0.4));">🤖</div>
+                        <h3 style="color: var(--blue, #00d4ff); font-family: 'Orbitron', sans-serif;">AI Pitch Machine</h3>
+                        <p style="font-size: 0.8rem; color: var(--text-dim); margin-top: 0.5rem; line-height: 1.5;">Download the edge software for your stadium laptop.</p>
+                        <div style="margin-top: 1rem; font-size: 0.7rem; color: #ffcc00; background: rgba(255, 204, 0, 0.1); border-left: 2px solid #ffcc00; padding: 0.4rem; text-align: left;">
+                            <strong>🛡️ SECURITY NOTE:</strong>
+                            <span style="color:var(--text-dim)">Windows may warn you about an unrecognized app. Click <b>More Info &rarr; Run Anyway</b>.</span>
+                        </div>
+                        <div style="margin-top: 1rem; font-size: 0.7rem; color: #00ff88; background: rgba(0, 255, 136, 0.1); border-left: 2px solid #00ff88; padding: 0.4rem; text-align: left;">
+                            <strong>⚡ EDGE PROCESSING:</strong>
+                            <span style="color:var(--text-dim)">Video is processed 100% locally. Only pure statistical data is transmitted to the FERWAFA server.</span>
+                        </div>
+                        <div style="margin-top: 1.5rem; display: flex; gap: 0.5rem; justify-content: center;">
+                            <button onclick="window.location.href='/api/download/ai-machine?os_type=windows'" style="flex:1; background: linear-gradient(135deg, rgba(0,212,255,0.2), rgba(0,212,255,0.05)); border: 1px solid rgba(0,212,255,0.4); border-radius: 8px; padding: 0.8rem; font-size: 0.70rem; color: #00d4ff; font-weight: 800; cursor: pointer; letter-spacing: 1px;">
+                                📥 WINDOWS (.EXE)
+                            </button>
+                            <button onclick="window.location.href='/api/download/ai-machine?os_type=other'" style="flex:1; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 0.8rem; font-size: 0.70rem; color: var(--text-dim); font-weight: 700; cursor: pointer; letter-spacing: 1px;">
+                                📥 MAC/LINUX (.ZIP)
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card glass" style="padding: 2rem; text-align:center;">
+                        <div style="font-size:2.5rem; margin-bottom: 1rem;">🔐</div>
+                        <h3>How It Works</h3>
+                        <ol style="font-size: 0.78rem; color: var(--text-dim); text-align:left; margin-top: 0.75rem; line-height: 2; padding-left: 1.2rem;">
+                            <li>Create a Session in <b>Match Control</b></li>
+                            <li>Copy the secure <b>API Key & Token</b></li>
+                            <li>Open the downloaded AI Machine (.exe)</li>
+                            <li>Paste credentials to link the cameras</li>
+                            <li>Watch live tracking safely on Match Control!</li>
+                        </ol>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab: AI Scouting -->
+            <section id="scouting" class="tab-pane">
+                <div class="hero-banner" style="border-color: var(--secondary);">
+                    <h1 style="color: var(--secondary);">AI Talent Scouting</h1>
+                    <p style="color: var(--text-dim);">Recommendations for your squad and top national prospects.</p>
+                </div>
+                <div style="margin-top: 2rem;">
+                    <h3>National Recommendations</h3>
+                    <div id="national-scout-list" style="margin-top: 1rem;">
+                        <!-- List -->
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script src="../assets/js/app.js"></script>
+    <script>
+        // Apply Branding
+        document.addEventListener('DOMContentLoaded', () => {
+            const logo = localStorage.getItem('logo_url');
+            const name = localStorage.getItem('full_name');
+            const stadium = localStorage.getItem('stadium_name');
+            
+            if (logo) {
+                document.getElementById('club-logo-container').innerHTML = `<img src="${logo}" style="width:100%; height:100%; object-fit:cover; border-radius: 8px;">`;
+            }
+            if (name) document.getElementById('club-title').textContent = name;
+            if (stadium) {
+                document.getElementById('stadium-display').textContent = stadium;
+            }
+        });
+
+        // Use Club-Specific Logic
+        async function fetchClubIntelligence() {
+            // In a real app, the club_id would be tied to the logged-in user
+            // We'll mock it here or get it from metadata
+            const clubId = 1; // Default to first club for now
+
+            try {
+                // 1. My Fixtures
+                const fixRes = await fetch(`/api/ferwafa/fixtures/mine/${clubId}`);
+                const matches = await fixRes.json();
+                const list = document.getElementById('my-fixture-list');
+                
+                if(matches.length === 0) {
+                    list.innerHTML = `<p style="padding: 2rem; color: var(--text-dim);">No upcoming matches scheduled for your club.</p>`;
+                } else {
+                    list.innerHTML = matches.map(m => `
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                            <div>
+                                <div style="font-size: 1.2rem; font-weight: bold;">vs ${m.is_home ? m.away : m.home}</div>
+                                <div style="font-size: 0.85rem; color: var(--text-dim);">${m.date} • ${m.stadium}</div>
+                            </div>
+                            <span class="badge ${m.is_home ? 'badge-primary' : ''}">${m.is_home ? 'HOME' : 'AWAY'}</span>
+                        </div>
+                    `).join('');
+                }
+
+                // 2. National Scouting
+                const scoutRes = await fetch('/api/ferwafa/scouting/top-players');
+                const players = await scoutRes.json();
+                document.getElementById('national-scout-list').innerHTML = players.map(p => `
+                    <div class="player-suggestion">
+                        <div style="font-size: 1.5rem;">👤</div>
+                        <div style="flex: 1;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <span style="font-weight: bold;">${p.name}</span>
+                                <span class="scout-badge">Elite Prospect</span>
+                            </div>
+                            <div style="font-size: 0.75rem; color: var(--text-dim);">${p.position} • ${p.club}</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="color: var(--secondary); font-weight: bold;">${p.stars} ★</div>
+                            <div style="font-size: 0.6rem; color: var(--text-dim);">AI Rating</div>
+                        </div>
+                    </div>
+                `).join('');
+
+            } catch(e) {}
+        }
+
+        fetchClubIntelligence();
+        setInterval(fetchClubIntelligence, 5000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Database
+*.db
+*.sqlite3
+
+# Environment / Credentials
+.env
+.venv
+venv/
+ENV/
+instance/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Logs
+*.log
+
+# AI Machine / Simulation Build Artifacts
+ai_machine/dist/
+ai_machine/build/
+*.exe
+*.spec
+
+# Multimedia / User Data (Protect Privacy)
+frontend/assets/uploads/
+*.mp4
+*.mkv
+*.webm
+
+# Agent / Tool specifics
+.gemini/
+.antigravity/
+brain/
+scratch/
+implementation_plan.md
+task.md
+walkthrough.md
+
+# OS
+.DS_Store
+Thumbs.db

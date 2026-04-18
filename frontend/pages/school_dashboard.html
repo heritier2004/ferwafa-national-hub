@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School Dashboard | Intelligence System</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <nav>
+        <div class="logo" onclick="goHome()" style="cursor: pointer;">SCHOOL HUB | GS KIGALI</div>
+        <div style="display: flex; gap: 1rem;">
+            <button class="btn glass" onclick="history.back()">Back</button>
+            <button class="btn btn-primary" onclick="logout()">Logout</button>
+        </div>
+    </nav>
+    <div class="container">
+        <h1>School Football Program</h1>
+        <p style="color: var(--text-dim)">Empowering students through AI-driven coaching.</p>
+        <div class="dashboard-grid">
+            <div class="card glass">
+                <h3>Training Attendance</h3>
+                <p>94% Participation Rate</p>
+                <button class="btn btn-primary" style="margin-top: 1rem; width:100%">Log Attendance</button>
+            </div>
+            <div class="card glass">
+                <h3>Youth Progression</h3>
+                <p>12 Students ready for Academy trials.</p>
+                <button class="btn btn-primary" style="margin-top: 1rem; width:100%">View Progress</button>
+            </div>
+            <div class="card glass">
+                <h3>Inter-School Fixtures</h3>
+                <p>Next Match: Friday 16:00</p>
+                <button class="btn btn-primary" style="margin-top: 1rem; width:100%">Match Prep</button>
+            </div>
+            <div class="card glass" style="border-color: var(--accent); background: linear-gradient(135deg, rgba(255,51,85,0.05), transparent);">
+                <h3 style="color: var(--accent); filter: drop-shadow(0 0 5px rgba(255,51,85,0.4));">⚡ Match Control</h3>
+                <p style="font-size: 0.85rem; color: var(--text-dim); margin-top: 0.5rem;">Access the master interface to manage live matches, configure squads, assign kit colors, and monitor real-time AI telemetry.</p>
+                <button class="btn btn-primary" style="margin-top: 1.5rem; width:100%; background: var(--accent); color: white; border:none; box-shadow: 0 4px 15px rgba(255,51,85,0.3);" onclick="window.location.href='../pages/match_control.html'">LAUNCH MATCH CENTER</button>
+            </div>
+            <div class="card glass" style="border-color: rgba(0,212,255,0.4); background: linear-gradient(135deg, rgba(0,212,255,0.05), transparent);">
+                <h3 style="color: var(--blue); filter: drop-shadow(0 0 5px rgba(0,212,255,0.3));">🤖 AI Pitch Machine</h3>
+                <p style="font-size: 0.85rem; color: var(--text-dim); margin-top: 0.5rem;">Standalone edge software for your stadium cameras.</p>
+                
+                <div style="margin-top: 0.5rem; font-size: 0.7rem; color: #00ff88; background: rgba(0, 255, 136, 0.08); border-left: 2px solid #00ff88; padding: 0.4rem; text-align: left;">
+                    <strong>EDGE PRIVACY:</strong> Only JSON tracker data is sent to the server. No video leaves the stadium.
+                </div>
+                
+                <div style="margin-top: 0.5rem; font-size: 0.7rem; color: #ffcc00; background: rgba(255, 204, 0, 0.08); border-left: 2px solid #ffcc00; padding: 0.4rem; text-align: left;">
+                    <strong>SECURITY NOTE:</strong> Windows SmartScreen may show a warning. Click 'More Info' &rarr; 'Run Anyway'.
+                </div>
+
+                <div style="display: flex; gap: 0.5rem; margin-top: 1.5rem;">
+                    <button class="btn btn-primary" style="flex:1; border: 1px solid var(--blue); color: var(--blue); background: rgba(0,212,255,0.1);" onclick="window.location.href='/api/download/ai-machine?os_type=windows'">WINDOWS (.EXE)</button>
+                    <button class="btn btn-primary" style="flex:1; border: 1px solid var(--border); color: var(--text-dim); background: rgba(255,255,255,0.05);" onclick="window.location.href='/api/download/ai-machine?os_type=other'">MAC/LINUX (.ZIP)</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

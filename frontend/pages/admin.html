@@ -1,0 +1,608 @@
+    <title>National Supreme Command | Admin 2.0</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        :root {
+            --cmd-bg: #05070a;
+            --cmd-accent: #6366f1;
+            --cmd-danger: #ef4444;
+            --cmd-warning: #f59e0b;
+            --cmd-success: #10b981;
+        }
+        .theme-admin { background: var(--cmd-bg); color: #fff; }
+        .sidebar { background: rgba(10, 15, 25, 0.8) !important; border-right: 1px solid var(--cmd-accent); }
+        .nav-item.active { background: linear-gradient(90deg, var(--cmd-accent), transparent); border-left: 4px solid var(--cmd-accent); }
+        .card.tech { border: 1px solid rgba(99, 102, 241, 0.2); background: rgba(255,255,255,0.03); }
+        .terminal { font-family: 'Courier New', monospace; background: #000; padding: 15px; border-radius: 8px; border: 1px solid #333; height: 200px; overflow-y: auto; font-size: 0.85rem; color: #0f0; }
+        .wizard-step { display: none; }
+        .wizard-step.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .data-table th { background: rgba(99,102,241,0.1); color: var(--cmd-accent); text-transform: uppercase; font-size: 0.7rem; letter-spacing: 1px; }
+        .data-table td { border-bottom: 1px solid rgba(255,255,255,0.05); }
+    </style>
+</head>
+<body class="theme-admin">
+    <div class="app-container">
+        <!-- 📟 Main Navigation -->
+        <aside class="sidebar glass">
+            <div class="sidebar-header">
+                <div id="admin-logo-container" class="preview-box ui-branding-target" style="border-radius:12%; width:60px; height:60px; margin-bottom:1rem; border:2px solid var(--cmd-accent); filter: drop-shadow(0 0 10px var(--cmd-accent));">⚙️</div>
+                <div class="logo global-sys-name">FIXING THE SYSTEM</div>
+                <div class="badge badge-online" id="role-badge" style="background: var(--cmd-accent); font-size:0.6rem;">SYSTEM ADMIN</div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-item active" onclick="showTab('cmd-core')"><span>📟</span> Command Core</div>
+                <div class="nav-item" onclick="showTab('ai-brain')"><span>🧠</span> AI Brain Control</div>
+                <div class="nav-item" onclick="showTab('personnel')"><span>👥</span> Personnel Hub</div>
+                <div class="nav-item" onclick="showTab('db-lab')"><span>📂</span> DB Laboratory</div>
+                <div class="nav-item" onclick="showTab('doc-hub')"><span>📄</span> Document Hub</div>
+                <div class="nav-item" onclick="showTab('master-settings')"><span>⚙️</span> Master Settings</div>
+                <div class="nav-item" onclick="showTab('errors')"><span>⚠️</span> Incident Logs</div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="nav-item" onclick="logout()" style="color: var(--cmd-danger);">
+                    <span>🚪</span> Deauthorize Session
+                </div>
+            </div>
+        </aside>
+
+        <!-- 🖥️ Admin Workspace -->
+        <main class="main-stage">
+            
+            <!-- 📟 TAB: SYSTEM OVERVIEW -->
+            <section id="cmd-core" class="tab-pane active">
+                <div class="hero-banner">
+                    <h1>System Status Overview</h1>
+                    <p>Absolute oversight of the national infrastructure hardware and heartbeat.</p>
+                </div>
+                <div class="dashboard-grid">
+                    <div class="card glass tech">
+                        <h3>Hardware Telemetry</h3>
+                        <div style="margin-top: 1rem;">
+                            <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;"><span>CPU Load</span> <span id="tel-cpu">--</span></div>
+                            <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;"><span>Traffic Flow</span> <span id="tel-traffic">--</span></div>
+                            <div style="display:flex; justify-content:space-between;"><span>Active Threads</span> <span id="tel-ws">--</span></div>
+                        </div>
+                    </div>
+                    <div class="card glass tech">
+                        <h3>Critical Actions</h3>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap:0.5rem; margin-top:1rem;">
+                            <button class="btn btn-glass" onclick="toggleMaintenance()" style="border-color: var(--cmd-warning); color: var(--cmd-warning);">Toggle Maintenance</button>
+                            <button class="btn btn-glass" onclick="flushServices()" style="border-color: var(--cmd-danger); color: var(--cmd-danger);">Flush AI Services</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card glass tech" style="margin-top: 2rem;">
+                    <h3>Real-Time Infrastructure Output</h3>
+                    <div class="terminal" id="system-terminal">
+                        [READY] Waiting for encrypted technical stream...
+                    </div>
+                </div>
+            </section>
+
+            <!-- 🧠 TAB: AI BRAIN CONTROL -->
+            <section id="ai-brain" class="tab-pane">
+                <div class="hero-banner">
+                    <h1>AI Node Registry</h1>
+                    <p>Live monitoring and technical deauthorization of active AI Pitch Machines.</p>
+                </div>
+                <div class="card glass tech" style="margin-top: 1rem;">
+                    <table class="data-table" style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr>
+                                <th style="padding: 12px; text-align: left;">ACTIVE NODE</th>
+                                <th style="padding: 12px; text-align: left;">MATCH TOKEN</th>
+                                <th style="padding: 12px; text-align: left;">LATENCY</th>
+                                <th style="padding: 12px; text-align: right;">ACTION</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ai-nodes-body"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 👥 TAB: USER MANAGEMENT (National User Hub) -->
+            <section id="personnel" class="tab-pane">
+                <div class="hero-banner">
+                    <h1 style="color: var(--cmd-accent);">User Management Hub</h1>
+                    <p>Creation, update, and management of all national entities and staff accounts.</p>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 420px 1fr; gap: 2rem; margin-top: 2rem;">
+                    <!-- [CREATE] National Entity Wizard -->
+                    <div class="card glass tech">
+                        <div id="master-wizard">
+                            <div class="wizard-step active" id="pw-step-1">
+                                <h3 style="color: var(--cmd-accent);">01. ACCOUNT DETAILS</h3>
+                                <p style="font-size: 0.75rem; color: var(--text-dim); margin-bottom: 1.5rem;">Initialize the official personnel profile.</p>
+                                <input type="text" id="pw-name" class="btn-glass" placeholder="Full Name" style="width:100%; margin-bottom: 0.8rem; padding: 12px;">
+                                <input type="email" id="pw-email" class="btn-glass" placeholder="Official Email Address" style="width:100%; margin-bottom: 0.8rem; padding: 12px;">
+                                <input type="password" id="pw-pass" class="btn-glass" placeholder="Account Password" style="width:100%; margin-bottom: 1.5rem; padding: 12px;">
+                                <button class="btn btn-primary" style="width: 100%; padding: 12px;" onclick="pwNext(2)">Next: Account Permissions &rarr;</button>
+                            </div>
+
+                            <div class="wizard-step" id="pw-step-2">
+                                <h3 style="color: var(--cmd-accent);">02. ACCOUNT TYPE</h3>
+                                <p style="font-size: 0.75rem; color: var(--text-dim); margin-bottom: 1.5rem;">Select the role and clearance level.</p>
+                                <select id="pw-role" class="btn-glass" style="width:100%; margin-bottom: 1rem; padding: 12px;" onchange="toggleInstSelection()">
+                                    <option value="FERWAFA">National Hub (FERWAFA)</option>
+                                    <option value="CLUB">Club Administrator</option>
+                                    <option value="SCHOOL">School Official</option>
+                                    <option value="ACADEMY">Academy Lead</option>
+                                    <option value="SCOUT">National Scout</option>
+                                </select>
+                                <div id="pw-inst-group" style="display:none; margin-bottom: 1rem;">
+                                    <label style="font-size:0.6rem; color:var(--cmd-accent);">LINK TO INSTITUTION</label>
+                                    <select id="pw-inst" class="btn-glass" style="width:100%; padding: 12px; margin-top: 5px;"></select>
+                                </div>
+                                <button class="btn btn-primary" style="width: 100%; padding: 12px;" onclick="pwNext(3)">Next: Profile Identity &rarr;</button>
+                                <button class="btn" style="width: 100%; font-size: 0.7rem; color:var(--text-dim);" onclick="pwNext(1)">Back</button>
+                            </div>
+
+                            <div class="wizard-step" id="pw-step-3">
+                                <h3 style="color: var(--cmd-accent);">03. PROFILE PHOTO</h3>
+                                <p style="font-size: 0.75rem; color: var(--text-dim); margin-bottom: 1.5rem;">Upload the professional profile photo.</p>
+                                <div id="pw-photo-preview" class="preview-box" style="width:120px; height:120px; border-radius:12%; margin: 1.5rem auto; cursor:pointer; border: 2px dashed var(--cmd-accent);" onclick="document.getElementById('pw-photo-input').click()">
+                                    <span style="font-size: 2rem;">📸</span>
+                                </div>
+                                <input type="file" id="pw-photo-input" hidden onchange="handlePWUpload(this)">
+                                <button class="btn btn-primary" style="width: 100%; padding: 15px; font-weight: bold; margin-top: 1rem;" onclick="pwFinalize()">FINALIZE & AUTHORIZE ACCOUNT</button>
+                                <button class="btn" style="width: 100%; font-size: 0.7rem; color:var(--text-dim);" onclick="pwNext(2)">Back</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- [READ/UPDATE/DELETE] Master User Ledger -->
+                    <div class="card glass tech">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1.5rem;">
+                            <h3>National Administrative Ledger</h3>
+                            <input type="text" id="ledger-search" class="btn-glass" placeholder="Search Personnel..." style="padding: 6px 15px; font-size: 0.8rem; border-radius: 20px;">
+                        </div>
+                        <div style="max-height: 600px; overflow-y: auto;">
+                            <table class="data-table" style="width: 100%; border-collapse: collapse;">
+                                <thead>
+                                    <tr>
+                                        <th style="padding: 12px; text-align: left;">IDENTITY</th>
+                                        <th style="padding: 12px; text-align: left;">ROLE/INSTITUTION</th>
+                                        <th style="padding: 12px; text-align: left;">STATUS</th>
+                                        <th style="padding: 12px; text-align: right;">OVERRIDE</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="master-user-ledger">
+                                    <!-- Logins go here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 📂 TAB: DATABASE LABORATORY -->
+            <section id="db-lab" class="tab-pane">
+                <div class="hero-banner">
+                    <h1>Database Laboratory</h1>
+                    <p>Raw inspection and technical ledger monitoring for system troubleshooting.</p>
+                </div>
+                <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                    <button class="btn btn-glass" onclick="inspectTable('users')">Users</button>
+                    <button class="btn btn-glass" onclick="inspectTable('institutions')">Institutions</button>
+                    <button class="btn btn-glass" onclick="inspectTable('matches')">Matches</button>
+                    <button class="btn btn-glass" onclick="inspectTable('system_activity')">System History</button>
+                </div>
+                <div class="card glass tech" style="margin-top: 1rem; max-height: 500px; overflow-y: auto;">
+                    <pre id="raw-view" style="font-size: 0.75rem; color: #aaa;"></pre>
+                </div>
+            </section>
+
+            <!-- 📄 TAB: DOCUMENT HUB -->
+            <section id="doc-hub" class="tab-pane">
+                <div class="hero-banner">
+                    <h1>National Document Hub</h1>
+                    <p>Centralized oversight of all official reports, scout dossiers, and session transcripts generated by the system.</p>
+                </div>
+                <div class="card glass tech" style="margin-top: 1rem;">
+                    <table class="data-table" style="width:100%; border-collapse:collapse;">
+                        <thead>
+                            <tr>
+                                <th style="padding:12px; text-align:left;">DOCUMENT</th>
+                                <th style="padding:12px; text-align:left;">CREATED BY</th>
+                                <th style="padding:12px; text-align:left;">TIMESTAMP</th>
+                                <th style="padding:12px; text-align:right;">ACTION</th>
+                            </tr>
+                        </thead>
+                        <tbody id="doc-list-body">
+                            <tr><td colspan="4" style="text-align:center; padding:2rem; color:var(--text-dim);">NO GENERATED DOCUMENTS DETECTED IN REGISTRY</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- ⚙️ TAB: MASTER SETTINGS -->
+            <section id="master-settings" class="tab-pane">
+                <div class="hero-banner">
+                    <h1>Global System Branding</h1>
+                    <p>Technical control over site-wide footers, titles, and system identity.</p>
+                </div>
+                <div class="dashboard-grid">
+                    <div class="card glass tech">
+                        <h3>Site-Wide Metadata</h3>
+                        <div style="margin-top: 1rem;">
+                            <label style="font-size:0.7rem; color:var(--cmd-accent);">FOOTER CONTENT (HTML ALLOWED)</label>
+                            <textarea id="set-footer" class="btn-glass" style="width:100%; height:80px; margin-top:0.5rem; margin-bottom:1rem; padding:10px;"></textarea>
+                            
+                            <label style="font-size:0.7rem; color:var(--cmd-accent);">SYSTEM PLATFORM NAME</label>
+                            <input type="text" id="set-name" class="btn-glass" style="width:100%; margin-top:0.5rem; margin-bottom:1.5rem;">
+                            
+                            <button class="btn btn-primary" style="width:100%;" onclick="saveGlobalSettings()">Deploy Changes System-Wide</button>
+                        </div>
+                    </div>
+                    
+                    <div class="card glass tech">
+                        <h3>Official Report Branding</h3>
+                        <p style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 1.5rem;">Configure how documents (PDFs/Reports) appear when generated by the system.</p>
+                        <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 1.5rem;">
+                            <div id="rep-logo-preview" class="preview-box" style="width:60px; height:60px; border-radius:8px; border:1px dashed var(--cmd-accent);">📸</div>
+                            <button class="btn btn-glass" style="font-size: 0.7rem;" onclick="document.getElementById('rep-logo-input').click()">Update Report Logo</button>
+                            <input type="file" id="rep-logo-input" hidden onchange="handleRepLogoUpload(this)">
+                        </div>
+                        <label style="font-size:0.7rem; color:var(--cmd-accent);">REPORT HEADER TEXT</label>
+                        <input type="text" id="set-header" class="btn-glass" value="OFFICIAL NATIONAL FOOTBALL REPORT" style="width:100%; margin-top:0.5rem; margin-bottom:1.5rem;">
+                        <button class="btn btn-glass" style="width:100%;" onclick="logToTerminal('Report templates synchronized.', 'success')">Save Template Config</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ⚠️ TAB: INCIDENT LOGS -->
+            <section id="errors" class="tab-pane">
+                <div class="hero-banner">
+                    <h1 style="color: var(--cmd-danger);">Incident Logs</h1>
+                    <p>Full stack trace history of critical technical anomalies.</p>
+                </div>
+                <div class="card glass tech" style="margin-top: 1rem; overflow-x: auto;">
+                    <table class="data-table" style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr>
+                                <th style="padding: 10px;">ID</th>
+                                <th style="padding: 10px;">ANOMALY</th>
+                                <th style="padding: 10px;">DETECTION TIME</th>
+                            </tr>
+                        </thead>
+                        <tbody id="error-list-body"></tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+        <footer class="app-footer" style="padding: 1.5rem; text-align: center; border-top: 1px solid rgba(255,255,255,0.05); font-size: 0.75rem; color: var(--text-dim);"></footer>
+    </div>
+
+    <script src="../assets/js/app.js"></script>
+    <script>
+        // --- TACTICAL NAVIGATION ---
+        let activeTab = 'cmd-core';
+        function showTab(tabId) {
+            activeTab = tabId;
+            document.querySelectorAll('.tab-pane').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            
+            const pane = document.getElementById(tabId);
+            if(pane) pane.classList.add('active');
+            
+            if(event && event.currentTarget) event.currentTarget.classList.add('active');
+            
+            // Context Loaders
+            if(tabId === 'ai-brain') loadAINodes();
+            if(tabId === 'personnel') loadMasterUserLedger();
+            if(tabId === 'master-settings') loadGlobalSettings();
+            if(tabId === 'doc-hub') loadDocumentHub();
+        }
+
+        // --- COMMAND TERMINAL ---
+        function logToTerminal(msg, type='info') {
+            const term = document.getElementById('system-terminal');
+            const time = new Date().toLocaleTimeString();
+            const color = type === 'error' ? 'var(--cmd-danger)' : (type === 'warn' ? 'var(--cmd-warning)' : '#0f0');
+            term.innerHTML += `<div style="color:${color}">[${time}] ${msg}</div>`;
+            term.scrollTop = term.scrollHeight;
+        }
+
+        // --- TELEMETRY ---
+        async function fetchTelemetry() {
+            try {
+                const res = await fetch('/api/admin/system/telemetry');
+                const data = await res.json();
+                document.getElementById('tel-cpu').textContent = data.api_traffic;
+                document.getElementById('tel-traffic').textContent = data.ai_ingest_buffer;
+                document.getElementById('tel-ws').textContent = data.active_ws_sessions;
+                logToTerminal(`Signal verified: ${data.api_traffic} throughput detected.`);
+            } catch(e) {}
+        }
+
+        // --- AI BRAIN CONTROL ---
+        async function loadAINodes() {
+            try {
+                const res = await fetch('/api/admin/system/ai-nodes');
+                const nodes = await res.json();
+                document.getElementById('ai-nodes-body').innerHTML = nodes.map(n => `
+                    <tr>
+                        <td style="padding:15px;">
+                            <div style="color:var(--cmd-accent); font-weight:bold;">${n.club_name}</div>
+                            <div style="font-size:0.6rem; color:var(--text-dim);">Session ID: ${n.session_id}</div>
+                        </td>
+                        <td style="padding:15px; font-family:monospace; font-size:0.75rem;">${n.match_token}</td>
+                        <td style="padding:15px;"><span class="badge badge-online">ACTIVE</span></td>
+                        <td style="padding:15px; text-align:right;">
+                            <button class="btn btn-glass" onclick="killAINode(${n.session_id})" style="border-color:var(--cmd-danger); color:var(--cmd-danger); font-size:0.6rem; padding:4px 8px;">TERMINATE SESSION</button>
+                        </td>
+                    </tr>
+                `).join('');
+                if(nodes.length === 0) document.getElementById('ai-nodes-body').innerHTML = '<tr><td colspan="4" style="text-align:center; padding:2rem; color:var(--text-dim);">NO ACTIVE AI INGESTION NODES</td></tr>';
+            } catch(e) {}
+        }
+
+        async function killAINode(id) {
+            if(!confirm("TECHNICAL WARNING: This will immediately drop the AI Machine's connection. Proceed?")) return;
+            await fetch(`/api/admin/system/ai-nodes/${id}/disconnect`, { method: 'POST' });
+            logToTerminal(`AI Node ${id} forcefully deauthorized.`, 'warn');
+            loadAINodes();
+        }
+
+        // --- MASTER PERSONNEL HUB LOGIC (CRUD) ---
+        function pwNext(step) {
+            document.querySelectorAll('#master-wizard .wizard-step').forEach(s => s.classList.remove('active'));
+            document.getElementById(`pw-step-${step}`).classList.add('active');
+            if(step === 2) loadPWInstitutions();
+        }
+
+        async function loadPWInstitutions() {
+            try {
+                const res = await fetch('/api/admin/db/tables/institutions');
+                const insts = await res.json();
+                document.getElementById('pw-inst').innerHTML = insts.map(i => `<option value="${i.id}">${i.name} (${i.type.toUpperCase()})</option>`).join('');
+                toggleInstSelection();
+            } catch(e) {}
+        }
+
+        function toggleInstSelection() {
+            const role = document.getElementById('pw-role').value;
+            const group = document.getElementById('pw-inst-group');
+            group.style.display = (role === 'FERWAFA' || role === 'SCOUT') ? 'none' : 'block';
+        }
+
+        let pwPhotoUrl = null;
+        async function handlePWUpload(input) {
+            const file = input.files[0];
+            if(!file) return;
+            const formData = new FormData();
+            formData.append('file', file);
+            try {
+                logToTerminal("INITIATING BIOMETRIC UPLOAD...", 'warn');
+                const res = await fetch('/api/upload', { method: 'POST', body: formData });
+                if(!res.ok) throw new Error(`TECHNICAL REJECTION: ${res.status}`);
+                const data = await res.json();
+                pwPhotoUrl = data.url;
+                document.getElementById('pw-photo-preview').innerHTML = `<img src="${data.url}" style="width:100%; height:100%; border-radius:10px; object-fit:cover;">`;
+                logToTerminal("BIOMETRIC DATA SYNCHRONIZED.", 'success');
+            } catch(e) { 
+                alert(`Upload Failed: ${e.message}`); 
+                logToTerminal(`UPLOAD ERROR: ${e.message}`, 'error');
+            }
+        }
+
+        let reportLogoUrl = null;
+        async function handleRepLogoUpload(input) {
+            const file = input.files[0];
+            if(!file) return;
+            const formData = new FormData();
+            formData.append('file', file);
+            try {
+                logToTerminal("INITIATING REPORT BRANDING UPLOAD...", 'warn');
+                const res = await fetch('/api/upload', { method: 'POST', body: formData });
+                if(!res.ok) throw new Error(`TECHNICAL REJECTION: ${res.status}`);
+                const data = await res.json();
+                reportLogoUrl = data.url;
+                document.getElementById('rep-logo-preview').innerHTML = `<img src="${data.url}" style="width:100%; height:100%; border-radius:8px; object-fit:cover;">`;
+                logToTerminal("REPORT BRANDING SYNCHRONIZED.", 'success');
+            } catch(e) { 
+                alert(`Branding Upload Failed: ${e.message}`); 
+                logToTerminal(`BRANDING ERROR: ${e.message}`, 'error');
+            }
+        }
+
+        async function pwFinalize() {
+            const name = document.getElementById('pw-name').value;
+            const email = document.getElementById('pw-email').value;
+            const pass = document.getElementById('pw-pass').value;
+            const role = document.getElementById('pw-role').value;
+            const instSelect = document.getElementById('pw-inst');
+            let instId = instSelect ? instSelect.value : '';
+
+            if(!name || !email || !pass) return alert("All Identification Fields Required");
+
+            // Construct URL dynamically to avoid 'undefined' or malformed integer parameters
+            let url = `/api/admin/users/master?email=${encodeURIComponent(email)}&full_name=${encodeURIComponent(name)}&password=${encodeURIComponent(pass)}&role=${role}`;
+            if(role !== 'FERWAFA' && role !== 'SCOUT' && instId) {
+                url += `&institution_id=${instId}`;
+            }
+            if(pwPhotoUrl) {
+                url += `&photo_url=${encodeURIComponent(pwPhotoUrl)}`;
+            }
+
+            try {
+                const res = await fetch(url, { method: 'POST' });
+                const data = await res.json();
+                
+                if(!res.ok) {
+                    throw new Error(data.detail || "Authorization Protocol Refused");
+                }
+                
+                alert(data.message || "Account Registered Successfully");
+                pwNext(1);
+                // Reset fields
+                document.getElementById('pw-name').value = '';
+                document.getElementById('pw-email').value = '';
+                document.getElementById('pw-pass').value = '';
+                pwPhotoUrl = null;
+                document.getElementById('pw-photo-preview').innerHTML = '<span style="font-size: 2rem;">📸</span>';
+                
+                loadMasterUserLedger();
+                logToTerminal(`IDENTITY ESTABLISHED: ${name} (${role})`, 'success');
+            } catch(e) { 
+                alert(`Error: ${e.message}`); 
+                logToTerminal(`AUTHORIZATION ERROR: ${e.message}`, 'error');
+            }
+        }
+
+        async function loadMasterUserLedger() {
+            try {
+                const res = await fetch('/api/admin/users/all');
+                const users = await res.json();
+                
+                if(!Array.isArray(users)) return;
+
+                document.getElementById('master-user-ledger').innerHTML = users.map(u => `
+                    <tr>
+                        <td style="padding:15px; display:flex; gap:12px; align-items:center;">
+                            <div style="width:40px; height:40px; border-radius:12%; background:rgba(255,255,255,0.05); overflow:hidden; border:1px solid rgba(99,102,241,0.2);">
+                                ${u.photo_url ? `<img src="${u.photo_url}" style="width:100%; height:100%; object-fit:cover;">` : '<span style="display:block; text-align:center; line-height:40px; font-size:1.2rem;">👤</span>'}
+                            </div>
+                            <div>
+                                <div style="font-weight:bold; font-size:0.9rem;">${u.full_name || 'Anonymous Entity'}</div>
+                                <div style="font-size:0.75rem; color:var(--text-dim);">${u.email}</div>
+                            </div>
+                        </td>
+                        <td style="padding:15px;">
+                            <span class="badge" style="background:${u.role==='FERWAFA'?'var(--cmd-accent)':'rgba(255,255,255,0.1)'}; color:#fff; font-size:0.6rem;">${u.role}</span>
+                            <div style="font-size:0.65rem; color:var(--text-dim); margin-top:4px;">National Infrastructure</div>
+                        </td>
+                        <td style="padding:15px;">
+                            <span class="badge" style="background:${u.is_active?'var(--cmd-success)':'var(--cmd-danger)'}; color:#fff; font-size:0.6rem;">${u.is_active?'AUTHORIZED':'REVOKED'}</span>
+                        </td>
+                        <td style="padding:15px; text-align:right; display:flex; gap:5px; justify-content:flex-end;">
+                            <button class="btn btn-glass" onclick="editOverride(${u.id}, '${u.full_name}', '${u.email}')" style="font-size:0.6rem; padding:4px 8px; border-color:var(--cmd-accent); color:var(--cmd-accent);">UPDATE</button>
+                            <button class="btn btn-glass" onclick="deletePersonnel(${u.id})" style="font-size:0.6rem; padding:4px 8px; border-color:var(--cmd-danger); color:var(--cmd-danger);">REMOVE</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch(e) {
+                console.error("Ledger Load Failed", e);
+            }
+        }
+
+        async function deletePersonnel(id) {
+            if(!confirm("TECHNICAL DELETION: This account will be purged from the national grid permanently. Confirm?")) return;
+            try {
+                const res = await fetch(`/api/admin/users/${id}`, { method: 'DELETE' });
+                const data = await res.json();
+                logToTerminal(`IDENTITY PURGED: User ${id} removed.`, 'error');
+                loadMasterUserLedger();
+            } catch(e) {}
+        }
+
+        async function editOverride(id) {
+            const name = prompt("Update Full Name:");
+            const email = prompt("Update Professional Email:");
+            if(!name || !email) return;
+            
+            try {
+                const res = await fetch(`/api/admin/users/${id}?full_name=${name}&email=${email}`, { method: 'PUT' });
+                const data = await res.json();
+                alert(data.message);
+                loadMasterUserLedger();
+            } catch(e) {}
+        }
+
+        // --- DOCUMENT HUB ---
+        async function loadDocumentHub() {
+            try {
+                const res = await fetch('/api/admin/documents');
+                const docs = await res.json();
+                document.getElementById('doc-list-body').innerHTML = docs.map(d => `
+                    <tr>
+                        <td style="padding:12px;">
+                            <div style="font-weight:bold;">${d.name}</div>
+                            <div style="font-size:0.6rem; color:var(--text-dim);">ID: ${d.id}</div>
+                        </td>
+                        <td style="padding:12px; font-size:0.8rem;">${d.creator}</td>
+                        <td style="padding:12px; font-size:0.7rem; color:var(--text-dim);">${new Date(d.timestamp).toLocaleString()}</td>
+                        <td style="padding:12px; text-align:right;">
+                            <button class="btn btn-glass" style="font-size:0.6rem; padding:4px 8px;">VIEW</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch(e) {}
+        }
+
+        // --- DB LAB ---
+        async function inspectTable(table) {
+            try {
+                const res = await fetch(`/api/admin/db/tables/${table}`);
+                const data = await res.json();
+                document.getElementById('raw-view').textContent = JSON.stringify(data, null, 4);
+                logToTerminal(`Extracted raw ledger: ${table}.`, 'info');
+            } catch(e) { logToTerminal(`Extraction failed: ${table}`, 'error'); }
+        }
+
+        // --- GLOBAL SETTINGS ---
+        async function loadGlobalSettings() {
+            const res = await fetch('/api/admin/system/settings');
+            const settings = await res.json();
+            settings.forEach(s => {
+                if(s.key === 'footer_text') document.getElementById('set-footer').value = s.value;
+                if(s.key === 'system_name') document.getElementById('set-name').value = s.value;
+            });
+        }
+
+        async function saveGlobalSettings() {
+            const footer = document.getElementById('set-footer').value;
+            const name = document.getElementById('set-name').value;
+            await fetch(`/api/admin/system/settings/footer_text?value=${encodeURIComponent(footer)}`, { method: 'PUT' });
+            await fetch(`/api/admin/system/settings/system_name?value=${encodeURIComponent(name)}`, { method: 'PUT' });
+            alert("National System Configuration Updated.");
+            logToTerminal("System-wide metadata redeployed.", 'warn');
+        }
+
+        // --- INCIDENTS ---
+        async function loadIncidents() {
+            const res = await fetch('/api/admin/system/error-logs');
+            const errs = await res.json();
+            document.getElementById('error-list-body').innerHTML = errs.map(e => `
+                <tr>
+                    <td style="padding:10px; font-family:monospace; font-size:0.7rem;">${e.id}</td>
+                    <td style="padding:10px;">
+                        <div style="color:var(--cmd-danger); font-weight:bold;">${e.error_type}</div>
+                        <div style="font-size:0.75rem;">${e.message}</div>
+                    </td>
+                    <td style="padding:10px; font-size:0.8rem; color:var(--text-dim);">${new Date(e.timestamp).toLocaleString()}</td>
+                </tr>
+            `).join('');
+        }
+
+        async function toggleMaintenance() {
+            if(!confirm("TECHNICAL WARNING: This will lock the entire system for all non-admin users. Proceed?")) return;
+            try {
+                const res = await fetch('/api/admin/system/maintenance/toggle', { method: 'POST' });
+                const data = await res.json();
+                alert(data.message);
+                logToTerminal(`MAINTENANCE PROTOCOL: ${data.status}`, 'warn');
+            } catch(e) { logToTerminal("Failed to toggle maintenance protocol.", 'error'); }
+        }
+        
+        async function flushServices() {
+            if(!confirm("HARD RESET: This will terminate all active AI sessions and clear ingestion buffers. Proceed?")) return;
+            try {
+                const res = await fetch('/api/admin/system/services/flush', { method: 'POST' });
+                const data = await res.json();
+                alert(data.message);
+                logToTerminal("CACHING PURGE: Infrastructure Cleaned and Synchronized.", 'success');
+                if (activeTab === 'ai-brain') loadAINodes();
+            } catch(e) { logToTerminal("Service flush failed.", 'error'); }
+        }
+
+        // Initialize
+        fetchTelemetry();
+        loadIncidents();
+        setInterval(fetchTelemetry, 10000);
+    </script>
+</body>
+</html>

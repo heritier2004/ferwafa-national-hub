@@ -1,0 +1,13 @@
+{
+  "api_key": "",
+  "match_token": "",
+  "server_url": "ws://localhost:8001",
+  "http_url": "http://localhost:8001",
+  "video_source": "0",
+  "video_source_type": "usb",
+  "autostart": false,
+  "kit_home": "#FF0000",
+  "kit_away": "#0000FF",
+  "confidence_threshold": 0.45,
+  "device": "cpu"
+}

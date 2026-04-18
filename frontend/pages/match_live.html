@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LIVE | Match Intelligence</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        .live-match-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+        #tracking-pitch {
+            width: 100%;
+            height: auto;
+            border: 2px solid var(--primary);
+            background: radial-gradient(circle, #2d5a27 0%, #1a3a18 100%);
+        }
+        .stats-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .event-log {
+            height: 300px;
+            overflow-y: auto;
+            padding: 1rem;
+            font-size: 0.9rem;
+        }
+        .event-item {
+            padding: 0.5rem;
+            border-bottom: 1px solid var(--glass-border);
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .player-dot {
+            transition: all 0.2s linear;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="logo">LIVE ANALYTICS</div>
+        <div id="match-status" style="color: var(--accent); font-weight: 800;">● MATCH LIVE</div>
+    </nav>
+
+    <div class="container">
+        <div class="glass" style="padding: 1rem; margin-bottom: 1rem; display: flex; justify-content: space-between;">
+            <div>
+                <h2>APR FC <span id="main-score">0 - 0</span> RAYON SPORTS</h2>
+                <p id="match-timer">15:24</p>
+            </div>
+            <div style="text-align: right;">
+                <p>Stadium: Amahoro</p>
+                <p>AI Stars: <span style="color: var(--secondary)">PROCESSED</span></p>
+            </div>
+        </div>
+
+        <div class="live-match-container">
+            <div class="glass" style="padding: 1rem;">
+                <h3>Tactical Tracking (AI-Powered)</h3>
+                <svg id="tracking-pitch" viewBox="0 0 1000 600">
+                    <!-- Pitch Markings -->
+                    <rect x="0" y="0" width="1000" height="600" fill="none" stroke="white" stroke-width="2" opacity="0.3"/>
+                    <line x1="500" y1="0" x2="500" y2="600" stroke="white" stroke-width="2" opacity="0.3"/>
+                    <circle cx="500" cy="300" r="60" fill="none" stroke="white" stroke-width="2" opacity="0.3"/>
+                    
+                    <!-- Dynamic Layer -->
+                    <g id="players-layer"></g>
+                    <circle id="ball-dot" r="5" fill="var(--secondary)" cx="500" cy="300" style="filter: drop-shadow(0 0 5px white)"/>
+                </svg>
+            </div>
+
+            <div class="stats-panel">
+                <div class="glass" style="padding: 1rem;">
+                    <h3>Live Statistics</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; text-align: center;">
+                        <div class="card glass">
+                            <small>Distance</small>
+                            <h4 id="stat-distance">4.2 km</h4>
+                        </div>
+                        <div class="card glass">
+                            <small>Avg Speed</small>
+                            <h4 id="stat-speed">12 km/h</h4>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass" style="padding: 1rem;">
+                    <h3>Match Events</h3>
+                    <div id="event-log" class="event-log">
+                        <div class="event-item">[09'] YELLOW CARD - M. Kagere (APR)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/js/live.js"></script>
+</body>
+</html>

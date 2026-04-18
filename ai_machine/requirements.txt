@@ -1,0 +1,31 @@
+# AI Pitch Machine — Python Dependencies
+# Install with: pip install -r requirements.txt
+
+# ── Core AI / Computer Vision ──────────────────────────────
+ultralytics>=8.0.0          # YOLOv8 + ByteTrack (built-in)
+opencv-python>=4.8.0        # Video capture + frame processing
+numpy>=1.24.0               # Numerical operations
+
+# ── WebSocket Client ───────────────────────────────────────
+websockets>=12.0            # Async WebSocket connection to server
+
+# ── HTTP Client (for validation & setup wizard) ────────────
+aiohttp>=3.9.0
+
+# ── Local Control Server ───────────────────────────────────
+fastapi>=0.109.0
+uvicorn>=0.27.0
+pywebview>=4.4.1
+
+# ── Configuration ──────────────────────────────────────────
+python-dotenv>=1.0.0
+
+# ── Optional: GPU acceleration ─────────────────────────────
+# torch>=2.1.0              # Uncomment if using CUDA GPU
+# torchvision>=0.16.0
+
+# ── Automated Identification (OCR) ─────────────────────────
+easyocr>=1.7.1              # Reading jersey numbers off player backs
+
+# ── Optional: Stream URL support ──────────────────────────
+# yt-dlp                    # Uncomment for YouTube/live stream input

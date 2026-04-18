@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>National Match Report | Official</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            padding: 40px;
+            color: #1a1a1a;
+            line-height: 1.6;
+            background: #fff;
+        }
+
+        .document-wrapper {
+            max-width: 800px;
+            margin: 0 auto;
+            border: 1px solid #ddd;
+            padding: 50px;
+            position: relative;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid #10b981;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .header-branding {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logo-main {
+            width: 70px;
+            height: 70px;
+            object-fit: contain;
+        }
+
+        .logo-secondary {
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
+            filter: grayscale(100%);
+            opacity: 0.7;
+        }
+
+        .title-section {
+            text-align: right;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #10b981;
+        }
+
+        .doc-id {
+            font-size: 0.75rem;
+            color: #666;
+            font-family: monospace;
+        }
+
+        .meta-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .meta-item {
+            border-bottom: 1px solid #eee;
+            padding: 8px 0;
+        }
+
+        .label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            color: #888;
+            font-weight: bold;
+        }
+
+        .value {
+            font-weight: 700;
+        }
+
+        .stats-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 30px;
+        }
+
+        .stats-table th {
+            background: #f8f9fa;
+            text-align: left;
+            padding: 12px;
+            font-size: 0.8rem;
+            border-bottom: 2px solid #eee;
+        }
+
+        .stats-table td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .footer {
+            margin-top: 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            font-size: 0.75rem;
+            color: #999;
+        }
+
+        .seal {
+             width: 100px;
+             height: 100px;
+             border-radius: 50%;
+             border: 2px dashed #10b981;
+             display: flex;
+             align-items: center;
+             justify-content: center;
+             color: #10b981;
+             font-weight: bold;
+             text-transform: uppercase;
+             transform: rotate(-15deg);
+        }
+
+        @media print {
+            body { padding: 0; }
+            .document-wrapper { border: none; padding: 0; }
+            .btn-print { display: none; }
+        }
+
+        .btn-print {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background: #10b981;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <button class="btn btn-print" onclick="window.print()">Print Official Report</button>
+    
+    <div class="document-wrapper">
+        <header class="header">
+            <div class="header-branding">
+                <img src="/assets/img/ferwafa_seal.png" alt="FERWAFA" class="logo-main" onerror="this.src='https://upload.wikimedia.org/wikipedia/en/thumb/5/53/Rwanda_FA.svg/1200px-Rwanda_FA.svg.png'">
+                <img id="inst-logo" src="" alt="Institution" class="logo-secondary">
+            </div>
+            <div class="title-section">
+                <h1>National Match Report</h1>
+                <div class="doc-id" id="doc-id">NMR-2026-XXXX</div>
+            </div>
+        </header>
+
+        <section class="meta-grid">
+            <div class="meta-item">
+                <div class="label">Home Team</div>
+                <div class="value" id="home-name">Kigali City FC</div>
+            </div>
+            <div class="meta-item">
+                <div class="label">Away Team</div>
+                <div class="value" id="away-name">Estonia Selection</div>
+            </div>
+            <div class="meta-item">
+                <div class="label">Venue / Stadium</div>
+                <div class="value" id="venue-name">Amahoro Stadium</div>
+            </div>
+            <div class="meta-item">
+                <div class="label">Match Date</div>
+                <div class="value" id="match-date">April 18, 2026</div>
+            </div>
+        </section>
+
+        <h3>AI Performance Analysis Summary</h3>
+        <table class="stats-table">
+            <thead>
+                <tr>
+                    <th>METRIC</th>
+                    <th>HOME</th>
+                    <th>AWAY</th>
+                </tr>
+            </thead>
+            <tbody id="stats-body">
+                <tr><td>Possession</td><td>--%</td><td>--%</td></tr>
+                <tr><td>Total Passes</td><td>--</td><td>--</td></tr>
+                <tr><td>Accuracy</td><td>--%</td><td>--%</td></tr>
+                <tr><td>Interceptions</td><td>--</td><td>--</td></tr>
+            </tbody>
+        </table>
+
+        <div class="footer">
+            <div>
+                <p>Generated by FERWAFA National Intelligence Platform</p>
+                <p>Confidential • Official Record</p>
+            </div>
+            <div class="seal">
+                National<br>Registry
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data hydration from URL params or local storage
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            if(params.has('home')) document.getElementById('home-name').textContent = params.get('home');
+            if(params.has('away')) document.getElementById('away-name').textContent = params.get('away');
+            if(params.has('venue')) document.getElementById('venue-name').textContent = params.get('venue');
+            if(params.has('logo')) document.getElementById('inst-logo').src = params.get('logo');
+            
+            document.getElementById('doc-id').textContent = 'NMR-2026-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+        });
+    </script>
+</body>
+</html>

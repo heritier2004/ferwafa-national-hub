@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>National Intelligence Hub | Rwanda Football</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        .selection-list {
+            max-height: 200px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1.25rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--glass-border);
+        }
+
+        .log-line {
+            padding: 14px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.85rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+        }
+
+        .log-line:hover {
+            background: rgba(255, 255, 255, 0.03);
+            transform: translateX(5px);
+        }
+
+        .log-action {
+            color: var(--primary);
+            font-weight: 800;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .hosting-badge {
+            font-size: 0.65rem;
+            background: rgba(0, 255, 136, 0.1);
+            color: var(--primary);
+            padding: 2px 8px;
+            border-radius: 6px;
+            border: 1px solid rgba(0, 255, 136, 0.2);
+        }
+
+        .age-badge {
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 6px;
+            background: rgba(255, 204, 0, 0.15);
+            color: var(--gold);
+            border: 1px solid rgba(255, 204, 0, 0.3);
+            font-weight: bold;
+        }
+
+        .strategic-note {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, transparent 100%);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .strategic-note::before {
+            content: 'STRATEGIC LOGIC';
+            position: absolute;
+            top: -10px;
+            left: 20px;
+            background: var(--secondary);
+            color: #000;
+            font-size: 0.65rem;
+            font-weight: 800;
+            padding: 2px 10px;
+            border-radius: 4px;
+        }
+
+        .week-header {
+            font-size: 0.75rem;
+            color: var(--secondary);
+            font-weight: 800;
+            text-transform: uppercase;
+            margin: 2rem 0 1rem 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .week-header::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, var(--secondary), transparent);
+            opacity: 0.3;
+        }
+
+        .empty-state {
+            padding: 3rem;
+            text-align: center;
+            color: var(--text-dim);
+            border: 1px dashed var(--glass-border);
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- 📟 Sidebar Navigation -
+        <aside class="sidebar glass">
+            <div class="sidebar-header">
+                <div class="logo">NATIONAL HUB</div>
+                <div class="badge badge-online" style="margin-top: 5px; font-size: 0.6rem; letter-spacing: 2px;">AUTHORITY COMMAND</div>
+            </div>
+            <nav class="sidebar-nav" id="main-nav"></nav>
+            <div class="sidebar-footer">
+                <div class="nav-item" onclick="logout()" style="color: var(--accent);">
+                    <span>🚪</span> System Exit
+                </div>
+            </div>
+        </aside>
+
+        <!-- 🖥️ Main Workspace (v4.9 Stable Hub) -->
+        <main class="main-stage">
+
+            <!-- Tab 1: Scouting -->
+            <section id="overview" class="tab-pane active">
+                <div class="hero-banner">
+                    <h1>National Scouting</h1>
+                    <p style="color: var(--text-dim);">Tracking elite prospects by age and intelligence rating.</p>
+                </div>
+                <div class="filter-bar" style="margin-bottom: 2rem;">
+                    <select id="age-filter" class="btn-glass" style="padding: 10px 20px; border-radius: 12px;"
+                        onchange="renderTalent()">
+                        <option value="all">Every Age Bracket</option>
+                        <option value="U15">Under 15 (U15)</option>
+                        <option value="U17">Under 17 (U17)</option>
+                        <option value="U20">Elite (U20)</option>
+                    </select>
+                </div>
+                <div id="talent-list"></div>
+            </section>
+
+            <!-- Tab 2: Registry -->
+            <section id="entities" class="tab-pane">
+                <div class="hero-banner">
+                    <h1>Authority Registry</h1>
+                    <p style="color: var(--text-dim);">Register and manage national football entities.</p>
+                </div>
+                <div style="display: grid; grid-template-columns: 400px 1fr; gap: 3rem;">
+                    <div class="card glass">
+                        <h3>New Registration</h3>
+                        <form id="reg-form" style="margin-top: 1.5rem;">
+                            <input type="text" id="reg-name" class="btn-glass" placeholder="Institution Name" required
+                                style="width:100%; margin-bottom: 1rem; padding: 12px; border-radius: 10px;">
+                            <select id="reg-type" class="btn-glass"
+                                style="width:100%; margin-bottom: 1rem; padding: 12px; border-radius: 10px;">
+                                <option value="club">Premier Club</option>
+                                <option value="school">Member School</option>
+                            </select>
+                            <input type="text" id="reg-code" class="btn-glass" placeholder="Member Code" required
+                                style="width:100%; margin-bottom: 1.5rem; padding: 12px; border-radius: 10px;">
+                            <div
+                                style="background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem;">
+                                <div style="display:flex; align-items:center; gap:10px;">
+                                    <input type="checkbox" id="reg-lights" style="width:auto;">
+                                    <label style="font-size:0.85rem;">Has Night-Game Floodlights</label>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary" style="width:100%">GRANT MEMBERSHIP</button>
+                        </form>
+                    </div>
+                    <div class="card glass">
+                        <h3>Active Registry</h3>
+                        <div id="member-list-display"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab 4: Fixture Prep Command -->
+            <section id="vetting" class="tab-pane">
+                <div class="hero-banner">
+                    <h1>Fixture Preparation Command</h1>
+                    <p style="color: var(--text-dim);">Elite Round-Robin mixing with Premier League discipline.</p>
+                </div>
+
+                <div class="strategic-note">
+                    <p style="font-size: 0.9rem;">The mixer uses a **Circle Rotation Algorithm** to generate a balanced
+                        home/away season. Matches are grouped into **Match Weeks** to ensure every team plays in an
+                        orderly sequence across your chosen date range.</p>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 400px 1fr; gap: 3rem;">
+                    <div class="card glass card-gold">
+                        <h3>Preparation Console</h3>
+                        <div id="gen-teams" class="selection-list" style="margin-top: 1rem;"></div>
+
+                        <p style="font-size:0.7rem; color:var(--primary); margin-bottom:0.55rem;">DIVISION & DATE RANGE
+                        </p>
+                        <select id="division-pick" class="btn-glass"
+                            style="width:100%; margin-bottom: 0.8rem; padding: 10px; border-radius: 8px;">
+                            <option value="Rwanda Premier League">Rwanda Premier League</option>
+                            <option value="National Division 2">National Division 2</option>
+                        </select>
+                        <div style="display:flex; gap:10px; margin-bottom:1.5rem;">
+                            <input type="date" id="start-date" class="btn-glass"
+                                style="flex:1; padding:10px; border-radius:8px;">
+                            <input type="date" id="end-date" class="btn-glass"
+                                style="flex:1; padding:10px; border-radius:8px;">
+                        </div>
+                        <button onclick="runMixer()" class="btn btn-primary" style="width:100%">EXECUTE STRATEGIC
+                            MIX</button>
+                    </div>
+                    <div class="card glass">
+                        <h3>Strategy Preview</h3>
+                        <div id="fixture-strategy-feed"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab 5: Results Hub -->
+            <section id="fixtures" class="tab-pane">
+                <div class="hero-banner">
+                    <h1>National Results Hub</h1>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                    <div id="upcoming-display"></div>
+                    <div id="history-display"></div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script src="../assets/js/app.js"></script>
+    <script>
+        let playersCache = [];
+
+        async function initStableHub() {
+            try {
+                const [entities, talent, forensics, matches, history] = await Promise.all([
+                    fetch('/api/ferwafa/entities/all').then(r => r.json()),
+                    fetch('/api/ferwafa/scouting/top-players').then(r => r.json()),
+                    fetch('/api/ferwafa/activity/global').then(r => r.json()),
+                    fetch('/api/ferwafa/fixtures/all').then(r => r.json()),
+                    fetch('/api/ferwafa/fixtures/history').then(r => r.json())
+                ]);
+
+                // 1. Members
+                document.getElementById('member-list-display').innerHTML = entities.length ? entities.map(m => `
+                    <div class="log-line">
+                        <span>${m.name} ${m.has_floodlights ? '💡' : ''}</span>
+                        <span class="badge ${m.type === 'club' ? 'badge-online' : ''}">${m.type}</span>
+                    </div>
+                `).join('') : '<div class="empty-state">No entities registered.</div>';
+
+                document.getElementById('gen-teams').innerHTML = entities.map(m => `
+                    <div style="display:flex; gap:10px; margin-bottom:8px;">
+                        <input type="checkbox" name="team-check" value="${m.id}" id="tm-${m.id}">
+                        <label for="tm-${m.id}">${m.name}</label>
+                    </div>
+                `).join('');
+
+                // 2. Talent
+                playersCache = talent;
+                renderTalent();
+
+                // 3. Fixtures Feed (Strategically grouped)
+                renderFixtureFeed(matches);
+
+                // 4. Results Board
+                document.getElementById('upcoming-display').innerHTML = matches.length ? matches.filter(m => m.status === 'SCHEDULED' || !m.status).map(m => `
+                    <div class="glass" style="padding: 1rem; margin-bottom: 0.8rem; border-left: 3px solid var(--primary); display:flex; justify-content:space-between;">
+                        <span>${m.home || 'TBD'} vs ${m.away || 'TBD'}</span>
+                        <span style="font-size: 0.75rem; color: var(--text-dim);">${m.date || ''}</span>
+                    </div>
+                `).join('') : '<div class="empty-state">No upcoming matches.</div>';
+
+                document.getElementById('history-display').innerHTML = history.length ? history.map(h => `
+                    <div class="glass" style="padding: 1rem; margin-bottom: 0.8rem; border-left: 3px solid var(--accent); display:flex; justify-content:space-between;">
+                        <span>${h.home} vs ${h.away}</span>
+                        <span style="font-weight:bold; color:var(--primary);">${h.score}</span>
+                    </div>
+                `).join('') : '<div class="empty-state">No match history available.</div>';
+
+            } catch (e) { console.error("Data Hub Error: ", e); }
+        }
+
+        function renderTalent() {
+            const filter = document.getElementById('age-filter').value;
+            const filtered = playersCache.filter(p => {
+                if (filter === 'all') return true;
+                const age = parseInt(p.age);
+                if (isNaN(age)) return false;
+                if (filter === 'U15') return age <= 15;
+                if (filter === 'U17') return age > 15 && age <= 17;
+                if (filter === 'U20') return age > 17 && age <= 20;
+                return true;
+            });
+
+            document.getElementById('talent-list').innerHTML = filtered.length ? filtered.map(p => `
+                <div class="glass" style="padding: 1.5rem; margin-bottom: 1rem; border-radius: 16px; display:flex; justify-content:space-between; align-items:center;">
+                    <div style="display:flex; gap:1rem; align-items:center;">
+                        <span style="font-size:1.5rem;">👤</span>
+                        <div>
+                            <div style="font-weight:800;">${p.name || 'Unknown'} <span class="age-badge">${p.age} Yrs</span></div>
+                            <div style="font-size:0.8rem; color:var(--text-dim);">${p.position} • ${p.club}</div>
+                        </div>
+                    </div>
+                    <div style="font-weight:800; color:var(--primary); font-size:1.2rem;">${p.stars} ★</div>
+                </div>
+            `).join('') : '<div class="empty-state">No talent data found for this bracket.</div>';
+        }
+
+        function renderFixtureFeed(matches) {
+            if (!matches.length) {
+                document.getElementById('fixture-strategy-feed').innerHTML = '<div class="empty-state">Use the console to prepare fixtures.</div>';
+                return;
+            }
+            const grouped = {};
+            matches.forEach(m => {
+                const key = m.round || "General Schedule";
+                if (!grouped[key]) grouped[key] = [];
+                grouped[key].push(m);
+            });
+            let html = '';
+            Object.keys(grouped).forEach(round => {
+                html += `<div class="week-header">${round}</div>`;
+                html += grouped[round].map(m => `
+                    <div class="log-line">
+                        <span><span class="log-action">MATCH</span> ${m.home} vs ${m.away}</span>
+                        <span style="font-size:0.75rem;">${m.date ? m.date.split(' ')[0] : ''}</span>
+                    </div>
+                `).join('');
+            });
+            document.getElementById('fixture-strategy-feed').innerHTML = html;
+        }
+
+        async function runMixer() {
+            const ids = Array.from(document.querySelectorAll('input[name="team-check"]:checked')).map(c => parseInt(c.value));
+            const start = document.getElementById('start-date').value;
+            const end = document.getElementById('end-date').value;
+            const div = document.getElementById('division-pick').value;
+
+            if (ids.length < 2 || !start || !end) return alert("Select teams and a full date range.");
+
+            try {
+                const res = await fetch('/api/ferwafa/fixtures/auto-generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ institution_ids: ids, start_date: start, end_date: end, division_name: div })
+                });
+                const data = await res.json();
+                alert(data.message);
+                initStableHub();
+            } catch (e) { alert("Mixer Error"); }
+        }
+
+        initStableHub();
+    </script>
+</body>
+
+</html>

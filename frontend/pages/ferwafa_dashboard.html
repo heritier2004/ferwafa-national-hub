@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supreme National Authority | FERWAFA Command</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        :root {
+            --jade: #00a86b;
+            --jade-glow: rgba(0, 168, 107, 0.3);
+            --gold-premium: #d4af37;
+            --executive-bg: #04080a;
+        }
+
+        body { background: var(--executive-bg); }
+        
+        .theme-ferwafa .logo { 
+            background: linear-gradient(135deg, var(--jade), var(--gold-premium)) !important; 
+            -webkit-background-clip: text !important;
+            filter: drop-shadow(0 0 15px var(--jade-glow));
+        }
+
+        .command-card {
+            background: rgba(10, 20, 25, 0.7);
+            border: 1px solid rgba(0, 168, 107, 0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            transition: all 0.4s;
+        }
+
+        .command-card:hover {
+            border-color: var(--jade);
+            box-shadow: 0 0 30px var(--jade-glow);
+            transform: translateY(-5px);
+        }
+
+        .national-seal-large {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--glass-bg);
+            border: 2px solid var(--gold-premium);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 0 20px var(--jade-glow);
+        }
+
+        .intelligence-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .boss-stat {
+            text-align: center;
+            padding: 1.5rem;
+            border-radius: 15px;
+            background: rgba(255,255,255,0.03);
+            border-bottom: 3px solid var(--jade);
+        }
+
+        .tab-btn-pill {
+            padding: 10px 20px;
+            border-radius: 50px;
+            background: rgba(255,255,255,0.05);
+            color: var(--text-dim);
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.3s;
+            font-size: 0.85rem;
+        }
+
+        .tab-btn-pill.active {
+            background: var(--jade);
+            color: #000;
+            font-weight: 800;
+            box-shadow: 0 0 15px var(--jade-glow);
+        }
+
+        .ledger-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .ledger-table th {
+            text-align: left;
+            padding: 12px;
+            color: var(--jade);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .ledger-table td {
+            padding: 15px 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            font-size: 0.9rem;
+        }
+
+        .wizard-step-box {
+            padding: 2rem;
+            background: rgba(0,0,0,0.2);
+            border-radius: 15px;
+            margin-top: 1.5rem;
+        }
+
+        /* National Intelligence Explorer Colors */
+        .badge-youth { background: #3b82f6; color: white; }
+        .badge-history { background: #8b5cf6; color: white; }
+    </style>
+</head>
+<body class="theme-ferwafa">
+    <div class="app-container">
+        <!-- 📟 National Authority Navigation -->
+        <aside class="sidebar glass">
+            <div class="sidebar-header" style="text-align: center;">
+                <div class="national-seal-large ui-branding-target" id="hq-branding">🏛️</div>
+                <div class="logo">NATIONAL HUB</div>
+                <div style="font-size: 0.65rem; color: var(--gold-premium); letter-spacing: 3px; font-weight: 800; margin-top: 5px;">OFFICIAL GOVERNANCE</div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-item active" onclick="switchTab('overview')">
+                    <span>📊</span> Command Board
+                </div>
+                <div class="nav-item" onclick="switchTab('ledger')">
+                    <span>👥</span> National Ledger
+                </div>
+                <div class="nav-item" onclick="switchTab('fixtures')">
+                    <span>🗓️</span> Season Control
+                </div>
+                <div class="nav-item" onclick="switchTab('talent')">
+                    <span>🏆</span> Talent Intelligence
+                </div>
+                <div class="nav-item" onclick="switchTab('vault')">
+                    <span>📜</span> The Archive Vault
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="nav-item" onclick="logout()" style="color: var(--accent); background: rgba(255,0,85,0.05);">
+                    <span>🚪</span> Secure Logout
+                </div>
+                <div style="font-size: 0.6rem; color: var(--text-dim); text-align: center; margin-top: 1rem;">Official Server Time: <span id="server-time">--:--</span></div>
+            </div>
+        </aside>
+
+        <!-- 🖥️ National Stage -->
+        <main class="main-stage">
+            
+            <!-- ⚡ TAB: COMMAND BOARD -->
+            <section id="overview" class="tab-pane active">
+                <div class="hero-banner">
+                    <h1>Authority Command Board</h1>
+                    <p style="color: var(--jade);">Universal oversight of the National Football Intelligence Grid.</p>
+                </div>
+
+                <div class="intelligence-row">
+                    <div class="boss-stat command-card">
+                        <div style="color: var(--jade); font-size: 0.8rem; font-weight: 800;">ACTIVE LEAGUES</div>
+                        <div class="stat-value" id="count-leagues">--</div>
+                    </div>
+                    <div class="boss-stat command-card">
+                        <div style="color: var(--jade); font-size: 0.8rem; font-weight: 800;">NATIONAL ROSTER</div>
+                        <div class="stat-value" id="count-players">--</div>
+                    </div>
+                    <div class="boss-stat command-card">
+                        <div style="color: var(--jade); font-size: 0.8rem; font-weight: 800;">TOTAL ANALYTICS</div>
+                        <div class="stat-value" id="count-matches">--</div>
+                    </div>
+                </div>
+
+                <h3 style="margin: 2rem 0 1rem; color: var(--gold-premium);">LIVE SYSTEM STATUS</h3>
+                <div class="command-card" style="padding: 1.5rem;">
+                    <div style="display:flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <span class="badge badge-online">ACTIVE</span>
+                            <span style="margin-left: 10px; font-weight: 600;">Match Day Operations</span>
+                        </div>
+                        <div style="color: var(--jade); font-size: 0.8rem;">Pitch AI Machines: <span id="ai-count">8/8 Online</span></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ⚡ TAB: NATIONAL LEDGER (CHECK ALL USERS/CLUBS) -->
+            <section id="ledger" class="tab-pane">
+                <div class="hero-banner">
+                    <h1>National Registry Ledger</h1>
+                    <p style="color: var(--text-dim);">The authoritative database of all football personnel and institutions.</p>
+                </div>
+
+                <div style="margin: 2rem 0; display: flex; gap: 10px;">
+                    <button class="tab-btn-pill active" id="btn-show-users" onclick="toggleLedger('users')">All Personnel</button>
+                    <button class="tab-btn-pill" id="btn-show-clubs" onclick="toggleLedger('clubs')">All Institutions</button>
+                    <div style="flex: 1;"></div>
+                    <input type="text" id="ledger-search" class="btn-glass" placeholder="Search by Name or Email..." style="width: 300px; padding: 10px;">
+                </div>
+
+                <div class="command-card" style="padding: 0;">
+                    <div id="ledger-content">
+                        <!-- Content Injected via JS -->
+                        <div style="padding: 2rem; text-align: center; color: var(--text-dim);">Loading National Records...</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ⚡ TAB: SEASON CONTROL (FIXTURE WIZARD v5.0) -->
+            <section id="fixtures" class="tab-pane">
+                <div class="hero-banner">
+                    <h1>Season Control Center</h1>
+                    <p style="color: var(--text-dim);">Automated fixture generation for National Leagues and Cups.</p>
+                </div>
+
+                <div class="command-card" style="margin-top: 2rem;">
+                    <div id="wizard-v5">
+                        <div class="wizard-progress">
+                            <div class="wizard-step active" id="w-step-1">1</div>
+                            <div class="wizard-step" id="w-step-2">2</div>
+                            <div class="wizard-step" id="w-step-3">3</div>
+                        </div>
+
+                        <!-- Step 1: Selection -->
+                        <div class="wizard-pane active" id="w-pane-1">
+                            <h3>Step 1: Select Participating Institutions</h3>
+                            <div id="fixture-selection-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 1rem; max-height: 300px; overflow-y: auto;">
+                                <!-- Checkboxes here -->
+                            </div>
+                            <button class="btn btn-primary" style="margin-top: 1.5rem;" onclick="wizardNext(2)">Proceed to Logistics</button>
+                        </div>
+
+                        <!-- Step 2: Logistics -->
+                        <div class="wizard-pane" id="w-pane-2">
+                            <h3>Step 2: Competition Logistics</h3>
+                            <div style="margin-top: 1rem; display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                                <div>
+                                    <label style="font-size:0.8rem; color:var(--text-dim);">Competition Name</label>
+                                    <input type="text" id="viz-comp-name" class="btn-glass" style="width:100%;" placeholder="e.g. Premier League 2026/27">
+                                </div>
+                                <div>
+                                    <label style="font-size:0.8rem; color:var(--text-dim);">Format</label>
+                                    <select id="viz-comp-type" class="btn-glass" style="width:100%;">
+                                        <option value="LEAGUE">Round Robin (League)</option>
+                                        <option value="CUP">Knockout (Cup)</option>
+                                        <option value="YOUTH">Youth League (Age Restricted)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="font-size:0.8rem; color:var(--text-dim);">Opening Date</label>
+                                    <input type="date" id="viz-comp-start" class="btn-glass" style="width:100%;">
+                                </div>
+                            </div>
+                            <button class="btn btn-glass" style="margin-top: 1.5rem;" onclick="wizardNext(1)">Back</button>
+                            <button class="btn btn-primary" style="margin-top: 1.5rem;" onclick="wizardNext(3)">Generate Preview</button>
+                        </div>
+
+                        <!-- Step 3: Finalize -->
+                        <div class="wizard-pane" id="w-pane-3">
+                            <h3 style="color: var(--jade);">Step 3: Authoritative Finalization</h3>
+                            <p id="viz-summary" style="margin: 1rem 0; color: var(--text-dim);"></p>
+                            <div id="viz-preview-list" style="max-height: 200px; overflow-y: auto; background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 10px; margin-bottom: 1rem;">
+                                <!-- Preview matches -->
+                            </div>
+                            <button class="btn btn-glass" onclick="wizardNext(2)">Back</button>
+                            <button class="btn btn-primary" style="background: var(--jade); color: #000;" onclick="finalExecuteGenerate()">Finalize National Schedule</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ⚡ TAB: THE ARCHIVE VAULT -->
+            <section id="vault" class="tab-pane">
+                <div class="hero-banner">
+                    <h1>The National Archive Vault</h1>
+                    <p style="color: var(--gold-premium);">Permanent records of Rwandan Football History.</p>
+                </div>
+
+                <div id="archive-content" class="dashboard-grid">
+                    <!-- Cards will be injected here -->
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- 🔮 Boss Mode Logic -->
+    <script>
+        let allUsers = [];
+        let allClubs = [];
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+            
+            if (tabId === 'ledger') loadLedger();
+            if (tabId === 'fixtures') loadInstitutionsForFixture();
+            if (tabId === 'vault') loadArchives();
+        }
+
+        async function loadLedger() {
+            const uRes = await fetch('/api/ferwafa/users/universal');
+            allUsers = await uRes.json();
+            const cRes = await fetch('/api/ferwafa/entities/all');
+            allClubs = await cRes.json();
+            renderUsers();
+        }
+
+        function toggleLedger(type) {
+            document.getElementById('btn-show-users').classList.toggle('active', type === 'users');
+            document.getElementById('btn-show-clubs').classList.toggle('active', type === 'clubs');
+            if(type === 'users') renderUsers();
+            else renderClubs();
+        }
+
+        function renderUsers() {
+            const html = `
+                <table class="ledger-table">
+                    <thead>
+                        <tr><th>Official Name</th><th>Email</th><th>Role</th><th>Institution</th><th>Status</th><th>Actions</th></tr>
+                    </thead>
+                    <tbody>
+                        ${allUsers.map(u => `
+                            <tr>
+                                <td style="font-weight:600;">${u.full_name}</td>
+                                <td style="color: var(--text-dim); font-size: 0.8rem;">${u.email}</td>
+                                <td><span class="badge" style="background:rgba(255,255,255,0.05);">${u.role}</span></td>
+                                <td>${u.institution}</td>
+                                <td>${u.is_active ? '<span style="color:var(--jade);">ACTIVE</span>' : '<span style="color:var(--accent);">LOCKED</span>'}</td>
+                                <td>
+                                    <button class="btn btn-glass" style="padding: 4px 10px; font-size: 0.7rem;" onclick="bossAction('user', '${u.id}')">EDIT</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+            document.getElementById('ledger-content').innerHTML = html;
+        }
+
+        function renderClubs() {
+            const html = `
+                <table class="ledger-table">
+                    <thead>
+                        <tr><th>Logo</th><th>Name</th><th>Code</th><th>Stadium</th><th>Pitch</th><th>Logistics</th></tr>
+                    </thead>
+                    <tbody>
+                        ${allClubs.map(c => `
+                            <tr>
+                                <td><div class="team-logo-small">${c.logo_url ? `<img src="${c.logo_url}" style="width:100%;">` : '⚽'}</div></td>
+                                <td style="font-weight:600;">${c.name}</td>
+                                <td>${c.code}</td>
+                                <td>${c.stadium_name || 'N/A'}</td>
+                                <td>${c.pitch_type}</td>
+                                <td><button class="btn btn-glass" style="padding: 4px 10px; font-size: 0.7rem;" onclick="bossAction('inst', '${c.id}')">UPDATE</button></td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+            document.getElementById('ledger-content').innerHTML = html;
+        }
+
+        async function wizardNext(step) {
+            document.querySelectorAll('.wizard-pane').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.wizard-step').forEach(s => s.classList.remove('active'));
+            document.getElementById(`w-pane-${step}`).classList.add('active');
+            for(let i=1; i<=step; i++) document.getElementById(`w-step-${i}`).classList.add('active');
+            
+            if(step === 3) {
+                const count = document.querySelectorAll('input[name="viz-team"]:checked').length;
+                const name = document.getElementById('viz-comp-name').value;
+                document.getElementById('viz-summary').innerHTML = `Detected <b>${count}</b> teams for <b>${name}</b>. System is ready for Round-Robin execution.`;
+            }
+        }
+
+        async function loadInstitutionsForFixture() {
+            const res = await fetch('/api/ferwafa/entities/all');
+            const data = await res.json();
+            document.getElementById('fixture-selection-grid').innerHTML = data.map(m => `
+                <div style="display:flex; gap:10px; padding: 10px; background: rgba(255,255,255,0.02); border-radius: 8px;">
+                    <input type="checkbox" name="viz-team" value="${m.id}" style="width: auto;">
+                    <span style="font-size: 0.8rem;">${m.name}</span>
+                </div>
+            `).join('');
+        }
+
+        async function finalExecuteGenerate() {
+            const ids = Array.from(document.querySelectorAll('input[name="viz-team"]:checked')).map(c => parseInt(c.value));
+            const start = document.getElementById('viz-comp-start').value;
+            const name = document.getElementById('viz-comp-name').value;
+            
+            if(!start || !name || ids.length < 2) return alert("Please complete all logistics.");
+            
+            try {
+                const res = await fetch(`/api/ferwafa/fixtures/auto-generate?start_date=${start}&end_date=${start}&division_name=${name}`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(ids)
+                });
+                const data = await res.json();
+                alert(data.message);
+                switchTab('overview');
+            } catch(e) { alert("Execution Failed"); }
+        }
+
+        async function loadArchives() {
+            const res = await fetch('/api/ferwafa/fixtures/history');
+            const data = await res.json();
+            document.getElementById('archive-content').innerHTML = data.length > 0 ? data.map(m => `
+                <div class="command-card">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:1rem;">
+                        <span style="font-size:0.7rem; color:var(--jade); font-weight:800;">${m.date}</span>
+                        <span class="badge badge-history">ARCHIVED</span>
+                    </div>
+                    <div style="display:flex; align-items:center; justify-content:space-between;">
+                        <span style="font-weight:bold;">${m.home}</span>
+                        <span class="match-score" style="font-size: 1.5rem;">${m.score}</span>
+                        <span style="font-weight:bold;">${m.away}</span>
+                    </div>
+                    <div style="margin-top:1rem; font-size:0.75rem; color:var(--text-dim); text-align:center;">
+                        Venue: ${m.stadium}
+                    </div>
+                </div>
+            `).join('') : '<div style="grid-column: 1/4; text-align:center; padding: 5rem; color: var(--text-dim);">The National Vault is currently empty.</div>';
+        }
+
+        // Branding Sync Engine
+        function initBranding() {
+            const logo = localStorage.getItem('logo_url');
+            if(logo) {
+                document.getElementById('hq-branding').innerHTML = `<img src="${logo}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
+            }
+            setInterval(() => {
+                const now = new Date();
+                document.getElementById('server-time').innerText = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            }, 1000);
+        }
+
+        initBranding();
+        
+        async function loadStats() {
+            const res = await fetch('/api/ferwafa/entities/all');
+            const insts = await res.json();
+            document.getElementById('count-leagues').innerText = "1 Official Content"; // Mock for now
+            document.getElementById('count-players').innerText = insts.length * 20; // Avg 20
+            document.getElementById('count-matches').innerText = "Varies";
+        }
+        loadStats();
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = '../login.html';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>National Football Intelligence System | RWANDA - FERWAFA</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .hero {
+            height: 90vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: radial-gradient(circle at center, #1a3a18 0%, var(--bg-dark) 100%);
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: repeating-linear-gradient(45deg, transparent, transparent 100px, rgba(0, 255, 136, 0.02) 100px, rgba(0, 255, 136, 0.02) 200px);
+            animation: moveGrid 20s linear infinite;
+        }
+
+        @keyframes moveGrid {
+            from { transform: translate(-25%, -25%); }
+            to { transform: translate(0, 0); }
+        }
+
+        .hero-content {
+            z-index: 2;
+            animation: fadeIn 1.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hero h1 {
+            font-size: 4.5rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: -2px;
+        }
+
+        .hero span {
+            color: var(--primary);
+            text-shadow: var(--neon-glow);
+        }
+
+        .features {
+            padding: 6rem 2rem;
+            background: var(--bg-dark);
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 4rem;
+        }
+
+        .feature-card {
+            padding: 3rem 2rem;
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .feature-card:hover {
+            background: rgba(0, 255, 136, 0.05);
+            border-color: var(--primary);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            display: inline-block;
+        }
+
+        .cta-section {
+            padding: 4rem 2rem;
+            text-align: center;
+            border-top: 1px solid var(--glass-border);
+        }
+
+        .badge {
+            background: rgba(0, 255, 136, 0.1);
+            color: var(--primary);
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <div class="hero-content">
+            <div class="badge">PRODUCED FOR FERWAFA RWANDA</div>
+            <h1>The Future of <span>Football Intelligence</span></h1>
+            <p style="font-size: 1.5rem; color: var(--text-dim); max-width: 800px; margin: 0 auto 2.5rem;">
+                Next-generation AI tracking, performance analytics, and talent discovery for the Amavubi nation.
+            </p>
+            <div style="display: flex; gap: 1rem; justify-content: center;">
+                <button class="btn btn-primary" style="font-size: 1.2rem; padding: 1rem 2.5rem;" onclick="window.location.href='login.html'">Enter System</button>
+                <button class="btn glass" style="font-size: 1.2rem; padding: 1rem 2.5rem;">Watch Demo</button>
+            </div>
+        </div>
+    </div>
+
+    <section class="features">
+        <div class="container">
+            <h2 style="text-align: center; font-size: 3rem;">System <span>Capabilities</span></h2>
+            <div class="feature-grid">
+                <div class="feature-card glass">
+                    <div class="feature-icon">👁️</div>
+                    <h3>Real-Time AI Tracking</h3>
+                    <p>Powered by YOLOv8 + ByteTrack. Automated coordinate mapping for every player and the ball with zero latency.</p>
+                </div>
+                <div class="feature-card glass">
+                    <div class="feature-icon">⭐</div>
+                    <h3>Star Rating Engine</h3>
+                    <p>Sophisticated algorithms analyze 50+ data points to generate an accurate 3.5 - 9.5 performance index for every match.</p>
+                </div>
+                <div class="feature-card glass">
+                    <div class="feature-icon">📡</div>
+                    <h3>Live Match Hub</h3>
+                    <p>Interactive 2D tactical visualization of the pitch. Track movements, sprints, and tactical shapes as they happen.</p>
+                </div>
+                <div class="feature-card glass">
+                    <div class="feature-icon">🔍</div>
+                    <h3>Scouting Intelligence</h3>
+                    <p>Data-driven talent recommendations. Find the next Rwandan superstars using national-level performance data.</p>
+                </div>
+                <div class="feature-card glass">
+                    <div class="feature-icon">📅</div>
+                    <h3>Fixture Automation</h3>
+                    <p>Dynamic round-robin scheduling with FERWAFA vetting protocols. Eliminate stadium conflicts and scheduling errors.</p>
+                </div>
+                <div class="feature-card glass">
+                    <div class="feature-icon">🏢</div>
+                    <h3>Entity Dashboards</h3>
+                    <p>Custom-tailored workflows for Clubs, Schools, and Academies to manage their squads and track progression.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="cta-section">
+        <div class="container">
+            <h2 style="margin-bottom: 2rem;">Ready to digitize Rwanda's beautiful game?</h2>
+            <button class="btn btn-primary" onclick="window.location.href='pages/dashboard.html'">Initialize Session</button>
+            <p style="margin-top: 2rem; color: var(--text-dim); font-size: 0.9rem;">
+                &copy; 2026 FERWAFA Intelligence System. Developed for RWANDA National Progress.
+            </p>
+        </div>
+    </footer>
+</body>
+</html>

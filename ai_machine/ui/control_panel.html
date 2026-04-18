@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Pitch Machine — Control Panel</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #020509;
+            --bg2: #070d14;
+            --bg3: rgba(255,255,255,0.04);
+            --primary: #00ff88;
+            --primary-d: rgba(0,255,136,0.12);
+            --secondary: #ffcc00;
+            --secondary-d: rgba(255,204,0,0.12);
+            --accent: #ff3355;
+            --accent-d: rgba(255,51,85,0.12);
+            --blue: #00d4ff;
+            --blue-d: rgba(0,212,255,0.12);
+            --purple: #9b5de5;
+            --border: rgba(255,255,255,0.07);
+            --text: #e2f0ff;
+            --dim: rgba(226,240,255,0.4);
+            --glass: rgba(255,255,255,0.04);
+            --r: 14px;
+            --rs: 9px;
+        }
+
+        * { margin:0; padding:0; box-sizing:border-box; }
+
+        body {
+            font-family:'Inter',sans-serif;
+            background:var(--bg);
+            color:var(--text);
+            height:100vh;
+            overflow:hidden;
+            display:flex;
+            flex-direction:column;
+        }
+
+        /* Ambient glow */
+        body::before {
+            content:''; position:fixed; top:-300px; left:50%; transform:translateX(-50%);
+            width:800px; height:500px;
+            background:radial-gradient(ellipse,rgba(0,255,136,0.04) 0%,transparent 70%);
+            pointer-events:none; z-index:0;
+        }
+
+        /* ══════════════════════════════════════
+           TOP BAR
+        ══════════════════════════════════════ */
+        .topbar {
+            display:flex; align-items:center; justify-content:space-between;
+            padding:0 1.5rem;
+            height:56px;
+            background:rgba(2,5,9,0.98);
+            border-bottom:1px solid var(--border);
+            flex-shrink:0;
+            position:relative; z-index:10;
+        }
+
+        .tb-brand { display:flex; align-items:center; gap:12px; }
+        .tb-logo {
+            font-family:'Orbitron',sans-serif;
+            font-size:0.82rem; font-weight:900;
+            color:var(--primary); letter-spacing:3px;
+        }
+        .tb-version { font-size:0.6rem; color:var(--dim); background:var(--bg3); border:1px solid var(--border); padding:2px 8px; border-radius:20px; }
+
+        .conn-indicator {
+            display:flex; align-items:center; gap:8px;
+            padding:6px 16px; border-radius:20px;
+            border:1px solid; font-size:0.68rem; font-weight:800;
+            letter-spacing:1.5px; text-transform:uppercase;
+            transition:all 0.4s;
+        }
+        .conn-indicator.offline { color:var(--accent); border-color:rgba(255,51,85,0.3); background:var(--accent-d); }
+        .conn-indicator.online  { color:var(--primary); border-color:rgba(0,255,136,0.3); background:var(--primary-d); }
+        .conn-indicator.connecting { color:var(--secondary); border-color:rgba(255,204,0,0.3); background:var(--secondary-d); }
+
+        .conn-dot {
+            width:8px; height:8px; border-radius:50%; background:currentColor;
+            animation:pulse 1.5s infinite;
+        }
+        .conn-dot.no-pulse { animation:none; }
+        @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.85)} }
+
+        .tb-info { display:flex; align-items:center; gap:20px; }
+        .tb-chip { display:flex; flex-direction:column; align-items:flex-end; gap:1px; }
+        .tc-lbl { font-size:0.52rem; color:var(--dim); text-transform:uppercase; letter-spacing:1px; }
+        .tc-val { font-size:0.72rem; font-weight:700; color:var(--text); }
+        .tc-val.mono { font-family:'Orbitron',sans-serif; font-size:0.65rem; color:var(--primary); }
+
+        /* ══════════════════════════════════════
+           MAIN LAYOUT (3 columns)
+        ══════════════════════════════════════ */
+        .workspace {
+            flex:1;
+            display:grid;
+            grid-template-columns:340px 1fr 300px;
+            gap:0;
+            overflow:hidden;
+            position:relative; z-index:1;
+        }
+
+        /* ── LEFT PANEL — Camera + Hardware ── */
+        .panel-left {
+            border-right:1px solid var(--border);
+            display:flex; flex-direction:column;
+            overflow:hidden;
+        }
+
+        .panel-right {
+            border-left:1px solid var(--border);
+            display:flex; flex-direction:column;
+            overflow:hidden;
+        }
+
+        .panel-center {
+            display:flex; flex-direction:column;
+            overflow:hidden;
+        }
+
+        .panel-section {
+            border-bottom:1px solid var(--border);
+            padding:1rem 1.2rem;
+        }
+        .ps-title {
+            font-size:0.6rem; font-weight:800;
+            color:var(--dim); text-transform:uppercase;
+            letter-spacing:2px; margin-bottom:0.8rem;
+            display:flex; align-items:center; gap:8px;
+        }
+        .ps-title::after { content:''; flex:1; height:1px; background:var(--border); }
+
+        /* ── Camera Preview ── */
+        .cam-preview-wrap {
+            padding:1rem 1.2rem;
+            flex-shrink:0;
+        }
+        .cam-box {
+            width:100%; aspect-ratio:16/9;
+            background:#030810;
+            border-radius:var(--rs);
+            border:1px solid var(--border);
+            display:flex; align-items:center; justify-content:center;
+            flex-direction:column; gap:8px;
+            overflow:hidden; position:relative;
+        }
+        #cam-canvas { width:100%; height:100%; object-fit:cover; display:none; }
+        .cam-placeholder {
+            display:flex; flex-direction:column; align-items:center; gap:8px;
+        }
+        .cam-icon { font-size:2.2rem; opacity:0.3; }
+        .cam-lbl { font-size:0.68rem; color:var(--dim); }
+        .cam-overlay {
+            position:absolute; top:6px; right:6px;
+            background:rgba(2,5,9,0.85); border:1px solid var(--border);
+            border-radius:6px; padding:3px 8px;
+            font-size:0.6rem; font-weight:700;
+            color:var(--accent);
+            display:none;
+        }
+        .cam-overlay.live { display:block; color:var(--primary); border-color:rgba(0,255,136,0.3); }
+
+        /* ── Hardware Info ── */
+        .hw-grid { display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; }
+        .hw-item {
+            background:var(--bg3); border:1px solid var(--border);
+            border-radius:var(--rs); padding:0.6rem 0.7rem;
+        }
+        .hw-lbl { font-size:0.55rem; color:var(--dim); text-transform:uppercase; letter-spacing:1px; }
+        .hw-val { font-size:0.8rem; font-weight:700; margin-top:2px; }
+        .hw-val.good { color:var(--primary); }
+        .hw-val.warn { color:var(--secondary); }
+        .hw-val.bad  { color:var(--accent); }
+
+        /* ── Kit Colors ── */
+        .kit-row { display:flex; align-items:center; gap:10px; }
+        .kit-swatch { 
+            width:28px; height:28px; border-radius:6px; border:2px solid var(--border); flex-shrink:0; 
+            padding:0; cursor:pointer; background:none;
+        }
+        .kit-swatch::-webkit-color-swatch-wrapper { padding: 0; }
+        .kit-swatch::-webkit-color-swatch { border: none; border-radius: 4px; }
+        .kit-info { display:flex; flex-direction:column; gap:2px; }
+        .kit-role { font-size:0.58rem; color:var(--dim); text-transform:uppercase; letter-spacing:1px; }
+        .kit-hex  { font-size:0.75rem; font-weight:700; font-family:'Orbitron',sans-serif; }
+
+        /* ══════════════════════════════════════
+           CENTER — Controls + Stats
+        ══════════════════════════════════════ */
+        .center-top {
+            flex-shrink:0;
+            padding:1.5rem;
+            border-bottom:1px solid var(--border);
+            display:flex; flex-direction:column; align-items:center;
+            gap:1.2rem;
+        }
+
+        /* Big status ring */
+        .status-ring-wrap { position:relative; display:flex; align-items:center; justify-content:center; }
+        .status-ring {
+            width:160px; height:160px; border-radius:50%;
+            border:3px solid var(--border);
+            display:flex; flex-direction:column; align-items:center; justify-content:center;
+            gap:4px; position:relative;
+            background:radial-gradient(circle, rgba(0,0,0,0.6) 0%, transparent 70%);
+            transition:all 0.5s;
+        }
+        .status-ring.offline  { border-color:rgba(255,51,85,0.3); box-shadow:0 0 30px rgba(255,51,85,0.08); }
+        .status-ring.online   { border-color:rgba(0,255,136,0.5); box-shadow:0 0 40px rgba(0,255,136,0.12),0 0 80px rgba(0,255,136,0.04); }
+        .status-ring.running  { border-color:var(--primary); box-shadow:0 0 50px rgba(0,255,136,0.2),0 0 100px rgba(0,255,136,0.06); animation:ring-pulse 2s ease-in-out infinite; }
+        .status-ring.paused   { border-color:rgba(255,204,0,0.5); box-shadow:0 0 30px rgba(255,204,0,0.1); }
+        @keyframes ring-pulse {
+            0%,100% { box-shadow:0 0 50px rgba(0,255,136,0.2),0 0 100px rgba(0,255,136,0.06); }
+            50%      { box-shadow:0 0 70px rgba(0,255,136,0.3),0 0 130px rgba(0,255,136,0.1); }
+        }
+        .ring-icon { font-size:2.4rem; }
+        .ring-label {
+            font-family:'Orbitron',sans-serif; font-size:0.7rem; font-weight:900;
+            letter-spacing:2px; text-transform:uppercase;
+        }
+        .ring-label.offline  { color:var(--accent); }
+        .ring-label.online   { color:var(--primary); }
+        .ring-label.running  { color:var(--primary); }
+        .ring-label.paused   { color:var(--secondary); }
+        .ring-frames { font-size:0.6rem; color:var(--dim); }
+
+        /* Rotating ring animation */
+        .status-ring::before {
+            content:''; position:absolute;
+            inset:-4px; border-radius:50%;
+            background:conic-gradient(var(--primary) 0deg, transparent 60deg, transparent 360deg);
+            opacity:0; transition:opacity 0.5s;
+            animation:spin 3s linear infinite;
+        }
+        .status-ring.running::before { opacity:0.7; }
+        @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+        .status-ring::after {
+            content:''; position:absolute;
+            inset:-4px; border-radius:50%;
+            background:var(--bg);
+            mask:radial-gradient(farthest-side, transparent calc(100% - 3px), black calc(100% - 3px));
+            -webkit-mask:radial-gradient(farthest-side, transparent calc(100% - 3px), black calc(100% - 3px));
+        }
+
+        /* Control buttons */
+        .ctrl-btns { display:grid; grid-template-columns:repeat(3,1fr); gap:0.85rem; width:100%; max-width:380px; }
+        .ctrl-btn {
+            border:none; border-radius:var(--r); padding:1rem;
+            font-family:'Inter',sans-serif; font-size:0.72rem;
+            font-weight:800; letter-spacing:1.5px; text-transform:uppercase;
+            cursor:pointer; transition:all 0.2s; display:flex;
+            flex-direction:column; align-items:center; gap:6px;
+        }
+        .ctrl-btn:disabled { opacity:0.3; cursor:not-allowed; transform:none !important; box-shadow:none !important; }
+        .ctrl-btn-icon { font-size:1.4rem; }
+        .cb-start {
+            background:linear-gradient(135deg, var(--primary), #00cc70);
+            color:#000; grid-column:span 3;
+            padding:1.1rem;
+        }
+        .cb-start:not(:disabled):hover { transform:translateY(-2px); box-shadow:0 12px 35px rgba(0,255,136,0.35); }
+        .cb-pause {
+            background:linear-gradient(135deg, var(--secondary), #cc9900);
+            color:#000;
+        }
+        .cb-pause:not(:disabled):hover { transform:translateY(-2px); box-shadow:0 8px 25px rgba(255,204,0,0.3); }
+        .cb-stop {
+            background:linear-gradient(135deg, var(--accent), #cc0033);
+            color:#fff;
+        }
+        .cb-stop:not(:disabled):hover { transform:translateY(-2px); box-shadow:0 8px 25px rgba(255,51,85,0.3); }
+        .cb-config {
+            background:linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)); color:var(--text);
+            border:1px solid var(--primary);
+            box-shadow: 0 0 15px rgba(0,255,136,0.15);
+            animation: pulse-border 2s infinite;
+        }
+        @keyframes pulse-border {
+            0%, 100% { border-color: rgba(0,255,136,0.3); box-shadow: 0 0 10px rgba(0,255,136,0.1); }
+            50% { border-color: rgba(0,255,136,1); box-shadow: 0 0 20px rgba(0,255,136,0.4); }
+        }
+        .cb-config:hover { background:rgba(255,255,255,0.15); color:var(--text); transform:translateY(-2px); }
+
+        /* Live Counter Strip */
+        .counter-strip {
+            display:grid; grid-template-columns:repeat(4,1fr);
+            gap:0; width:100%;
+        }
+        .counter-item {
+            padding:0.7rem 0.5rem; text-align:center;
+            border-right:1px solid var(--border);
+        }
+        .counter-item:last-child { border-right:none; }
+        .ci-lbl { font-size:0.52rem; color:var(--dim); text-transform:uppercase; letter-spacing:1px; }
+        .ci-val { font-family:'Orbitron',sans-serif; font-size:1.1rem; font-weight:900; color:var(--primary); margin-top:2px; }
+        .ci-val.blue { color:var(--blue); }
+        .ci-val.gold { color:var(--secondary); }
+        .ci-val.red  { color:var(--accent); }
+
+        /* Center bottom — Detection Stats */
+        .detect-stats {
+            flex:1; padding:1rem 1.5rem;
+            display:flex; flex-direction:column; gap:0.75rem;
+            overflow-y:auto;
+        }
+        .ds-row {
+            display:flex; align-items:center; justify-content:space-between;
+            background:var(--bg3); border:1px solid var(--border);
+            border-radius:var(--rs); padding:0.7rem 1rem;
+        }
+        .ds-label { font-size:0.72rem; font-weight:600; display:flex; align-items:center; gap:8px; }
+        .ds-val { font-family:'Orbitron',sans-serif; font-size:0.9rem; font-weight:700; color:var(--primary); }
+
+        /* Possession bar */
+        .pos-bar-wrap { padding:0.5rem 0; }
+        .pos-labels { display:flex; justify-content:space-between; font-size:0.68rem; font-weight:700; margin-bottom:5px; }
+        .pos-home { color:var(--primary); }
+        .pos-away { color:var(--blue); }
+        .pos-track { height:8px; background:rgba(255,255,255,0.06); border-radius:4px; overflow:hidden; display:flex; }
+        .pos-h { background:linear-gradient(90deg, var(--primary), #00cc70); transition:width 0.8s; border-radius:4px 0 0 4px; }
+        .pos-a { background:linear-gradient(90deg, #0099cc, var(--blue)); transition:width 0.8s; flex:1; border-radius:0 4px 4px 0; }
+
+        /* ══════════════════════════════════════
+           RIGHT — Logs
+        ══════════════════════════════════════ */
+        .log-header {
+            padding:0.85rem 1.1rem;
+            border-bottom:1px solid var(--border);
+            display:flex; align-items:center; justify-content:space-between;
+            flex-shrink:0;
+        }
+        .log-title { font-size:0.6rem; font-weight:800; color:var(--dim); text-transform:uppercase; letter-spacing:2px; }
+        .log-clear-btn {
+            background:none; border:1px solid var(--border); color:var(--dim);
+            border-radius:5px; padding:2px 8px; font-size:0.6rem; cursor:pointer;
+            transition:all 0.2s;
+        }
+        .log-clear-btn:hover { background:var(--bg3); color:var(--text); }
+
+        .log-stream {
+            flex:1; overflow-y:auto;
+            padding:0.5rem 0;
+            display:flex; flex-direction:column-reverse;
+        }
+
+        .log-line {
+            padding:0.35rem 1rem;
+            font-size:0.68rem;
+            font-family:'Courier New', monospace;
+            color:var(--dim);
+            border-bottom:1px solid rgba(255,255,255,0.02);
+            line-height:1.5;
+            animation:logIn 0.2s ease;
+        }
+        @keyframes logIn { from{opacity:0;transform:translateX(5px)} to{opacity:1;transform:translateX(0)} }
+        .log-line.event { color:var(--primary); }
+        .log-line.error { color:var(--accent); }
+        .log-line.warn  { color:var(--secondary); }
+        .log-line.info  { color:var(--blue); }
+
+        /* Event badge in logs */
+        .ev-badge {
+            display:inline-block; font-size:0.55rem; font-weight:800;
+            padding:1px 5px; border-radius:3px; margin-right:5px;
+            text-transform:uppercase; letter-spacing:0.5px;
+            background:var(--primary-d); color:var(--primary);
+        }
+
+        /* ══════════════════════════════════════
+           BOTTOM STATUS BAR
+        ══════════════════════════════════════ */
+        .statusbar {
+            height:30px; background:rgba(2,5,9,0.99);
+            border-top:1px solid var(--border);
+            display:flex; align-items:center; padding:0 1.5rem;
+            gap:2rem; flex-shrink:0;
+        }
+        .sb-item { display:flex; align-items:center; gap:6px; font-size:0.6rem; color:var(--dim); }
+        .sb-dot { width:5px; height:5px; border-radius:50%; background:var(--dim); }
+        .sb-dot.green { background:var(--primary); }
+        .sb-dot.red   { background:var(--accent); }
+        .sb-dot.gold  { background:var(--secondary); }
+
+        /* ══════════════════════════════════════
+           CONFIG MODAL
+        ══════════════════════════════════════ */
+        .modal-overlay {
+            display:none; position:fixed; inset:0;
+            background:rgba(2,5,9,0.92); z-index:1000;
+            align-items:center; justify-content:center;
+            backdrop-filter:blur(8px);
+        }
+        .modal-overlay.open { display:flex; }
+        .modal-box {
+            background:var(--bg2); border:1px solid var(--border);
+            border-radius:var(--r); width:460px; max-height:85vh;
+            overflow-y:auto;
+        }
+        .modal-head {
+            padding:1.1rem 1.4rem; border-bottom:1px solid var(--border);
+            display:flex; align-items:center; justify-content:space-between;
+        }
+        .modal-title { font-size:0.75rem; font-weight:800; text-transform:uppercase; letter-spacing:1.5px; color:var(--dim); }
+        .modal-close { background:none; border:none; color:var(--dim); cursor:pointer; font-size:1.1rem; }
+        .modal-body { padding:1.4rem; }
+        .mfg { margin-bottom:1rem; }
+        .mfl { display:block; font-size:0.6rem; font-weight:700; color:var(--dim); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:5px; }
+        .mfi { width:100%; background:rgba(0,0,0,0.4); border:1px solid var(--border); border-radius:var(--rs); padding:10px 13px; color:var(--text); font-family:'Inter',sans-serif; font-size:0.85rem; outline:none; transition:border-color 0.2s; }
+        .mfi:focus { border-color:var(--primary); }
+        .mfi::placeholder { color:var(--dim); }
+        select.mfi option { background:#0a0f18; }
+        .modal-save-btn { width:100%; background:linear-gradient(135deg,var(--primary),#00cc70); color:#000; border:none; border-radius:var(--rs); padding:11px; font-family:'Inter',sans-serif; font-size:0.78rem; font-weight:800; letter-spacing:1px; text-transform:uppercase; cursor:pointer; transition:all 0.2s; margin-top:0.5rem; }
+        .modal-save-btn:hover { box-shadow:0 8px 24px rgba(0,255,136,0.3); transform:translateY(-1px); }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width:4px; }
+        ::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.07); border-radius:2px; }
+    </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════
+     TOP BAR
+══════════════════════════════════════════════════════ -->
+<div class="topbar">
+    <div class="tb-brand">
+        <div class="tb-logo">⚡ AI PITCH MACHINE</div>
+        <span class="tb-version">v1.0 — Edge Runtime</span>
+    </div>
+
+    <div class="conn-indicator offline" id="conn-badge">
+        <span class="conn-dot" id="conn-dot"></span>
+        <span id="conn-text">DISCONNECTED</span>
+    </div>
+
+    <div class="tb-info">
+        <div class="tb-chip">
+            <span class="tc-lbl">Server</span>
+            <span class="tc-val" id="tb-server">localhost:8001</span>
+        </div>
+        <div class="tb-chip">
+            <span class="tc-lbl">API Key</span>
+            <span class="tc-val mono" id="tb-apikey">—</span>
+        </div>
+        <div class="tb-chip">
+            <span class="tc-lbl">Match Token</span>
+            <span class="tc-val mono" id="tb-token">—</span>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     MAIN WORKSPACE
+══════════════════════════════════════════════════════ -->
+<div class="workspace">
+
+    <!-- ╔═══════════════╗
+         ║  LEFT PANEL  ║
+         ╚═══════════════╝ -->
+    <div class="panel-left">
+        <!-- Camera Preview -->
+        <div class="cam-preview-wrap">
+            <div class="ps-title">📷 Camera Feed</div>
+            <div class="cam-box" id="cam-box">
+                <canvas id="cam-canvas"></canvas>
+                <div class="cam-placeholder" id="cam-placeholder">
+                    <span class="cam-icon">📷</span>
+                    <span class="cam-lbl">No Preview</span>
+                    <span style="font-size:0.6rem;color:var(--dim);">Start analysis to activate</span>
+                </div>
+                <div class="cam-overlay" id="cam-overlay">● LIVE</div>
+            </div>
+        </div>
+
+        <!-- Hardware Info -->
+        <div class="panel-section">
+            <div class="ps-title">🖥 Hardware</div>
+            <div class="hw-grid">
+                <div class="hw-item">
+                    <div class="hw-lbl">Video Source</div>
+                    <div class="hw-val good" id="hw-source">USB Cam 0</div>
+                </div>
+                <div class="hw-item">
+                    <div class="hw-lbl">AI Device</div>
+                    <div class="hw-val" id="hw-device">CPU</div>
+                </div>
+                <div class="hw-item">
+                    <div class="hw-lbl">YOLO Model</div>
+                    <div class="hw-val good" id="hw-model">YOLOv8n</div>
+                </div>
+                <div class="hw-item">
+                    <div class="hw-lbl">Tracker</div>
+                    <div class="hw-val good">ByteTrack</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Kit Colors -->
+        <div class="panel-section">
+            <div class="ps-title">🎽 Kit Colors <span style="font-size:0.5rem; color:var(--primary); margin-left: auto;">(CLICK TO CHANGE)</span></div>
+            <div style="font-size: 0.65rem; color: var(--dim); margin-bottom: 0.8rem;">Click the colored squares below to manually override the AI detection colors.</div>
+            <div style="display:flex;flex-direction:column;gap:0.6rem;">
+                <div class="kit-row">
+                    <input type="color" class="kit-swatch" id="kit-home-swatch" value="#FF0000" onchange="updateKitColor('home', this.value)">
+                    <div class="kit-info">
+                        <span class="kit-role">Home Kit</span>
+                        <span class="kit-hex" id="kit-home-hex">#FF0000</span>
+                    </div>
+                </div>
+                <div class="kit-row">
+                    <input type="color" class="kit-swatch" id="kit-home-socks-swatch" value="#FFFFFF" onchange="updateKitColor('home_socks', this.value)">
+                    <div class="kit-info">
+                        <span class="kit-role">Home Socks</span>
+                        <span class="kit-hex" id="kit-home-socks-hex">#FFFFFF</span>
+                    </div>
+                </div>
+                <div class="kit-row">
+                    <input type="color" class="kit-swatch" id="kit-away-swatch" value="#0000FF" onchange="updateKitColor('away', this.value)">
+                    <div class="kit-info">
+                        <span class="kit-role">Away Kit</span>
+                        <span class="kit-hex" id="kit-away-hex">#0000FF</span>
+                    </div>
+                </div>
+                <div class="kit-row">
+                    <input type="color" class="kit-swatch" id="kit-away-socks-swatch" value="#FFFFFF" onchange="updateKitColor('away_socks', this.value)">
+                    <div class="kit-info">
+                        <span class="kit-role">Away Socks</span>
+                        <span class="kit-hex" id="kit-away-socks-hex">#FFFFFF</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Match Info -->
+        <div class="panel-section" style="flex:1;">
+            <div class="ps-title">⚽ Match Session</div>
+            <div style="display:flex;flex-direction:column;gap:0.5rem;">
+                <div class="hw-item" style="grid-column:span 2;">
+                    <div class="hw-lbl">Match Minute</div>
+                    <div class="hw-val" id="hw-minute" style="font-family:'Orbitron',sans-serif;color:var(--primary);">00'</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ╔═══════════════╗
+         ║    CENTER     ║
+         ╚═══════════════╝ -->
+    <div class="panel-center">
+        <!-- Status Ring + Buttons -->
+        <div class="center-top">
+            <!-- Status Ring -->
+            <div class="status-ring-wrap">
+                <div class="status-ring offline" id="status-ring">
+                    <span class="ring-icon" id="ring-icon">⚫</span>
+                    <span class="ring-label offline" id="ring-label">OFFLINE</span>
+                    <span class="ring-frames" id="ring-frames">0 frames</span>
+                </div>
+            </div>
+
+            <!-- Control Buttons -->
+            <div class="ctrl-btns">
+                <button class="ctrl-btn cb-start" id="btn-start" onclick="controlStart()">
+                    <span class="ctrl-btn-icon">▶</span>
+                    START ANALYSIS
+                </button>
+                <button class="ctrl-btn cb-pause" id="btn-pause" onclick="controlPause()" disabled>
+                    <span class="ctrl-btn-icon">⏸</span>
+                    PAUSE
+                </button>
+                <button class="ctrl-btn cb-stop" id="btn-stop" onclick="controlStop()" disabled>
+                    <span class="ctrl-btn-icon">■</span>
+                    STOP
+                </button>
+                <button class="ctrl-btn cb-config" onclick="openConfig()" style="grid-column: span 3; padding: 1.1rem; border-width: 2px;">
+                    <span class="ctrl-btn-icon">⚙️</span>
+                    STEP 1: ENTER CREDENTIALS (CONFIG)
+                </button>
+            </div>
+        </div>
+
+        <!-- Live Counters -->
+        <div class="counter-strip">
+            <div class="counter-item">
+                <div class="ci-lbl">Frames</div>
+                <div class="ci-val" id="cnt-frames">0</div>
+            </div>
+            <div class="counter-item">
+                <div class="ci-lbl">Players</div>
+                <div class="ci-val blue" id="cnt-players">0</div>
+            </div>
+            <div class="counter-item">
+                <div class="ci-lbl">Events Sent</div>
+                <div class="ci-val gold" id="cnt-events">0</div>
+            </div>
+            <div class="counter-item">
+                <div class="ci-lbl">Minute</div>
+                <div class="ci-val" id="cnt-minute">0'</div>
+            </div>
+        </div>
+
+        <!-- Detection Stats -->
+        <div class="detect-stats">
+            <div class="ds-row">
+                <span class="ds-label">⚽ Goals Detected</span>
+                <span class="ds-val" id="ds-goals">0</span>
+            </div>
+            <div class="ds-row">
+                <span class="ds-label">🎯 Shots Detected</span>
+                <span class="ds-val" id="ds-shots">0</span>
+            </div>
+            <div class="ds-row">
+                <span class="ds-label">⚡ Avg Player Speed</span>
+                <span class="ds-val" id="ds-speed">— km/h</span>
+            </div>
+            <div class="ds-row">
+                <span class="ds-label">📏 Total Distance</span>
+                <span class="ds-val" id="ds-dist">— km</span>
+            </div>
+            <!-- Possession -->
+            <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);padding:0.85rem 1rem;">
+                <div class="ps-title" style="margin-bottom:0.5rem;">Possession</div>
+                <div class="pos-bar-wrap" style="padding:0;">
+                    <div class="pos-labels">
+                        <span class="pos-home" id="pos-h-pct">HOME 50%</span>
+                        <span class="pos-away" id="pos-a-pct">50% AWAY</span>
+                    </div>
+                    <div class="pos-track">
+                        <div class="pos-h" id="pos-bar-h" style="width:50%;"></div>
+                        <div class="pos-a" id="pos-bar-a"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ╔═══════════════╗
+         ║  RIGHT PANEL  ║
+         ╚═══════════════╝ -->
+    <div class="panel-right">
+        <div class="log-header">
+            <span class="log-title">📋 Live Detection Log</span>
+            <button class="log-clear-btn" onclick="clearLogs()">Clear</button>
+        </div>
+        <div class="log-stream" id="log-stream">
+            <div class="log-line info">[system] AI Pitch Machine ready. Click START to begin.</div>
+        </div>
+    </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     BOTTOM STATUS BAR
+══════════════════════════════════════════════════════ -->
+<div class="statusbar">
+    <div class="sb-item"><span class="sb-dot" id="sb-proc"></span><span id="sb-proc-txt">IDLE</span></div>
+    <div class="sb-item"><span class="sb-dot" id="sb-yolo"></span>YOLO v8 nano</div>
+    <div class="sb-item"><span class="sb-dot green"></span>ByteTrack</div>
+    <div class="sb-item"><span class="sb-dot green"></span>Jersey Detector</div>
+    <div class="sb-item" style="margin-left:auto;"><span style="font-family:'Orbitron',sans-serif;font-size:0.58rem;color:var(--dim);" id="sb-time">00:00:00</span></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     CONFIG MODAL
+══════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-config" onclick="modalBg(event)">
+    <div class="modal-box" onclick="event.stopPropagation()">
+        <div class="modal-head">
+            <span class="modal-title">⚙️ Machine Configuration</span>
+            <button class="modal-close" onclick="closeConfig()">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="mfg"><label class="mfl">Server URL</label><input class="mfi" id="cfg-server" placeholder="ws://localhost:8001"></div>
+            <div class="mfg"><label class="mfl">API Key</label><input class="mfi" id="cfg-key" placeholder="FWFA-CODE-2026-XXXX"></div>
+            <div class="mfg"><label class="mfl">Match Token</label><input class="mfi" id="cfg-token" placeholder="UUID match token"></div>
+            <div class="mfg">
+                <label class="mfl">Video Source Type</label>
+                <select class="mfi" id="cfg-src-type" onchange="updateSrcHint()">
+                    <option value="usb">USB Camera</option>
+                    <option value="rtsp">RTSP Stream</option>
+                    <option value="url">Stream URL</option>
+                </select>
+            </div>
+            <div class="mfg"><label class="mfl">Video Source <span id="src-hint" style="color:var(--dim);">(index, e.g. 0)</span></label><input class="mfi" id="cfg-src" placeholder="0"></div>
+            <div class="mfg">
+                <label class="mfl">AI Device</label>
+                <select class="mfi" id="cfg-device">
+                    <option value="cpu">CPU (Default)</option>
+                    <option value="cuda">CUDA (NVIDIA GPU)</option>
+                </select>
+            </div>
+            <button class="modal-save-btn" onclick="saveConfig()">💾 SAVE & APPLY</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════
+const BASE = 'http://localhost:7777';
+let isRunning = false;
+let isPaused  = false;
+let goalCount  = 0;
+let shotCount  = 0;
+let logLines   = [];
+let pollInt    = null;
+
+// ═══════════════════════════════════════════════════════
+// POLL STATUS (every 1 second)
+// ═══════════════════════════════════════════════════════
+async function pollStatus() {
+    try {
+        const r = await fetch(`${BASE}/status`);
+        if (!r.ok) return;
+        const d = await r.json();
+
+        isRunning = d.processing && !d.paused;
+        isPaused  = d.paused;
+
+        // Connection badge
+        const badge = document.getElementById('conn-badge');
+        const dot   = document.getElementById('conn-dot');
+        const txt   = document.getElementById('conn-text');
+        if (d.connected && d.processing) {
+            badge.className = 'conn-indicator online';
+            txt.textContent  = 'LIVE & TRANSMITTING';
+        } else if (d.connected) {
+            badge.className = 'conn-indicator online';
+            txt.textContent  = 'CONNECTED';
+        } else if (d.processing) {
+            badge.className = 'conn-indicator connecting';
+            txt.textContent  = 'CONNECTING...';
+        } else {
+            badge.className = 'conn-indicator offline';
+            txt.textContent  = 'DISCONNECTED';
+        }
+
+        // Status ring
+        const ring  = document.getElementById('status-ring');
+        const icon  = document.getElementById('ring-icon');
+        const label = document.getElementById('ring-label');
+        const frms  = document.getElementById('ring-frames');
+
+        if (d.processing && !d.paused) {
+            ring.className  = 'status-ring running';
+            icon.textContent = '🟢';
+            label.className  = 'ring-label running';
+            label.textContent = 'ANALYZING';
+        } else if (d.paused) {
+            ring.className  = 'status-ring paused';
+            icon.textContent = '⏸';
+            label.className  = 'ring-label paused';
+            label.textContent = 'PAUSED';
+        } else if (d.connected) {
+            ring.className  = 'status-ring online';
+            icon.textContent = '🔗';
+            label.className  = 'ring-label online';
+            label.textContent = 'CONNECTED';
+        } else {
+            ring.className  = 'status-ring offline';
+            icon.textContent = '⚫';
+            label.className  = 'ring-label offline';
+            label.textContent = 'OFFLINE';
+        }
+        frms.textContent = d.frames_processed.toLocaleString() + ' frames';
+
+        // Counters
+        document.getElementById('cnt-frames').textContent = d.frames_processed.toLocaleString();
+        document.getElementById('cnt-events').textContent = d.events_sent;
+        document.getElementById('cnt-minute').textContent = (d.match_minute||0) + "'";
+        document.getElementById('hw-minute').textContent  = (d.match_minute||0) + "'";
+
+        // Top bar and kit info
+        document.getElementById('tb-apikey').textContent = (d.api_key||'—').slice(0,16);
+        document.getElementById('tb-token').textContent  = (d.match_token||'—').slice(0,12);
+        document.getElementById('tb-server').textContent = (d.server_url||'—').replace('ws://','').replace('wss://','');
+        document.getElementById('hw-source').textContent = d.video_source||'—';
+        if (d.kit_home) {
+            document.getElementById('kit-home-hex').textContent = d.kit_home;
+            let swatch = document.getElementById('kit-home-swatch');
+            if (swatch.tagName === 'INPUT') swatch.value = d.kit_home;
+        }
+        if (d.kit_home_socks) {
+            document.getElementById('kit-home-socks-hex').textContent = d.kit_home_socks;
+            let swatch = document.getElementById('kit-home-socks-swatch');
+            if (swatch.tagName === 'INPUT') swatch.value = d.kit_home_socks;
+        }
+        if (d.kit_away) {
+            document.getElementById('kit-away-hex').textContent = d.kit_away;
+            let switchA = document.getElementById('kit-away-swatch');
+            if (switchA.tagName === 'INPUT') switchA.value = d.kit_away;
+        }
+        if (d.kit_away_socks) {
+            document.getElementById('kit-away-socks-hex').textContent = d.kit_away_socks;
+            let switchA = document.getElementById('kit-away-socks-swatch');
+            if (switchA.tagName === 'INPUT') switchA.value = d.kit_away_socks;
+        }
+
+        // Status bar
+        const dot2 = document.getElementById('sb-proc');
+        const txt2 = document.getElementById('sb-proc-txt');
+        if (d.processing && !d.paused) { dot2.className='sb-dot green'; txt2.textContent='PROCESSING'; }
+        else if (d.paused)             { dot2.className='sb-dot gold';  txt2.textContent='PAUSED'; }
+        else                           { dot2.className='sb-dot red';   txt2.textContent='IDLE'; }
+
+        // Buttons
+        document.getElementById('btn-start').disabled = d.processing;
+        document.getElementById('btn-pause').disabled = !d.processing;
+        document.getElementById('btn-stop').disabled  = !d.processing;
+        document.getElementById('btn-pause').querySelector('.ctrl-btn-icon').textContent = d.paused ? '▶' : '⏸';
+        document.getElementById('btn-pause').parentElement.children[1].childNodes[2].textContent = d.paused ? ' RESUME' : ' PAUSE';
+
+    } catch(e) { /* Server not reachable */ }
+}
+
+// ═══════════════════════════════════════════════════════
+// POLL LOGS (every 2 seconds)
+// ═══════════════════════════════════════════════════════
+async function pollLogs() {
+    try {
+        const r = await fetch(`${BASE}/logs`);
+        if (!r.ok) return;
+        const d = await r.json();
+        const newLogs = d.logs || [];
+        if (newLogs.length !== logLines.length) {
+            const added = newLogs.slice(logLines.length);
+            logLines = newLogs;
+            added.forEach(line => addLogLine(line));
+        }
+    } catch(e) {}
+}
+
+function addLogLine(line) {
+    const container = document.getElementById('log-stream');
+    const div = document.createElement('div');
+    div.className = 'log-line' + classifyLog(line);
+    div.textContent = line;
+    // Prepend (since display is column-reverse)
+    container.insertBefore(div, container.firstChild);
+    // Cap at 200 lines
+    while (container.children.length > 200) container.removeChild(container.lastChild);
+
+    // Update stats from log content
+    if (line.includes('goal')) { goalCount++; document.getElementById('ds-goals').textContent = goalCount; }
+    if (line.includes('shot')) { shotCount++; document.getElementById('ds-shots').textContent = shotCount; }
+}
+
+async function updateKitColor(team, hexCode) {
+    document.getElementById(`kit-${team}-hex`).textContent = hexCode.toUpperCase();
+    
+    // Save cleanly to config silently
+    try {
+        const payload = {};
+        payload[`kit_${team}`] = hexCode.toUpperCase();
+        await fetch(`${BASE}/config`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
+        addLogLine(`[${ts()}] 🎨 Overridden ${team} kit color to ${hexCode.toUpperCase()}`);
+    } catch(e) {}
+}
+
+function classifyLog(line) {
+    if (line.includes('❌')||line.includes('ERROR')) return ' error';
+    if (line.includes('⚠️')||line.includes('WARN'))  return ' warn';
+    if (line.includes('🎯')||line.includes('Event'))  return ' event';
+    if (line.includes('✅')||line.includes('📡')||line.includes('ℹ')) return ' info';
+    return '';
+}
+
+function clearLogs() {
+    document.getElementById('log-stream').innerHTML = '';
+    logLines = []; goalCount = 0; shotCount = 0;
+}
+
+// ═══════════════════════════════════════════════════════
+// CONTROLS
+// ═══════════════════════════════════════════════════════
+async function controlStart() {
+    try {
+        const r = await fetch(`${BASE}/control/start`, { method:'POST' });
+        const d = await r.json();
+        if (d.success) {
+            addLogLine(`[${ts()}] ▶ Analysis started`);
+            document.getElementById('cam-overlay').classList.add('live');
+        } else {
+            addLogLine(`[${ts()}] ❌ ${d.error||'Failed to start'}`);
+        }
+    } catch(e) { addLogLine(`[${ts()}] ❌ Cannot reach local server`); }
+}
+
+async function controlPause() {
+    try {
+        const r = await fetch(`${BASE}/control/pause`, { method:'POST' });
+        const d = await r.json();
+        addLogLine(`[${ts()}] ${isPaused ? '▶ Resumed' : '⏸ Paused'}`);
+    } catch(e) {}
+}
+
+async function controlStop() {
+    try {
+        await fetch(`${BASE}/control/stop`, { method:'POST' });
+        addLogLine(`[${ts()}] ■ Analysis stopped`);
+        document.getElementById('cam-overlay').classList.remove('live');
+    } catch(e) {}
+}
+
+// ═══════════════════════════════════════════════════════
+// CONFIG MODAL
+// ═══════════════════════════════════════════════════════
+async function openConfig() {
+    try {
+        const r = await fetch(`${BASE}/config`);
+        const d = await r.json();
+        document.getElementById('cfg-server').value   = d.server_url||'';
+        document.getElementById('cfg-key').value      = d.api_key||'';
+        document.getElementById('cfg-token').value    = d.match_token||'';
+        document.getElementById('cfg-src').value      = d.video_source||'0';
+        document.getElementById('cfg-src-type').value = d.video_source_type||'usb';
+        document.getElementById('cfg-device').value   = d.device||'cpu';
+        updateKitDisplay(d.kit_home||'#FF0000', d.kit_away||'#0000FF', d.kit_home_socks||'#FFFFFF', d.kit_away_socks||'#FFFFFF');
+    } catch(e) {}
+    document.getElementById('modal-config').classList.add('open');
+}
+
+function closeConfig() { document.getElementById('modal-config').classList.remove('open'); }
+function modalBg(e) { if (e.target===document.getElementById('modal-config')) closeConfig(); }
+
+async function saveConfig() {
+    const data = {
+        server_url:        document.getElementById('cfg-server').value,
+        api_key:           document.getElementById('cfg-key').value,
+        match_token:       document.getElementById('cfg-token').value,
+        video_source:      document.getElementById('cfg-src').value,
+        video_source_type: document.getElementById('cfg-src-type').value,
+        device:            document.getElementById('cfg-device').value
+    };
+    try {
+        await fetch(`${BASE}/config`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) });
+        addLogLine(`[${ts()}] ✅ Configuration saved`);
+        closeConfig();
+        document.getElementById('tb-apikey').textContent = data.api_key.slice(0,16);
+        document.getElementById('hw-source').textContent = data.video_source;
+    } catch(e) { addLogLine(`[${ts()}] ❌ Failed to save config`); }
+}
+
+function updateSrcHint() {
+    const t = document.getElementById('cfg-src-type').value;
+    const h = document.getElementById('src-hint');
+    if (t==='usb')  h.textContent = '(camera index, e.g. 0)';
+    if (t==='rtsp') h.textContent = '(rtsp://192.168.x.x/stream)';
+    if (t==='url')  h.textContent = '(https://... stream URL)';
+}
+
+// ═══════════════════════════════════════════════════════
+// KIT DISPLAY UPDATE
+// ═══════════════════════════════════════════════════════
+function updateKitDisplay(home, away, home_socks, away_socks) {
+    document.getElementById('kit-home-swatch').style.background = home;
+    document.getElementById('kit-away-swatch').style.background = away;
+    document.getElementById('kit-home-hex').textContent = home;
+    document.getElementById('kit-away-hex').textContent = away;
+    if (home_socks) {
+        document.getElementById('kit-home-socks-swatch').style.background = home_socks;
+        document.getElementById('kit-home-socks-hex').textContent = home_socks;
+    }
+    if (away_socks) {
+        document.getElementById('kit-away-socks-swatch').style.background = away_socks;
+        document.getElementById('kit-away-socks-hex').textContent = away_socks;
+    }
+}
+
+// ═══════════════════════════════════════════════════════
+// CLOCK
+// ═══════════════════════════════════════════════════════
+function updateClock() {
+    const now = new Date();
+    document.getElementById('sb-time').textContent =
+        String(now.getHours()).padStart(2,'0') + ':' +
+        String(now.getMinutes()).padStart(2,'0') + ':' +
+        String(now.getSeconds()).padStart(2,'0');
+}
+
+function ts() {
+    const n = new Date();
+    return String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0')+':'+String(n.getSeconds()).padStart(2,'0');
+}
+
+// ═══════════════════════════════════════════════════════
+// BOOT
+// ═══════════════════════════════════════════════════════
+pollStatus();
+setInterval(pollStatus, 1000);
+setInterval(pollLogs,   2000);
+setInterval(updateClock, 1000);
+updateClock();
+</script>
+</body>
+</html>
