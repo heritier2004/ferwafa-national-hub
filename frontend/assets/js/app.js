@@ -131,10 +131,15 @@ async function syncGlobalInfrastructure() {
         
         settings.forEach(s => {
             if (s.key === 'footer_text') {
-                document.querySelectorAll('.app-footer').forEach(f => f.innerHTML = s.value);
+                if(role !== 'SUPER_ADMIN') {
+                    document.querySelectorAll('.app-footer').forEach(f => f.innerHTML = s.value);
+                }
             }
             if (s.key === 'system_name') {
-                document.querySelectorAll('.global-sys-name').forEach(t => t.textContent = s.value);
+                // DO NOT overwrite Super Admin platform branding
+                if(role !== 'SUPER_ADMIN') {
+                    document.querySelectorAll('.global-sys-name').forEach(t => t.textContent = s.value);
+                }
             }
             // Check Maintenance Mode
             if (s.key === 'maintenance_mode' && s.value.toLowerCase() === 'true') {

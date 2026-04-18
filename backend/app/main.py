@@ -86,7 +86,7 @@ try:
     if not db_seed.query(SystemSetting).filter(SystemSetting.key == "system_name").first():
         db_seed.add(SystemSetting(
             key="system_name",
-            value="FERWAFA National Hub",
+            value="National Football Intel",
             description="Site branding name"
         ))
 

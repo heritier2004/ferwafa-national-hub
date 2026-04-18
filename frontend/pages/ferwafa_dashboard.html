@@ -121,8 +121,8 @@
         <aside class="sidebar glass">
             <div class="sidebar-header" style="text-align: center;">
                 <div class="national-seal-large ui-branding-target" id="hq-branding">🏛️</div>
-                <div class="logo">NATIONAL HUB</div>
-                <div style="font-size: 0.65rem; color: var(--gold-premium); letter-spacing: 3px; font-weight: 800; margin-top: 5px;">OFFICIAL GOVERNANCE</div>
+                <div class="logo">FERWAFA</div>
+                <div style="font-size: 0.65rem; color: var(--gold-premium); letter-spacing: 3px; font-weight: 800; margin-top: 5px;">NATIONAL AUTHORITY</div>
             </div>
             
             <nav class="sidebar-nav">
@@ -273,6 +273,18 @@
                 </div>
             </section>
 
+            <!-- ⚡ TAB: TALENT INTELLIGENCE (YOUTH HUB) -->
+            <section id="talent" class="tab-pane">
+                <div class="hero-banner">
+                    <h1>National Talent Hub</h1>
+                    <p style="color: var(--jade);">Monitoring youth development across Schools and Academies.</p>
+                </div>
+
+                <div id="talent-grid" class="dashboard-grid">
+                    <!-- Cards will be injected here -->
+                </div>
+            </section>
+
             <!-- ⚡ TAB: THE ARCHIVE VAULT -->
             <section id="vault" class="tab-pane">
                 <div class="hero-banner">
@@ -300,8 +312,40 @@
             
             if (tabId === 'ledger') loadLedger();
             if (tabId === 'fixtures') loadInstitutionsForFixture();
+            if (tabId === 'talent') loadTalentHub();
             if (tabId === 'vault') loadArchives();
         }
+
+        async function loadTalentHub() {
+            try {
+                const res = await fetch('/api/ferwafa/scouting/top-players');
+                const players = await res.json();
+                document.getElementById('talent-grid').innerHTML = players.map(p => `
+                    <div class="command-card">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1rem;">
+                            <div class="national-seal-large" style="width:50px; height:50px; font-size:1.5rem; margin:0;">👤</div>
+                            <span class="badge ${p.age <= 17 ? 'badge-youth' : 'badge-history'}">${p.age <= 17 ? 'YOUTH PROSPECT' : 'SNR PROSPECT'}</span>
+                        </div>
+                        <h3 style="margin:5px 0;">${p.name}</h3>
+                        <div style="font-size:0.8rem; color:var(--jade); margin-bottom:1rem;">${p.position} • Age ${p.age}</div>
+                        <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.03); padding:10px; border-radius:10px;">
+                            <span style="font-size:0.75rem; color:var(--text-dim);">${p.club}</span>
+                            <span style="font-weight:bold; color:var(--gold-premium);">${p.stars} ⭐</span>
+                        </div>
+                    </div>
+                `).join('');
+            } catch(e) {}
+        }
+
+        // Real-time Search Logic
+        document.getElementById('ledger-search').addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            const rows = document.querySelectorAll('.ledger-table tbody tr');
+            rows.forEach(row => {
+                const text = row.innerText.toLowerCase();
+                row.style.display = text.includes(term) ? '' : 'none';
+            });
+        });
 
         async function loadLedger() {
             const uRes = await fetch('/api/ferwafa/users/universal');

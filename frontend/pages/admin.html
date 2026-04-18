@@ -1,3 +1,8 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>National Supreme Command | Admin 2.0</title>
     <link rel="stylesheet" href="../assets/css/style.css">
     <style>
@@ -109,15 +114,22 @@
                     <p>Creation, update, and management of all national entities and staff accounts.</p>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 420px 1fr; gap: 2rem; margin-top: 2rem;">
-                    <!-- [CREATE] National Entity Wizard -->
-                    <div class="card glass tech">
-                        <div id="master-wizard">
+                <!-- [ACTION HUB] Collapsible Account Creation -->
+                <div class="card glass tech" style="margin-top: 1.5rem; border-color: rgba(99,102,241,0.4); background: rgba(99,102,241,0.02);">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <h3 style="color: var(--cmd-accent); margin:0;">System Action: Account Authorization</h3>
+                        <button class="btn btn-glass" onclick="toggleWizard()" id="btn-toggle-wizard" style="font-size: 0.7rem;">Initialize New Account</button>
+                    </div>
+                    
+                    <div id="master-wizard" style="display:none; margin-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 1.5rem;">
+                        <div style="max-width: 600px; margin: 0 auto;">
                             <div class="wizard-step active" id="pw-step-1">
                                 <h3 style="color: var(--cmd-accent);">01. ACCOUNT DETAILS</h3>
                                 <p style="font-size: 0.75rem; color: var(--text-dim); margin-bottom: 1.5rem;">Initialize the official personnel profile.</p>
-                                <input type="text" id="pw-name" class="btn-glass" placeholder="Full Name" style="width:100%; margin-bottom: 0.8rem; padding: 12px;">
-                                <input type="email" id="pw-email" class="btn-glass" placeholder="Official Email Address" style="width:100%; margin-bottom: 0.8rem; padding: 12px;">
+                                <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                    <input type="text" id="pw-name" class="btn-glass" placeholder="Full Name" style="width:100%; margin-bottom: 0.8rem; padding: 12px;">
+                                    <input type="email" id="pw-email" class="btn-glass" placeholder="Official Email Address" style="width:100%; margin-bottom: 0.8rem; padding: 12px;">
+                                </div>
                                 <input type="password" id="pw-pass" class="btn-glass" placeholder="Account Password" style="width:100%; margin-bottom: 1.5rem; padding: 12px;">
                                 <button class="btn btn-primary" style="width: 100%; padding: 12px;" onclick="pwNext(2)">Next: Account Permissions &rarr;</button>
                             </div>
@@ -125,16 +137,17 @@
                             <div class="wizard-step" id="pw-step-2">
                                 <h3 style="color: var(--cmd-accent);">02. ACCOUNT TYPE</h3>
                                 <p style="font-size: 0.75rem; color: var(--text-dim); margin-bottom: 1.5rem;">Select the role and clearance level.</p>
-                                <select id="pw-role" class="btn-glass" style="width:100%; margin-bottom: 1rem; padding: 12px;" onchange="toggleInstSelection()">
-                                    <option value="FERWAFA">National Hub (FERWAFA)</option>
-                                    <option value="CLUB">Club Administrator</option>
-                                    <option value="SCHOOL">School Official</option>
-                                    <option value="ACADEMY">Academy Lead</option>
-                                    <option value="SCOUT">National Scout</option>
-                                </select>
-                                <div id="pw-inst-group" style="display:none; margin-bottom: 1rem;">
-                                    <label style="font-size:0.6rem; color:var(--cmd-accent);">LINK TO INSTITUTION</label>
-                                    <select id="pw-inst" class="btn-glass" style="width:100%; padding: 12px; margin-top: 5px;"></select>
+                                <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                    <select id="pw-role" class="btn-glass" style="width:100%; margin-bottom: 1rem; padding: 12px;" onchange="toggleInstSelection()">
+                                        <option value="FERWAFA">National Hub (FERWAFA)</option>
+                                        <option value="CLUB">Club Administrator</option>
+                                        <option value="SCHOOL">School Official</option>
+                                        <option value="ACADEMY">Academy Lead</option>
+                                        <option value="SCOUT">National Scout</option>
+                                    </select>
+                                    <div id="pw-inst-group" style="display:none;">
+                                        <select id="pw-inst" class="btn-glass" style="width:100%; padding: 12px;"></select>
+                                    </div>
                                 </div>
                                 <button class="btn btn-primary" style="width: 100%; padding: 12px;" onclick="pwNext(3)">Next: Profile Identity &rarr;</button>
                                 <button class="btn" style="width: 100%; font-size: 0.7rem; color:var(--text-dim);" onclick="pwNext(1)">Back</button>
@@ -143,37 +156,42 @@
                             <div class="wizard-step" id="pw-step-3">
                                 <h3 style="color: var(--cmd-accent);">03. PROFILE PHOTO</h3>
                                 <p style="font-size: 0.75rem; color: var(--text-dim); margin-bottom: 1.5rem;">Upload the professional profile photo.</p>
-                                <div id="pw-photo-preview" class="preview-box" style="width:120px; height:120px; border-radius:12%; margin: 1.5rem auto; cursor:pointer; border: 2px dashed var(--cmd-accent);" onclick="document.getElementById('pw-photo-input').click()">
-                                    <span style="font-size: 2rem;">📸</span>
+                                <div id="pw-photo-preview" class="preview-box" style="width:100px; height:100px; border-radius:12%; margin: 1rem auto; cursor:pointer; border: 2px dashed var(--cmd-accent);" onclick="document.getElementById('pw-photo-input').click()">
+                                    <span style="font-size: 1.5rem;">📸</span>
                                 </div>
                                 <input type="file" id="pw-photo-input" hidden onchange="handlePWUpload(this)">
-                                <button class="btn btn-primary" style="width: 100%; padding: 15px; font-weight: bold; margin-top: 1rem;" onclick="pwFinalize()">FINALIZE & AUTHORIZE ACCOUNT</button>
+                                <button class="btn btn-primary" style="width: 100%; padding: 15px; font-weight: bold; margin-top: 1rem;" onclick="pwFinalize()">AUTHORIZE NATIONAL ACCOUNT</button>
                                 <button class="btn" style="width: 100%; font-size: 0.7rem; color:var(--text-dim);" onclick="pwNext(2)">Back</button>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- [READ/UPDATE/DELETE] Master User Ledger -->
-                    <div class="card glass tech">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1.5rem;">
-                            <h3>National Administrative Ledger</h3>
-                            <input type="text" id="ledger-search" class="btn-glass" placeholder="Search Personnel..." style="padding: 6px 15px; font-size: 0.8rem; border-radius: 20px;">
+                <!-- [LEDGER HUB] Full-Width Administrative Records -->
+                <div class="card glass tech" style="margin-top: 2rem;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1.5rem;">
+                        <h3 style="color: var(--text-main);">National Administrative Ledger</h3>
+                        <div style="display:flex; gap: 10px; align-items:center;">
+                            <span style="font-size: 0.7rem; color: var(--text-dim);">Live Database View</span>
+                            <input type="text" id="ledger-search" class="btn-glass" placeholder="Search Personnel by Identity..." style="padding: 10px 15px; font-size: 0.8rem; border-radius: 10px; width: 300px;">
                         </div>
-                        <div style="max-height: 600px; overflow-y: auto;">
-                            <table class="data-table" style="width: 100%; border-collapse: collapse;">
-                                <thead>
-                                    <tr>
-                                        <th style="padding: 12px; text-align: left;">IDENTITY</th>
-                                        <th style="padding: 12px; text-align: left;">ROLE/INSTITUTION</th>
-                                        <th style="padding: 12px; text-align: left;">STATUS</th>
-                                        <th style="padding: 12px; text-align: right;">OVERRIDE</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="master-user-ledger">
-                                    <!-- Logins go here -->
-                                </tbody>
-                            </table>
-                        </div>
+                    </div>
+                    <div style="max-height: 800px; overflow-y: auto;">
+                        <table class="data-table" style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr>
+                                    <th style="padding: 15px; text-align: left;">ENTITY IDENTITY</th>
+                                    <th style="padding: 15px; text-align: left;">CLEARANCE / REGION</th>
+                                    <th style="padding: 15px; text-align: left;">AUTHORIZATION</th>
+                                    <th style="padding: 15px; text-align: right;">OVERRIDE</th>
+                                </tr>
+                            </thead>
+                            <tbody id="master-user-ledger">
+                                <tr id="ledger-loading-state">
+                                    <td colspan="4" style="text-align:center; padding:3rem; color:var(--text-dim);">Synchronizing with National Personnel Registry...</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </section>
@@ -280,6 +298,21 @@
     <script>
         // --- TACTICAL NAVIGATION ---
         let activeTab = 'cmd-core';
+
+        function toggleWizard() {
+            const wiz = document.getElementById('master-wizard');
+            const btn = document.getElementById('btn-toggle-wizard');
+            if(wiz.style.display === 'none') {
+                wiz.style.display = 'block';
+                btn.textContent = 'Minimize Action Hub';
+                btn.classList.add('active');
+            } else {
+                wiz.style.display = 'none';
+                btn.textContent = 'Initialize New Account';
+                btn.classList.remove('active');
+            }
+        }
+
         function showTab(tabId) {
             activeTab = tabId;
             document.querySelectorAll('.tab-pane').forEach(t => t.classList.remove('active'));
@@ -461,33 +494,46 @@
                 if(!Array.isArray(users)) return;
 
                 document.getElementById('master-user-ledger').innerHTML = users.map(u => `
-                    <tr>
-                        <td style="padding:15px; display:flex; gap:12px; align-items:center;">
-                            <div style="width:40px; height:40px; border-radius:12%; background:rgba(255,255,255,0.05); overflow:hidden; border:1px solid rgba(99,102,241,0.2);">
-                                ${u.photo_url ? `<img src="${u.photo_url}" style="width:100%; height:100%; object-fit:cover;">` : '<span style="display:block; text-align:center; line-height:40px; font-size:1.2rem;">👤</span>'}
-                            </div>
-                            <div>
-                                <div style="font-weight:bold; font-size:0.9rem;">${u.full_name || 'Anonymous Entity'}</div>
-                                <div style="font-size:0.75rem; color:var(--text-dim);">${u.email}</div>
+                    <tr class="ledger-row">
+                        <td style="padding:15px;">
+                            <div style="display:flex; gap:12px; align-items:center;">
+                                <div style="width:40px; height:40px; border-radius:12%; background:rgba(255,255,255,0.05); overflow:hidden; border:1px solid rgba(99,102,241,0.2); flex-shrink:0;">
+                                    ${u.photo_url ? `<img src="${u.photo_url}" style="width:100%; height:100%; object-fit:cover;">` : '<span style="display:block; text-align:center; line-height:40px; font-size:1.2rem;">👤</span>'}
+                                </div>
+                                <div>
+                                    <div style="font-weight:bold; font-size:0.9rem;">${u.full_name || 'Anonymous Entity'}</div>
+                                    <div style="font-size:0.75rem; color:var(--text-dim);">${u.email}</div>
+                                </div>
                             </div>
                         </td>
                         <td style="padding:15px;">
-                            <span class="badge" style="background:${u.role==='FERWAFA'?'var(--cmd-accent)':'rgba(255,255,255,0.1)'}; color:#fff; font-size:0.6rem;">${u.role}</span>
-                            <div style="font-size:0.65rem; color:var(--text-dim); margin-top:4px;">National Infrastructure</div>
+                            <span class="badge" style="background:${u.role==='FERWAFA'?'var(--cmd-accent)': u.role==='SUPER_ADMIN'?'var(--cmd-warning)':'rgba(255,255,255,0.1)'}; color:#fff; font-size:0.65rem;">${u.role}</span>
+                            <div style="font-size:0.65rem; color:var(--text-dim); margin-top:4px;">${u.institution_id ? 'Entity #'+u.institution_id : 'National Level'}</div>
                         </td>
                         <td style="padding:15px;">
-                            <span class="badge" style="background:${u.is_active?'var(--cmd-success)':'var(--cmd-danger)'}; color:#fff; font-size:0.6rem;">${u.is_active?'AUTHORIZED':'REVOKED'}</span>
+                            <span class="badge" style="background:${u.is_active?'var(--cmd-success)':'var(--cmd-danger)'}; color:#fff; font-size:0.65rem;">${u.is_active?'AUTHORIZED':'REVOKED'}</span>
                         </td>
-                        <td style="padding:15px; text-align:right; display:flex; gap:5px; justify-content:flex-end;">
-                            <button class="btn btn-glass" onclick="editOverride(${u.id}, '${u.full_name}', '${u.email}')" style="font-size:0.6rem; padding:4px 8px; border-color:var(--cmd-accent); color:var(--cmd-accent);">UPDATE</button>
-                            <button class="btn btn-glass" onclick="deletePersonnel(${u.id})" style="font-size:0.6rem; padding:4px 8px; border-color:var(--cmd-danger); color:var(--cmd-danger);">REMOVE</button>
+                        <td style="padding:15px; text-align:right;">
+                            <div style="display:flex; gap:5px; justify-content:flex-end;">
+                                <button class="btn btn-glass" onclick="editOverride(${u.id}, '${(u.full_name||'').replace(/'/g,"\\'")}', '${u.email}')" style="font-size:0.6rem; padding:4px 10px; border-color:var(--cmd-accent); color:var(--cmd-accent);">UPDATE</button>
+                                <button class="btn btn-glass" onclick="deletePersonnel(${u.id})" style="font-size:0.6rem; padding:4px 10px; border-color:var(--cmd-danger); color:var(--cmd-danger);">REMOVE</button>
+                            </div>
                         </td>
                     </tr>
                 `).join('');
             } catch(e) {
                 console.error("Ledger Load Failed", e);
+                document.getElementById('master-user-ledger').innerHTML = '<tr><td colspan="4" style="text-align:center; padding:2rem; color:var(--cmd-danger);">Failed to load personnel data. Check server connection.</td></tr>';
             }
         }
+
+        // Real-time ledger search
+        document.getElementById('ledger-search').addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            document.querySelectorAll('.ledger-row').forEach(row => {
+                row.style.display = row.innerText.toLowerCase().includes(term) ? '' : 'none';
+            });
+        });
 
         async function deletePersonnel(id) {
             if(!confirm("TECHNICAL DELETION: This account will be purged from the national grid permanently. Confirm?")) return;
