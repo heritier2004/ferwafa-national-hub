@@ -156,6 +156,9 @@
 
         <!-- 🖥️ National Stage -->
         <main class="main-stage">
+            <div style="background: var(--gold-premium); color: #000; padding: 12px; text-align: center; font-weight: 800; letter-spacing: 2px; margin-bottom: 20px; border-radius: 8px; font-size: 0.9rem; box-shadow: 0 4px 15px rgba(255,215,0,0.3);">
+                🏆 YOU ARE IN THE FERWAFA NATIONAL DASHBOARD 🏆
+            </div>
             
             <!-- ⚡ TAB: COMMAND BOARD -->
             <section id="overview" class="tab-pane active">
@@ -204,46 +207,119 @@
                     <div style="flex: 1;"></div>
                     <button class="btn btn-primary" style="padding: 10px 20px; font-size: 0.8rem;" onclick="toggleFerwafaAction('user')" id="btn-add-user">+ Add User</button>
                     <button class="btn btn-glass" style="padding: 10px 20px; font-size: 0.8rem;" onclick="toggleFerwafaAction('inst')" id="btn-add-inst">+ Add Institution</button>
-                    <input type="text" id="ledger-search" class="btn-glass" placeholder="Search by Name or Email..." style="width: 280px; padding: 10px;">
+                    <input type="text" id="ledger-search" class="input-glass" placeholder="Search by Name or Email..." style="width: 280px; padding: 10px;">
                 </div>
 
                 <!-- [ACTION HUB] Add User Form -->
                 <div id="ferwafa-add-user" class="command-card" style="display:none; margin-bottom: 1.5rem; border-color: var(--jade);">
                     <h3 style="color: var(--jade); margin-bottom: 1rem;">Register New Personnel</h3>
-                    <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
-                        <input type="text" id="fw-name" class="btn-glass" placeholder="Full Name" style="padding:12px;">
-                        <input type="email" id="fw-email" class="btn-glass" placeholder="Official Email" style="padding:12px;">
-                        <input type="password" id="fw-pass" class="btn-glass" placeholder="Password" style="padding:12px;">
-                        <select id="fw-role" class="btn-glass" style="padding:12px;" onchange="document.getElementById('fw-inst-wrap').style.display = (this.value==='FERWAFA'||this.value==='SCOUT') ? 'none' : 'block';">
-                            <option value="CLUB">Club Administrator</option>
-                            <option value="SCHOOL">School Official</option>
-                            <option value="ACADEMY">Academy Lead</option>
-                            <option value="SCOUT">National Scout</option>
-                        </select>
-                        <div id="fw-inst-wrap">
-                            <select id="fw-inst" class="btn-glass" style="padding:12px; width:100%;"></select>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
+                        <div>
+                            <label style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 5px; display: block;">Full Name</label>
+                            <input type="text" id="fw-name" class="input-glass" placeholder="e.g. John Doe">
                         </div>
-                        <button class="btn btn-primary" style="padding:12px;" onclick="ferwafaCreateUser()">Authorize Account</button>
+                        <div>
+                            <label style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 5px; display: block;">Official Email</label>
+                            <input type="email" id="fw-email" class="input-glass" placeholder="john@ferwafa.rw">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 5px; display: block;">Password</label>
+                            <input type="password" id="fw-pass" class="input-glass" placeholder="Secure Password">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 5px; display: block;">Access Role</label>
+                            <select id="fw-role" class="input-glass" onchange="document.getElementById('fw-inst-wrap').style.display = (this.value==='FERWAFA'||this.value==='SCOUT') ? 'none' : 'block';">
+                                <option value="CLUB">Club Administrator</option>
+                                <option value="SCHOOL">School Official</option>
+                                <option value="ACADEMY">Academy Lead</option>
+                                <option value="SCOUT">National Scout</option>
+                            </select>
+                        </div>
+                        <div id="fw-inst-wrap">
+                            <label style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 5px; display: block;">Assign Institution</label>
+                            <select id="fw-inst" class="input-glass"></select>
+                        </div>
+                        <div style="display: flex; align-items: flex-end;">
+                            <button class="btn btn-primary" style="width: 100%;" onclick="ferwafaCreateUser()">Authorize Account</button>
+                        </div>
                     </div>
                 </div>
 
                 <!-- [ACTION HUB] Add Institution Form -->
                 <div id="ferwafa-add-inst" class="command-card" style="display:none; margin-bottom: 1.5rem; border-color: var(--gold-premium);">
-                    <h3 style="color: var(--gold-premium); margin-bottom: 1rem;">Register New Institution</h3>
-                    <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
-                        <input type="text" id="fi-name" class="btn-glass" placeholder="Institution Name" style="padding:12px;">
-                        <select id="fi-type" class="btn-glass" style="padding:12px;">
-                            <option value="club">Club</option>
-                            <option value="school">School</option>
-                            <option value="academy">Academy</option>
-                        </select>
-                        <input type="text" id="fi-code" class="btn-glass" placeholder="Code (e.g. KIG-FC)" style="padding:12px;">
-                        <input type="text" id="fi-stadium" class="btn-glass" placeholder="Stadium Name" style="padding:12px;">
-                        <input type="text" id="fi-province" class="btn-glass" placeholder="Province" style="padding:12px;">
-                        <input type="text" id="fi-district" class="btn-glass" placeholder="District" style="padding:12px;">
-                        <input type="text" id="fi-sector" class="btn-glass" placeholder="Sector" style="padding:12px;">
-                        <input type="text" id="fi-cell" class="btn-glass" placeholder="Cell" style="padding:12px;">
-                        <button class="btn btn-primary" style="padding:12px; background: var(--gold-premium); color: #000;" onclick="ferwafaCreateInst()">Register Institution</button>
+                    <h3 style="color: var(--gold-premium); margin-bottom: 1rem;">Register New Institution (Full Node)</h3>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
+                        
+                        <div style="grid-column: 1 / -1; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 5px;">
+                            <h4 style="color: var(--gold-premium); margin:0; font-size:1rem;">1. Core Identity</h4>
+                        </div>
+                        <div>
+                            <label style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 5px; display: block;">Institution Name</label>
+                            <input type="text" id="fi-name" class="input-glass" placeholder="e.g. Rayon Sports">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 5px; display: block;">Entity Type</label>
+                            <select id="fi-type" class="input-glass">
+                                <option value="club">Club</option>
+                                <option value="school">School</option>
+                                <option value="academy">Academy</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 5px; display: block;">Institution Code</label>
+                            <input type="text" id="fi-code" class="input-glass" placeholder="e.g. RAY-FC">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 5px; display: block;">Official Logo (Upload)</label>
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <div id="fi-logo-preview" class="preview-box" style="width:40px; height:40px; margin:0; border-radius:8px; border:1px dashed var(--gold-premium); cursor:pointer; display:flex; align-items:center; justify-content:center;" onclick="document.getElementById('fi-logo-input').click()">➕</div>
+                                <input type="file" id="fi-logo-input" hidden onchange="handleInstLogoUpload(this)">
+                                <span style="font-size: 0.7rem; color: var(--text-dim);">Click to upload</span>
+                            </div>
+                        </div>
+
+                        <div style="grid-column: 1 / -1; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 5px; margin-top: 10px;">
+                            <h4 style="color: var(--gold-premium); margin:0; font-size:1rem;">2. Admin Manager Account</h4>
+                        </div>
+                        <div>
+                            <label style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 5px; display: block;">Admin Username</label>
+                            <input type="text" id="fi-admin-name" class="input-glass" placeholder="e.g. John Manager">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 5px; display: block;">Admin Email</label>
+                            <input type="email" id="fi-admin-email" class="input-glass" placeholder="admin@club.rw">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 5px; display: block;">Admin Password</label>
+                            <input type="password" id="fi-admin-pass" class="input-glass" placeholder="Secure Password">
+                        </div>
+                        
+                        <div style="grid-column: 1 / -1; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 5px; margin-top: 10px;">
+                            <h4 style="color: var(--gold-premium); margin:0; font-size:1rem;">3. Location & Youth Tracking</h4>
+                        </div>
+                        <div>
+                            <label style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 5px; display: block;">Host Stadium / Match Venue</label>
+                            <input type="text" id="fi-stadium" class="input-glass" placeholder="e.g. Amahoro Stadium">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 5px; display: block;">Province</label>
+                            <input type="text" id="fi-province" class="input-glass" placeholder="e.g. Kigali">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 5px; display: block;">District</label>
+                            <input type="text" id="fi-district" class="input-glass" placeholder="e.g. Gasabo">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 5px; display: block;">Sector</label>
+                            <input type="text" id="fi-sector" class="input-glass" placeholder="e.g. Remera">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 5px; display: block;">Cell</label>
+                            <input type="text" id="fi-cell" class="input-glass" placeholder="e.g. Rukiri">
+                        </div>
+                        <div style="grid-column: 1/-1; display: flex; align-items: flex-end; margin-top: 10px;">
+                            <button class="btn btn-primary" style="width: 100%; background: var(--gold-premium); color: #000;" onclick="ferwafaCreateInst()">Onboard Full Node & Authority Profile</button>
+                        </div>
                     </div>
                 </div>
 
@@ -285,11 +361,11 @@
                             <div style="margin-top: 1rem; display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                                 <div>
                                     <label style="font-size:0.8rem; color:var(--text-dim);">Competition Name</label>
-                                    <input type="text" id="viz-comp-name" class="btn-glass" style="width:100%;" placeholder="e.g. Premier League 2026/27">
+                                    <input type="text" id="viz-comp-name" class="input-glass" placeholder="e.g. Premier League 2026/27">
                                 </div>
                                 <div>
                                     <label style="font-size:0.8rem; color:var(--text-dim);">Format</label>
-                                    <select id="viz-comp-type" class="btn-glass" style="width:100%;">
+                                    <select id="viz-comp-type" class="input-glass">
                                         <option value="LEAGUE">Round Robin (League)</option>
                                         <option value="CUP">Knockout (Cup)</option>
                                         <option value="YOUTH">Youth League (Age Restricted)</option>
@@ -297,7 +373,7 @@
                                 </div>
                                 <div>
                                     <label style="font-size:0.8rem; color:var(--text-dim);">Opening Date</label>
-                                    <input type="date" id="viz-comp-start" class="btn-glass" style="width:100%;">
+                                    <input type="date" id="viz-comp-start" class="input-glass">
                                 </div>
                             </div>
                             <button class="btn btn-glass" style="margin-top: 1.5rem;" onclick="wizardNext(1)">Back</button>
@@ -318,15 +394,62 @@
                 </div>
             </section>
 
-            <!-- ⚡ TAB: TALENT INTELLIGENCE (YOUTH HUB) -->
+            <!-- ⚡ TAB: TALENT INTELLIGENCE (FULL YOUTH/SCHOOL/ACADEMY HUB) -->
             <section id="talent" class="tab-pane">
                 <div class="hero-banner">
-                    <h1>National Talent Hub</h1>
-                    <p style="color: var(--jade);">Monitoring youth development across Schools and Academies.</p>
+                    <h1>National Talent Intelligence Hub</h1>
+                    <p style="color: var(--jade);">Complete oversight of youth and senior talent across Schools, Academies, and Clubs.</p>
                 </div>
 
-                <div id="talent-grid" class="dashboard-grid">
-                    <!-- Cards will be injected here -->
+                <!-- Stats Overview -->
+                <div class="intelligence-row" id="talent-stats" style="margin-top: 1.5rem;">
+                    <div class="boss-stat command-card">
+                        <div style="color: var(--jade); font-size: 0.75rem; font-weight: 800;">TOTAL PLAYERS</div>
+                        <div class="stat-value" id="ts-total">--</div>
+                    </div>
+                    <div class="boss-stat command-card">
+                        <div style="color: #3b82f6; font-size: 0.75rem; font-weight: 800;">SCHOOL TALENT</div>
+                        <div class="stat-value" id="ts-school">--</div>
+                    </div>
+                    <div class="boss-stat command-card">
+                        <div style="color: #8b5cf6; font-size: 0.75rem; font-weight: 800;">ACADEMY YOUTH</div>
+                        <div class="stat-value" id="ts-academy">--</div>
+                    </div>
+                </div>
+
+                <!-- Category Filters -->
+                <div style="display: flex; gap: 10px; margin: 1.5rem 0; flex-wrap: wrap; align-items: center;">
+                    <button class="tab-btn-pill active" id="tl-btn-all" onclick="loadTalentCategory('all')">🌍 All Talent</button>
+                    <button class="tab-btn-pill" id="tl-btn-school" onclick="loadTalentCategory('school')">🏫 School Talent</button>
+                    <button class="tab-btn-pill" id="tl-btn-academy" onclick="loadTalentCategory('academy')">⚽ Academy Youth</button>
+                    <button class="tab-btn-pill" id="tl-btn-club" onclick="loadTalentCategory('club')">🏟️ Club Seniors</button>
+                    <div style="flex:1;"></div>
+                    <select id="tl-age-filter" class="input-glass" style="padding:10px; width:auto;" onchange="loadTalentCategory(currentTalentCategory)">
+                        <option value="">All Ages</option>
+                        <option value="15">U-15 (Under 15)</option>
+                        <option value="17">U-17 (Under 17)</option>
+                        <option value="20">U-20 (Under 20)</option>
+                        <option value="23">U-23 (Under 23)</option>
+                    </select>
+                    <input type="text" id="talent-search" class="input-glass" placeholder="Search by name..." style="width:220px; padding:10px;" oninput="filterTalentCards()">
+                </div>
+
+                <!-- Institution Drill-Down -->
+                <div class="command-card" style="margin-bottom: 1.5rem; padding: 1rem 1.5rem;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <span style="font-size: 0.8rem; color: var(--gold-premium); font-weight: 800;">INSTITUTION DRILL-DOWN</span>
+                            <span style="font-size: 0.7rem; color: var(--text-dim); margin-left: 10px;">Select to view all players of a specific institution</span>
+                        </div>
+                        <select id="tl-inst-select" class="input-glass" style="padding:10px; width:auto; min-width:250px;" onchange="loadInstitutionTalent(this.value)">
+                            <option value="">— Choose Institution —</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Talent Cards Grid -->
+                <div id="talent-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem;">
+                    <div style="grid-column: 1/-1; text-align:center; padding:3rem; color:var(--text-dim);">Loading talent data...</div>
                 </div>
             </section>
 
@@ -356,7 +479,7 @@
                     <button class="tab-btn-pill" id="db-btn-users" onclick="loadDbTable('users')">Users</button>
                     <button class="tab-btn-pill" id="db-btn-system_activity" onclick="loadDbTable('system_activity')">System Activity</button>
                     <div style="flex:1;"></div>
-                    <input type="text" id="db-search" class="btn-glass" placeholder="Filter results..." style="width: 250px; padding: 10px;" oninput="filterDbTable()">
+                    <input type="text" id="db-search" class="input-glass" placeholder="Filter results..." style="width: 250px; padding: 10px;" oninput="filterDbTable()">
                 </div>
 
                 <div class="command-card" style="padding: 0;">
@@ -398,25 +521,117 @@
             if (tabId === 'database') loadDbTable('players');
         }
 
+        let currentTalentCategory = 'all';
+        let allTalentData = [];
+
         async function loadTalentHub() {
+            // Initial load
+            await loadTalentCategory('all');
+            
+            // Populate institution drill down
+            const cRes = await fetch('/api/ferwafa/entities/all');
+            const insts = await cRes.json();
+            const instSelect = document.getElementById('tl-inst-select');
+            if (instSelect) {
+                instSelect.innerHTML = '<option value="">— Choose Institution —</option>' + 
+                    insts.map(i => `<option value="${i.id}">${i.name} (${i.type})</option>`).join('');
+            }
+            
+            // Load stats
             try {
-                const res = await fetch('/api/ferwafa/scouting/top-players');
-                const players = await res.json();
-                document.getElementById('talent-grid').innerHTML = players.map(p => `
-                    <div class="command-card">
-                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1rem;">
-                            <div class="national-seal-large" style="width:50px; height:50px; font-size:1.5rem; margin:0;">👤</div>
-                            <span class="badge ${p.age <= 17 ? 'badge-youth' : 'badge-history'}">${p.age <= 17 ? 'YOUTH PROSPECT' : 'SNR PROSPECT'}</span>
+                const sRes = await fetch('/api/ferwafa/scouting/stats');
+                const stats = await sRes.json();
+                document.getElementById('ts-total').textContent = stats.total_players;
+                document.getElementById('ts-school').textContent = stats.school_players;
+                document.getElementById('ts-academy').textContent = stats.academy_players;
+            } catch(e) { console.error("Error loading stats:", e); }
+        }
+
+        async function loadTalentCategory(category) {
+            currentTalentCategory = category;
+            
+            // Update UI buttons
+            document.querySelectorAll('[id^="tl-btn-"]').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`tl-btn-${category}`).classList.add('active');
+            
+            // Get age filter
+            const ageLmt = document.getElementById('tl-age-filter').value;
+            
+            let url = `/api/ferwafa/scouting/top-players?`;
+            if (category !== 'all') url += `institution_type=${category}&`;
+            if (ageLmt) url += `max_age=${ageLmt}`;
+            
+            document.getElementById('talent-grid').innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding:3rem; color:var(--text-dim);">Loading talent...</div>';
+            
+            try {
+                const res = await fetch(url);
+                allTalentData = await res.json();
+                renderTalentCards(allTalentData);
+            } catch(e) {
+                document.getElementById('talent-grid').innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding:3rem; color:#ef4444;">Error mapping talent: ${e.message}</div>`;
+            }
+        }
+
+        async function loadInstitutionTalent(instId) {
+            if (!instId) return loadTalentCategory(currentTalentCategory);
+            
+            document.getElementById('talent-grid').innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding:3rem; color:var(--text-dim);">Loading institution talent...</div>';
+            
+            try {
+                const res = await fetch(`/api/ferwafa/scouting/by-institution/${instId}`);
+                allTalentData = await res.json();
+                renderTalentCards(allTalentData);
+            } catch(e) {
+                document.getElementById('talent-grid').innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding:3rem; color:#ef4444;">Error mapping talent: ${e.message}</div>`;
+            }
+        }
+
+        function renderTalentCards(data) {
+            if (!data.length) {
+                document.getElementById('talent-grid').innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding:3rem; color:var(--text-dim);">No talent registered matching these criteria.</div>';
+                return;
+            }
+            
+            document.getElementById('talent-grid').innerHTML = data.map(p => {
+                const isYouth = p.age && p.age <= 20;
+                let bgBadge = isYouth ? 'var(--jade)' : 'var(--accent)';
+                let txtBadge = isYouth ? 'YOUTH PROSPECT' : 'SENIOR TALENT';
+                
+                return `
+                <div class="command-card talent-card">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1rem;">
+                        <div class="national-seal-large" style="width:50px; height:50px; font-size:1.5rem; margin:0;">
+                            ${p.photo_url ? `<img src="${p.photo_url}" style="width:100%; border-radius:5px;">` : '👤'}
                         </div>
-                        <h3 style="margin:5px 0;">${p.name}</h3>
-                        <div style="font-size:0.8rem; color:var(--jade); margin-bottom:1rem;">${p.position} • Age ${p.age}</div>
-                        <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.03); padding:10px; border-radius:10px;">
-                            <span style="font-size:0.75rem; color:var(--text-dim);">${p.club}</span>
-                            <span style="font-weight:bold; color:var(--gold-premium);">${p.stars} ⭐</span>
+                        <span class="badge" style="background:${bgBadge}; color:white; font-size:0.6rem;">${txtBadge}</span>
+                    </div>
+                    <h3 style="margin:5px 0; font-size:1.1rem; color:white;">${p.name}</h3>
+                    <div style="font-size:0.8rem; color:var(--gold-premium); margin-bottom:1rem;">${p.position} • Age: ${p.age !== 'N/A' ? p.age : '?'}</div>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px; margin-bottom:0.5rem; font-size:0.75rem; color:var(--text-dim);">
+                        <div>Height: <span style="color:white;">${p.height || '--'}m</span></div>
+                        <div>Weight: <span style="color:white;">${p.weight || '--'}kg</span></div>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.03); padding:10px; border-radius:10px;">
+                        <div style="display:flex; flex-direction:column;">
+                            <span style="font-size:0.65rem; color:var(--text-dim); text-transform:uppercase;">${p.type || 'institution'}</span>
+                            <span style="font-size:0.75rem; font-weight:bold; color:white;">${p.club || 'N/A'}</span>
+                        </div>
+                        <div style="text-align:right;">
+                            <span style="font-size:0.65rem; color:var(--text-dim); display:block;">AI RATING</span>
+                            <span style="font-weight:900; color:var(--gold-premium); font-size:1rem;">${p.stars || '0'} ⭐</span>
                         </div>
                     </div>
-                `).join('');
-            } catch(e) {}
+                </div>
+            `}).join('');
+        }
+
+        function filterTalentCards() {
+            const term = document.getElementById('talent-search').value.toLowerCase();
+            const cards = document.querySelectorAll('.talent-card');
+            cards.forEach(card => {
+                const text = card.innerText.toLowerCase();
+                card.style.display = text.includes(term) ? '' : 'none';
+            });
         }
 
         // Real-time Search Logic
@@ -465,14 +680,22 @@
         }
 
         async function ferwafaCreateUser() {
-            const name = document.getElementById('fw-name').value;
-            const email = document.getElementById('fw-email').value;
-            const pass = document.getElementById('fw-pass').value;
+            const name = document.getElementById('fw-name').value.trim();
+            const email = document.getElementById('fw-email').value.trim();
+            const pass = document.getElementById('fw-pass').value.trim();
             const role = document.getElementById('fw-role').value;
             const instId = document.getElementById('fw-inst').value;
-            if(!name || !email || !pass) return alert('Please fill all fields.');
+            
+            if(!name || !email || !pass) return alert('Please fill all user details.');
+            if((role === 'CLUB' || role === 'SCHOOL' || role === 'ACADEMY') && !instId) {
+                return alert('Please select an institution for this role before completing registration.');
+            }
 
-            let url = `/api/ferwafa/users/manage?email=${encodeURIComponent(email)}&full_name=${encodeURIComponent(name)}&password=${encodeURIComponent(pass)}&role=${role}&institution_id=${instId}`;
+            let url = `/api/ferwafa/users/manage?email=${encodeURIComponent(email)}&full_name=${encodeURIComponent(name)}&password=${encodeURIComponent(pass)}&role=${role}`;
+            if (role !== 'FERWAFA' && role !== 'SCOUT' && instId) {
+                url += `&institution_id=${instId}`;
+            }
+
             try {
                 const res = await fetch(url, { method: 'POST' });
                 const data = await res.json();
@@ -486,24 +709,54 @@
             } catch(e) { alert('Error: ' + e.message); }
         }
 
-        async function ferwafaCreateInst() {
-            const name = document.getElementById('fi-name').value;
-            const type = document.getElementById('fi-type').value;
-            const code = document.getElementById('fi-code').value;
-            const stadium = document.getElementById('fi-stadium').value;
-            const province = document.getElementById('fi-province').value;
-            const district = document.getElementById('fi-district').value;
-            const sector = document.getElementById('fi-sector').value;
-            const cell = document.getElementById('fi-cell').value;
-            if(!name || !code) return alert('Name and Code are required.');
+        let fiLogoUrl = null;
+        async function handleInstLogoUpload(input) {
+            const file = input.files[0];
+            if(!file) return;
+            const formData = new FormData();
+            formData.append('file', file);
+            try {
+                // Same upload endpoint from the main system framework
+                const res = await fetch('/api/upload', { method: 'POST', body: formData });
+                if(!res.ok) throw new Error(`Upload Failed: ${res.status}`);
+                const data = await res.json();
+                fiLogoUrl = data.url;
+                document.getElementById('fi-logo-preview').innerHTML = `<img src="${data.url}" style="width:100%; height:100%; border-radius:8px; object-fit:cover;">`;
+            } catch(e) { 
+                alert(`Upload Error: ${e.message}`); 
+            }
+        }
 
-            let url = `/api/ferwafa/entities/create?name=${encodeURIComponent(name)}&type=${type}&code=${encodeURIComponent(code)}&stadium_name=${encodeURIComponent(stadium)}&province=${encodeURIComponent(province)}&district=${encodeURIComponent(district)}&sector=${encodeURIComponent(sector)}&cell=${encodeURIComponent(cell)}`;
+        async function ferwafaCreateInst() {
+            const name = document.getElementById('fi-name').value.trim();
+            const type = document.getElementById('fi-type').value;
+            const code = document.getElementById('fi-code').value.trim();
+            
+            const adminName = document.getElementById('fi-admin-name').value.trim();
+            const adminEmail = document.getElementById('fi-admin-email').value.trim();
+            const adminPass = document.getElementById('fi-admin-pass').value.trim();
+            const logo = fiLogoUrl || '';
+
+            
+            const stadium = document.getElementById('fi-stadium').value.trim();
+            const province = document.getElementById('fi-province').value.trim();
+            const district = document.getElementById('fi-district').value.trim();
+            const sector = document.getElementById('fi-sector').value.trim();
+            const cell = document.getElementById('fi-cell').value.trim();
+            
+            if(!name || !type || !code || !adminName || !adminEmail || !adminPass || !logo || !stadium || !province || !district || !sector || !cell) {
+                return alert('Every aspect of the institution, including Admin Account details, Logo, and full Youth Tracking Locations must be completed.');
+            }
+
+            let url = `/api/ferwafa/onboard/full-node?name=${encodeURIComponent(name)}&type=${type}&code=${encodeURIComponent(code)}&stadium_name=${encodeURIComponent(stadium)}&province=${encodeURIComponent(province)}&district=${encodeURIComponent(district)}&sector=${encodeURIComponent(sector)}&cell=${encodeURIComponent(cell)}&admin_email=${encodeURIComponent(adminEmail)}&admin_name=${encodeURIComponent(adminName)}&admin_pass=${encodeURIComponent(adminPass)}&logo_url=${encodeURIComponent(logo)}`;
             try {
                 const res = await fetch(url, { method: 'POST' });
                 const data = await res.json();
                 if(!res.ok) throw new Error(data.detail || 'Failed');
                 alert(data.message);
-                ['fi-name','fi-code','fi-stadium','fi-province','fi-district','fi-sector','fi-cell'].forEach(id => document.getElementById(id).value = '');
+                ['fi-name','fi-code','fi-admin-name','fi-admin-email','fi-admin-pass','fi-stadium','fi-province','fi-district','fi-sector','fi-cell'].forEach(id => document.getElementById(id).value = '');
+                fiLogoUrl = null;
+                document.getElementById('fi-logo-preview').innerHTML = '➕';
                 document.getElementById('ferwafa-add-inst').style.display = 'none';
                 loadLedger();
             } catch(e) { alert('Error: ' + e.message); }
@@ -557,8 +810,8 @@
                                 <td>${u.institution || 'N/A'}</td>
                                 <td>${u.is_active ? '<span style="color:var(--jade);">ACTIVE</span>' : '<span style="color:var(--accent);">LOCKED</span>'}</td>
                                 <td style="display:flex; gap:5px;">
-                                    <button class="btn btn-glass" style="padding:4px 10px; font-size:0.7rem;" onclick="ferwafaEditUser(${u.id})">EDIT</button>
-                                    <button class="btn btn-glass" style="padding:4px 10px; font-size:0.7rem; border-color:var(--gold-premium); color:var(--gold-premium);" onclick="ferwafaToggleUser(${u.id}, ${u.is_active})">${u.is_active ? 'LOCK' : 'UNLOCK'}</button>
+                                    <button class="btn btn-glass" style="padding:4px 10px; font-size:0.7rem;" onclick="ferwafaEditUser(${u.id})">UPDATE</button>
+                                    <button class="btn btn-glass" style="padding:4px 10px; font-size:0.7rem; border-color:var(--gold-premium); color:var(--gold-premium);" onclick="ferwafaToggleUser(${u.id}, ${u.is_active})">${u.is_active ? 'PAUSE' : 'ACTIVATE'}</button>
                                     <button class="btn btn-glass" style="padding:4px 10px; font-size:0.7rem; border-color:#ef4444; color:#ef4444;" onclick="ferwafaDeleteUser(${u.id})">DELETE</button>
                                 </td>
                             </tr>

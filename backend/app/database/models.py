@@ -49,6 +49,7 @@ class Player(Base):
     nationality = Column(String, default="Rwandan")
     date_of_birth = Column(Date)
     photo_url = Column(Text)
+    jersey_number = Column(Integer)
 
     institution = relationship("Institution", back_populates="players")
     stats = relationship("PlayerStat", back_populates="player")
@@ -139,6 +140,12 @@ class PlayerStat(Base):
     speed = Column(Float, default=0.0)
     distance = Column(Float, default=0.0)
     rating = Column(Float, default=0.0)
+    assists = Column(Integer, default=0)
+    shots = Column(Integer, default=0)
+    passes = Column(Integer, default=0)
+    tackles = Column(Integer, default=0)
+    saves = Column(Integer, default=0)
+    minutes_played = Column(Integer, default=0)
     timestamp = Column(DateTime, default=datetime.utcnow)
 
     player = relationship("Player", back_populates="stats")
@@ -154,6 +161,16 @@ class AIAnalysis(Base):
 
     player = relationship("Player", back_populates="ai_rankings")
     match = relationship("Match", back_populates="ai_analysis")
+
+class MatchAnalytics(Base):
+    """Historical snapshots for trend graphs"""
+    __tablename__ = "match_analytics"
+    id = Column(Integer, primary_key=True, index=True)
+    match_id = Column(Integer, ForeignKey("matches.id"))
+    minute = Column(Integer)
+    possession_home = Column(Float)
+    possession_away = Column(Float)
+    timestamp = Column(DateTime, default=datetime.utcnow)
 
 class Fixture(Base):
     __tablename__ = "fixtures"

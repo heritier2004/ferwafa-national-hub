@@ -9,7 +9,8 @@ from sqlalchemy.orm import Session
 from backend.app.config.database import get_db
 from backend.app.database.models import (
     Match, Institution, Player, MatchEvent,
-    MatchSquad, MatchSession, SystemActivity
+    MatchSquad, MatchSession, SystemActivity, DisciplinaryRecord,
+    PlayerStat, MatchAnalytics
 )
 from pydantic import BaseModel
 from typing import List, Optional
@@ -25,10 +26,13 @@ router = APIRouter(prefix="/api/match", tags=["match_control"])
 # ======================================================
 
 def generate_api_key(institution_code: str) -> str:
-    """Human-readable: FWFA-{CODE}-{YEAR}-{RAND4}"""
+    """Bulletproof generator: FWFA-{CODE}-{YEAR}-{RAND4}"""
     rand = secrets.token_hex(2).upper()
     year = datetime.now().year
-    code = institution_code.upper().replace(" ", "")[:6]
+    # Handle empty or short codes gracefully
+    safe_code = (institution_code or "UNKN").upper().replace(" ", "").strip()
+    if len(safe_code) < 3: safe_code = (safe_code + "XXX")[:4]
+    code = safe_code[:6]
     return f"FWFA-{code}-{year}-{rand}"
 
 
@@ -80,6 +84,22 @@ class ManualEventRequest(BaseModel):
 class StatusRequest(BaseModel):
     status: str              # LIVE, PAUSED, COMPLETED
 
+class PlayerPerformance(BaseModel):
+    player_id: int
+    assists: int = 0
+    shots: int = 0
+    passes: int = 0
+    tackles: int = 0
+    saves: int = 0
+    minutes_played: int = 0
+
+class BulkPerformanceRequest(BaseModel):
+    performances: List[PlayerPerformance]
+
+class AnalyticsRequest(BaseModel):
+    minute: int
+    possession_home: float
+    possession_away: float
 
 class UpdateEventRequest(BaseModel):
     player_id: Optional[int] = None
@@ -262,11 +282,12 @@ def set_kits(match_id: int, req: KitRequest, db: Session = Depends(get_db)):
 
 @router.post("/{match_id}/event/manual")
 async def manual_event(match_id: int, req: ManualEventRequest, db: Session = Depends(get_db)):
-    """Record a manual event (goal, foul, card, substitution) from the Match Page."""
+    """Record a manual event (goal, foul, card, substitution) and sync with National Databases."""
     match = db.query(Match).filter(Match.id == match_id).first()
     if not match:
         raise HTTPException(status_code=404, detail="Match not found")
 
+    # 1. Store as a Match Event
     event = MatchEvent(
         match_id=match_id,
         player_id=req.player_id,
@@ -280,17 +301,28 @@ async def manual_event(match_id: int, req: ManualEventRequest, db: Session = Dep
     )
     db.add(event)
 
-    # Update score for manual goals
+    # 2. Update Global Match Score for Goals
     if req.event_type == "goal":
         if req.team == "home":
             match.score_home = (match.score_home or 0) + 1
         else:
             match.score_away = (match.score_away or 0) + 1
 
+    # 3. CRITICAL: Add to National Disciplinary Record for Cards
+    if req.event_type in ["yellow_card", "red_card"]:
+        disc = DisciplinaryRecord(
+            match_id=match_id,
+            player_id=req.player_id,
+            card_type="YELLOW" if req.event_type == "yellow_card" else "RED",
+            description=req.description or f"Manual card issued in min {req.minute}",
+            minute=req.minute
+        )
+        db.add(disc)
+
     db.commit()
     db.refresh(event)
 
-    # Broadcast to Match Page WebSocket viewers
+    # 4. Real-time Broadcast
     from backend.app.match_control.ai_ingest import manager
     player = db.query(Player).filter(Player.id == req.player_id).first() if req.player_id else None
     await manager.broadcast_match_event(match_id, {
@@ -307,7 +339,7 @@ async def manual_event(match_id: int, req: ManualEventRequest, db: Session = Dep
         "score_away": match.score_away
     })
 
-    return {"message": "Event recorded", "event_id": event.id}
+    return {"message": "Event recorded and synced to National Database", "event_id": event.id}
 
 
 @router.delete("/{match_id}/correct/{event_id}")

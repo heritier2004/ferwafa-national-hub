@@ -46,6 +46,9 @@
 
         <!-- 🖥️ Main Workspace -->
         <main class="main-stage">
+            <div style="background: var(--accent); color: #fff; padding: 12px; text-align: center; font-weight: 800; letter-spacing: 2px; margin-bottom: 20px; border-radius: 8px; font-size: 0.9rem; box-shadow: 0 4px 15px rgba(255,51,85,0.3);">
+                ⚽ YOU ARE IN THE CLUB DASHBOARD ⚽
+            </div>
             
             <!-- Tab: Team Analytics -->
             <section id="overview" class="tab-pane active">
@@ -77,54 +80,31 @@
 
             <!-- Tab: Match Control -->
             <section id="match" class="tab-pane">
-                <div class="hero-banner" style="border-color: var(--accent);">
-                    <h1 style="color: var(--accent);">⚡ Match Control</h1>
+                <div class="hero-banner" style="border-color: var(--primary);">
+                    <h1 style="color: var(--primary);">⚡ Match Control</h1>
                     <p style="color: var(--text-dim);">Set up squads, configure kits, and manage live matches with AI tracking.</p>
                 </div>
-                <div style="margin-top: 2rem; display:grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.5rem;">
-                    <div class="card glass" style="padding: 2rem; text-align:center; border-color: rgba(255,51,85,0.25); cursor:pointer; transition: all 0.2s;"
-                         onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 12px 40px rgba(255,51,85,0.15)'"
-                         onmouseout="this.style.transform='';this.style.boxShadow=''"
-                         onclick="window.open('../pages/match_control.html','_blank')">
-                        <div style="font-size:2.5rem; margin-bottom: 1rem;">⚡</div>
-                        <h3 style="color: var(--accent);">Open Match Control</h3>
-                        <p style="font-size: 0.8rem; color: var(--text-dim); margin-top: 0.5rem;">Create match sessions, assign squad, set kit colors, record events, and view live AI tracking.</p>
-                        <div style="margin-top: 1.5rem; background: rgba(255,51,85,0.1); border: 1px solid rgba(255,51,85,0.2); border-radius: 8px; padding: 0.6rem; font-size: 0.7rem; color: var(--accent); font-weight: 700; letter-spacing: 1px;">LAUNCH MATCH CENTER →</div>
+                <div style="margin-top: 2rem;">
+                <div style="margin-top: 2rem; display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                    <!-- Path A: Manual Entry (Standard) -->
+                    <div class="card glass" style="padding: 2rem; border-color: var(--primary);">
+                        <div style="font-size: 2rem; margin-bottom: 0.5rem;">📋 Standard Hub</div>
+                        <h3 style="color: var(--primary);">Manual Match Control</h3>
+                        <p style="color: var(--text-dim); margin-top: 0.5rem; font-size: 0.85rem; line-height: 1.5;">The easiest way for everyone to use the system. Hand-record goals, cards, and team scores directly into the database. No cameras needed.</p>
+                        <button onclick="window.open('../pages/match_control.html','_blank')" class="btn" style="background: var(--primary); color: black; padding: 0.8rem 1.5rem; border-radius: 8px; margin-top: 1.5rem; font-weight: 800; width: 100%;">🚀 START MANUAL RECORDING</button>
                     </div>
-                    <div class="card glass" style="padding: 2rem; text-align:center; border-color: rgba(0,212,255,0.4); transition: all 0.3s; background: linear-gradient(145deg, rgba(0,212,255,0.05) 0%, transparent 100%);"
-                         onmouseover="this.style.transform='translateY(-6px)';this.style.boxShadow='0 15px 45px rgba(0,212,255,0.2)'"
-                         onmouseout="this.style.transform='';this.style.boxShadow=''">
-                        <div style="font-size:2.8rem; margin-bottom: 0.5rem; filter: drop-shadow(0 0 10px rgba(0,212,255,0.4));">🤖</div>
-                        <h3 style="color: var(--blue, #00d4ff); font-family: 'Orbitron', sans-serif;">AI Pitch Machine</h3>
-                        <p style="font-size: 0.8rem; color: var(--text-dim); margin-top: 0.5rem; line-height: 1.5;">Download the edge software for your stadium laptop.</p>
-                        <div style="margin-top: 1rem; font-size: 0.7rem; color: #ffcc00; background: rgba(255, 204, 0, 0.1); border-left: 2px solid #ffcc00; padding: 0.4rem; text-align: left;">
-                            <strong>🛡️ SECURITY NOTE:</strong>
-                            <span style="color:var(--text-dim)">Windows may warn you about an unrecognized app. Click <b>More Info &rarr; Run Anyway</b>.</span>
-                        </div>
-                        <div style="margin-top: 1rem; font-size: 0.7rem; color: #00ff88; background: rgba(0, 255, 136, 0.1); border-left: 2px solid #00ff88; padding: 0.4rem; text-align: left;">
-                            <strong>⚡ EDGE PROCESSING:</strong>
-                            <span style="color:var(--text-dim)">Video is processed 100% locally. Only pure statistical data is transmitted to the FERWAFA server.</span>
-                        </div>
-                        <div style="margin-top: 1.5rem; display: flex; gap: 0.5rem; justify-content: center;">
-                            <button onclick="window.location.href='/api/download/ai-machine?os_type=windows'" style="flex:1; background: linear-gradient(135deg, rgba(0,212,255,0.2), rgba(0,212,255,0.05)); border: 1px solid rgba(0,212,255,0.4); border-radius: 8px; padding: 0.8rem; font-size: 0.70rem; color: #00d4ff; font-weight: 800; cursor: pointer; letter-spacing: 1px;">
-                                📥 WINDOWS (.EXE)
-                            </button>
-                            <button onclick="window.location.href='/api/download/ai-machine?os_type=other'" style="flex:1; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 0.8rem; font-size: 0.70rem; color: var(--text-dim); font-weight: 700; cursor: pointer; letter-spacing: 1px;">
-                                📥 MAC/LINUX (.ZIP)
-                            </button>
+
+                    <!-- Path B: AI Tracking (Enhanced) -->
+                    <div class="card glass" style="padding: 2rem; border-color: var(--blue);">
+                        <div style="font-size: 2rem; margin-bottom: 0.5rem;">🤖 AI Pitch Hub</div>
+                        <h3 style="color: var(--blue);">Camera Match Control</h3>
+                        <p style="color: var(--text-dim); margin-top: 0.5rem; font-size: 0.85rem; line-height: 1.5;">Advanced matches using stadium cameras. Automatically tracks movement and events with AI intelligence.</p>
+                        <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1rem;">
+                            <button onclick="window.location.href='/api/download/ai-machine?os_type=windows'" class="btn" style="background: transparent; border: 1px solid var(--blue); color: var(--blue); padding: 0.5rem; border-radius: 4px; font-size: 0.75rem;">📥 Download Camera App (.EXE)</button>
+                            <button onclick="window.open('../pages/match_control.html','_blank')" class="btn" style="background: var(--blue); color: black; padding: 0.6rem; border-radius: 8px; font-weight: 800;">⚙️ SETUP AI SESSION</button>
                         </div>
                     </div>
-                    <div class="card glass" style="padding: 2rem; text-align:center;">
-                        <div style="font-size:2.5rem; margin-bottom: 1rem;">🔐</div>
-                        <h3>How It Works</h3>
-                        <ol style="font-size: 0.78rem; color: var(--text-dim); text-align:left; margin-top: 0.75rem; line-height: 2; padding-left: 1.2rem;">
-                            <li>Create a Session in <b>Match Control</b></li>
-                            <li>Copy the secure <b>API Key & Token</b></li>
-                            <li>Open the downloaded AI Machine (.exe)</li>
-                            <li>Paste credentials to link the cameras</li>
-                            <li>Watch live tracking safely on Match Control!</li>
-                        </ol>
-                    </div>
+                </div>
                 </div>
             </section>
 
@@ -138,6 +118,78 @@
                     <h3>National Recommendations</h3>
                     <div id="national-scout-list" style="margin-top: 1rem;">
                         <!-- List -->
+                    </div>
+                </div>
+            </section>
+
+        <!-- Tab: Squad & Players -->
+            <section id="players" class="tab-pane">
+                <div class="hero-banner" style="border-color: var(--primary);">
+                    <h1 style="color: var(--primary);">Squad Repository</h1>
+                    <p style="color: var(--text-dim);">Register and manage your club's players.</p>
+                </div>
+                <div class="card glass" style="margin-top: 1rem; padding: 1.5rem 2rem;">
+                    <form id="add-player-form" style="display: flex; align-items: center; gap: 1rem; width: 100%;">
+                        <!-- Avatar Uploader -->
+                        <div style="position: relative; width: 50px; height: 50px; border-radius: 50%; background: rgba(255,255,255,0.05); border: 1px dashed var(--glass-border); display: flex; align-items: center; justify-content: center; cursor: pointer; overflow: hidden;" onclick="document.getElementById('p-photo-file').click()">
+                            <span id="p-photo-icon" style="font-size: 1.2rem; color: var(--text-dim);">📷</span>
+                            <div id="p-photo-preview" style="position: absolute; top:0; left:0; width: 100%; height: 100%;"></div>
+                            <input type="file" id="p-photo-file" style="display: none;" accept="image/*" onchange="uploadPlayerPhoto(); document.getElementById('p-photo-icon').style.display='none';">
+                            <input type="hidden" id="p-photo-url">
+                        </div>
+                        
+                        <!-- Inline Fields -->
+                        <div style="flex: 1; display: flex; align-items: center; background: rgba(0,0,0,0.3); border-radius: 12px; border: 1px solid var(--glass-border); overflow: hidden;">
+                            <input type="text" id="p-name" class="input-glass" placeholder="Player Name" required style="border:none; background:transparent; box-shadow:none; padding:12px 15px; border-radius:0;">
+                            
+                            <select id="p-pos" class="input-glass" required style="border:none; background:transparent; box-shadow:none; padding:12px 15px; width: 140px; border-left: 1px solid rgba(255,255,255,0.1); border-radius:0;">
+                                <option value="" style="color:black;">Position</option>
+                                <option value="Forward" style="color:black;">Forward</option>
+                                <option value="Midfielder" style="color:black;">Midfielder</option>
+                                <option value="Defender" style="color:black;">Defender</option>
+                                <option value="Goalkeeper" style="color:black;">Goalkeeper</option>
+                            </select>
+                            
+                            <input type="number" id="p-jersey" class="input-glass" placeholder="# Jer" style="border:none; background:transparent; box-shadow:none; padding:12px 15px; width: 90px; border-left: 1px solid rgba(255,255,255,0.1); border-radius:0;">
+                            
+                            <input type="text" id="p-nat" class="input-glass" placeholder="Nat" value="RWA" style="border:none; background:transparent; box-shadow:none; padding:12px 15px; width: 70px; border-left: 1px solid rgba(255,255,255,0.1); border-radius:0;">
+                            
+                            <input type="date" id="p-dob" class="input-glass" required style="border:none; background:transparent; box-shadow:none; padding:12px 15px; width: 140px; border-left: 1px solid rgba(255,255,255,0.1); border-radius:0; color:var(--text-dim);">
+                        </div>
+
+                        <button type="button" class="btn btn-primary" style="background: var(--primary); color: black; padding: 0.9rem 2rem; border-radius: 12px; flex-shrink: 0;" onclick="registerPlayer()">ADD SQUAD +</button>
+                    </form>
+                </div>
+
+                <div class="card glass" style="margin-top: 1.5rem;">
+                    <h3>Active Roster</h3>
+                    <table style="width: 100%; margin-top: 1rem; border-collapse: collapse; font-size: 0.85rem; text-align: left;">
+                        <thead>
+                            <tr style="border-bottom: 1px solid var(--glass-border); color: var(--text-dim);">
+                                <th style="padding: 12px;">PHOTO</th>
+                                <th style="padding: 12px;">NAME</th>
+                                <th style="padding: 12px;">JER #</th>
+                                <th style="padding: 12px;">POSITION</th>
+                                <th style="padding: 12px;">NATION</th>
+                                <th style="padding: 12px;">ACTIONS</th>
+                            </tr>
+                        </thead>
+                        <tbody id="club-roster-list">
+                            <tr><td colspan="6" style="padding: 2rem; color: var(--text-dim); text-align:center;">Loading roster...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Tab: Match History -->
+            <section id="history" class="tab-pane">
+                <div class="hero-banner" style="border-color: var(--gold-premium);">
+                    <h1 style="color: var(--gold-premium);">Match History</h1>
+                    <p style="color: var(--text-dim);">Review past matches and historical AI analysis.</p>
+                </div>
+                <div class="card glass" style="margin-top: 1rem;">
+                    <div id="club-history-list">
+                        <p style="padding: 2rem; color: var(--text-dim);">No historical matches found for your club.</p>
                     </div>
                 </div>
             </section>
@@ -212,7 +264,118 @@
         }
 
         fetchClubIntelligence();
+        loadClubPlayers();
         setInterval(fetchClubIntelligence, 5000);
+
+        // --- Player CRUD Logic ---
+        function getClubId() { return localStorage.getItem('institution_id') || 1; }
+
+        async function uploadPlayerPhoto() {
+            const fileInput = document.getElementById('p-photo-file');
+            if (fileInput.files.length === 0) return;
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            try {
+                const res = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                if (data.file_url) {
+                    document.getElementById('p-photo-url').value = data.file_url;
+                    document.getElementById('p-photo-preview').innerHTML = `<img src="${data.file_url}" style="width:100%;height:100%;object-fit:cover;">`;
+                }
+            } catch (e) {
+                alert("Logo upload failed. Please try again.");
+            }
+        }
+
+        async function registerPlayer() {
+            const name = document.getElementById('p-name').value;
+            const pos = document.getElementById('p-pos').value;
+            const jer = document.getElementById('p-jersey').value;
+            const nat = document.getElementById('p-nat').value;
+            const dob = document.getElementById('p-dob').value;
+            const photo = document.getElementById('p-photo-url').value;
+
+            if(!name || !pos || !nat || !dob) {
+                alert("Please fill name, position, nationality, and Date of Birth.");
+                return;
+            }
+
+            try {
+                // Submit to backend
+                const query = new URLSearchParams({
+                    institution_id: getClubId(),
+                    name: name,
+                    position: pos,
+                    jersey_number: jer || 0,
+                    nationality: nat,
+                    date_of_birth: dob,
+                    photo_url: photo || ''
+                });
+                
+                await fetch(`/api/ferwafa/players?${query.toString()}`, { method: 'POST' });
+                document.getElementById('add-player-form').reset();
+                document.getElementById('p-photo-preview').innerHTML = "";
+                document.getElementById('p-photo-url').value = "";
+                alert('Player successfully registered to squad!');
+                loadClubPlayers();
+            } catch(e) {
+                alert('Error creating player.');
+            }
+        }
+
+        async function loadClubPlayers() {
+            try {
+                const res = await fetch(`/api/ferwafa/players/${getClubId()}`);
+                const players = await res.json();
+                const tbody = document.getElementById('club-roster-list');
+                
+                if(!players || players.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="padding: 2rem; color: var(--text-dim); text-align:center;">No players registered to this squad yet.</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = players.map(p => `
+                    <tr style="border-bottom: 1px solid var(--glass-border); transition: background 0.2s;" onmouseover="this.style.background='var(--bg-raised)'" onmouseout="this.style.background='transparent'">
+                        <td style="padding: 12px;">
+                            <div style="width: 32px; height: 32px; border-radius: 50%; overflow: hidden; background: rgba(255,255,255,0.05);">
+                                ${p.photo_url ? `<img src="${p.photo_url}" style="width:100%;height:100%;object-fit:cover;">` : '<div style="text-align:center;line-height:32px;">👤</div>'}
+                            </div>
+                        </td>
+                        <td style="padding: 12px; font-weight: bold;">${p.name}</td>
+                        <td style="padding: 12px;"><span style="background: rgba(255,255,255,0.1); padding: 3px 8px; border-radius: 4px;">#${p.jersey_number || 'N/A'}</span></td>
+                        <td style="padding: 12px;">${p.position}</td>
+                        <td style="padding: 12px;">${p.nationality}</td>
+                        <td style="padding: 12px; display:flex; gap: 8px;">
+                            <button onclick="editPlayer(${p.id}, '${p.name}')" style="background:var(--blue-dim); color:var(--blue); border:1px solid rgba(0,212,255,0.3); border-radius:4px; padding:4px 8px; cursor:pointer;">Update</button>
+                            <button onclick="deletePlayer(${p.id}, '${p.name}')" style="background:var(--accent-dim); color:var(--accent); border:1px solid rgba(255,51,85,0.3); border-radius:4px; padding:4px 8px; cursor:pointer;">Release</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch(e) {}
+        }
+
+        async function editPlayer(id, name) {
+            const newPos = prompt(`Update position for ${name} (e.g. Forward, Midfielder)`);
+            const newJer = prompt(`Update Jersey Number for ${name}`);
+            if(newPos || newJer) {
+                const query = new URLSearchParams();
+                if(newPos) query.append('position', newPos);
+                if(newJer) query.append('jersey_number', newJer);
+                await fetch(`/api/ferwafa/players/${id}?${query.toString()}`, { method: 'PUT' });
+                loadClubPlayers();
+            }
+        }
+
+        async function deletePlayer(id, name) {
+            if(confirm(`Are you sure you want to permanently RELEASE ${name} from your squad?`)) {
+                await fetch(`/api/ferwafa/players/${id}`, { method: 'DELETE' });
+                loadClubPlayers();
+            }
+        }
     </script>
 </body>
 </html>

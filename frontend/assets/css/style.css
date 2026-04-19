@@ -157,7 +157,7 @@ body {
 .card {
     padding: 2.5rem;
     position: relative;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .card:hover {
@@ -187,7 +187,7 @@ body {
     border: 1px solid transparent;
     cursor: pointer;
     font-weight: 600;
-    transition: all 0.3s;
+    transition: all 0.05s;
     font-size: 0.95rem;
 }
 
@@ -210,6 +210,29 @@ body {
 
 .btn-glass:hover {
     background: rgba(255, 255, 255, 0.1);
+}
+
+.input-glass {
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 12px 15px;
+    outline: none;
+    width: 100%;
+    transition: all 0.05s;
+    font-family: inherit;
+    font-size: 0.95rem;
+}
+
+.input-glass:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 15px var(--primary-glow);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.input-glass::placeholder {
+    color: var(--text-dim);
 }
 
 /* 📊 Custom Components */

@@ -40,6 +40,44 @@ def create_entity(name: str, type: str, code: str, stadium_name: str, province: 
 def get_entities(db: Session = Depends(get_db)):
     return db.query(Institution).all()
 
+# 🏃 PLAYER REGISTRY MANAGEMENT (CLUB HUD)
+@router.post("/players")
+def create_player(institution_id: int, name: str, position: str = None, jersey_number: int = None, nationality: str = "Rwandan", date_of_birth: str = None, photo_url: str = None, db: Session = Depends(get_db)):
+    p_code = f"PLY-{random.randint(10000, 99999)}"
+    dob = None
+    if date_of_birth:
+        try: dob = datetime.strptime(date_of_birth, "%Y-%m-%d").date()
+        except: pass
+
+    new_p = Player(
+        institution_id=institution_id, player_code=p_code, name=name, position=position, 
+        jersey_number=jersey_number, nationality=nationality, date_of_birth=dob, photo_url=photo_url
+    )
+    db.add(new_p)
+    db.commit()
+    return {"message": f"Player {name} registered to squad perfectly."}
+
+@router.get("/players/{institution_id}")
+def get_club_players(institution_id: int, db: Session = Depends(get_db)):
+    return db.query(Player).filter(Player.institution_id == institution_id).order_by(Player.jersey_number.asc()).all()
+
+@router.put("/players/{player_id}")
+def update_player(player_id: int, position: str = None, jersey_number: int = None, db: Session = Depends(get_db)):
+    player = db.query(Player).filter(Player.id == player_id).first()
+    if not player: raise HTTPException(status_code=404, detail="Player not found")
+    if position: player.position = position
+    if jersey_number is not None: player.jersey_number = jersey_number
+    db.commit()
+    return {"message": f"Player profile for {player.name} updated."}
+
+@router.delete("/players/{player_id}")
+def delete_player(player_id: int, db: Session = Depends(get_db)):
+    player = db.query(Player).filter(Player.id == player_id).first()
+    if not player: raise HTTPException(status_code=404, detail="Player not found")
+    db.delete(player)
+    db.commit()
+    return {"message": f"Player {player.name} released from squad."}
+
 # 🏆 ELITE ROUND-ROBIN MIXER (v5.0 - Governance Spec)
 @router.post("/fixtures/auto-generate")
 def auto_generate_league(institution_ids: list[int], start_date: str, end_date: str, division_name: str, db: Session = Depends(get_db)):
@@ -245,25 +283,79 @@ def onboard_institutional_node(
 
 # 🕵️ NATIONAL SCOUTING INTELLIGENCE (v4.7 - Age Aware)
 @router.get("/scouting/top-players")
-def get_top_national_talent(db: Session = Depends(get_db)):
-    # Fetch top 25 players based on AI ratings
-    top_talent = db.query(Player, AIAnalysis).join(AIAnalysis).order_by(AIAnalysis.star_rating.desc()).limit(25).all()
+def get_top_national_talent(institution_type: str = None, max_age: int = None, db: Session = Depends(get_db)):
+    """Top talent filtered by institution type (club/school/academy) and age"""
+    query = db.query(Player, AIAnalysis).join(AIAnalysis)
+    
+    if institution_type:
+        query = query.join(Institution, Player.institution_id == Institution.id).filter(Institution.type == institution_type)
+    
+    top_talent = query.order_by(AIAnalysis.star_rating.desc()).limit(50).all()
     
     results = []
     for p, ai in top_talent:
-        # 🗓️ Calculate Age Intelligence
-        age = (datetime.now().date() - p.date_of_birth).days // 365 if p.date_of_birth else "N/A"
+        age = (datetime.now().date() - p.date_of_birth).days // 365 if p.date_of_birth else None
+        
+        # Age filter
+        if max_age and age and age > max_age:
+            continue
         
         results.append({
+            "id": p.id,
             "name": p.name,
             "stars": ai.star_rating,
             "position": p.position,
-            "age": age,
-            "type": p.institution.type if p.institution else "academy",
+            "age": age if age else "N/A",
+            "height": p.height,
+            "weight": p.weight,
+            "nationality": p.nationality,
+            "type": p.institution.type if p.institution else "unknown",
             "club": p.institution.name if p.institution else "Free Agent",
+            "province": p.institution.province if p.institution else "N/A",
+            "photo_url": p.photo_url,
             "notes": ai.analysis_notes
         })
     return results
+
+@router.get("/scouting/by-institution/{inst_id}")
+def get_institution_talent(inst_id: int, db: Session = Depends(get_db)):
+    """Get all players and their AI ratings for a specific institution"""
+    players = db.query(Player).filter(Player.institution_id == inst_id).all()
+    results = []
+    for p in players:
+        ai = db.query(AIAnalysis).filter(AIAnalysis.player_id == p.id).order_by(AIAnalysis.star_rating.desc()).first()
+        age = (datetime.now().date() - p.date_of_birth).days // 365 if p.date_of_birth else None
+        results.append({
+            "id": p.id,
+            "name": p.name,
+            "position": p.position,
+            "age": age if age else "N/A",
+            "stars": ai.star_rating if ai else 0,
+            "photo_url": p.photo_url,
+            "height": p.height,
+            "weight": p.weight,
+        })
+    return results
+
+@router.get("/scouting/stats")
+def get_scouting_overview(db: Session = Depends(get_db)):
+    """Overview stats for the talent intelligence hub"""
+    total_players = db.query(Player).count()
+    club_players = db.query(Player).join(Institution).filter(Institution.type == 'club').count()
+    school_players = db.query(Player).join(Institution).filter(Institution.type == 'school').count()
+    academy_players = db.query(Player).join(Institution).filter(Institution.type == 'academy').count()
+    rated_players = db.query(AIAnalysis).count()
+    
+    return {
+        "total_players": total_players,
+        "club_players": club_players,
+        "school_players": school_players,
+        "academy_players": academy_players,
+        "rated_players": rated_players,
+        "clubs": db.query(Institution).filter(Institution.type == 'club').count(),
+        "schools": db.query(Institution).filter(Institution.type == 'school').count(),
+        "academies": db.query(Institution).filter(Institution.type == 'academy').count(),
+    }
 
 @router.get("/fixtures/history")
 def get_match_history(db: Session = Depends(get_db)):

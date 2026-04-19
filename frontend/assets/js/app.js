@@ -61,7 +61,10 @@ const SYSTEM_ARCHITECTURE = {
     ],
     'CLUB': [
         { name: 'Performance Hub', id: 'overview', icon: `<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>` },
+        { name: 'Squad & Players', id: 'players', icon: `<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle>` },
         { name: 'Match Schedules', id: 'fixtures', icon: `<rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line>` },
+        { name: 'Match Center', id: 'match', icon: `<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>` },
+        { name: 'Match History', id: 'history', icon: `<circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>` },
         { name: 'Player Scouting', id: 'scouting', icon: `<circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>` }
     ]
 };
