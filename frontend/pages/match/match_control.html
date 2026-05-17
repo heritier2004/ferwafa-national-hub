@@ -60,8 +60,13 @@
             flex-direction: column;
             gap: 1.5rem;
             height: 100%;
-            overflow: hidden;
+            overflow-y: auto;
             position: relative;
+            -ms-overflow-style: none; /* IE and Edge */
+            scrollbar-width: none; /* Firefox */
+        }
+        .mcc-col::-webkit-scrollbar {
+            display: none; /* Chrome, Safari and Opera */
         }
 
         .mcc-col-left { border-right: 1px solid var(--border); }
