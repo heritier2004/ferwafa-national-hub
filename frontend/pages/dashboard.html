@@ -139,7 +139,7 @@
                     <h1>National Scouting</h1>
                     <p style="color: var(--text-dim);">Tracking elite prospects by age and intelligence rating.</p>
                 </div>
-                <div class="filter-bar" style="margin-bottom: 2rem;">
+                <div class="filter-bar" style="margin-bottom: 2rem; display: flex; gap: 1rem;">
                     <select id="age-filter" class="btn-glass" style="padding: 10px 20px; border-radius: 12px;"
                         onchange="renderTalent()">
                         <option value="all">Every Age Bracket</option>
@@ -147,6 +147,8 @@
                         <option value="U17">Under 17 (U17)</option>
                         <option value="U20">Elite (U20)</option>
                     </select>
+                    <input type="text" id="talent-search" class="btn-glass" placeholder="🔍 Search prospects..." 
+                           style="flex: 1; padding: 10px 20px; border-radius: 12px;" onkeyup="renderTalent()">
                 </div>
                 <div id="talent-list"></div>
             </section>
@@ -161,15 +163,27 @@
                     <div class="card glass">
                         <h3>New Registration</h3>
                         <form id="reg-form" style="margin-top: 1.5rem;">
-                            <input type="text" id="reg-name" class="btn-glass" placeholder="Institution Name" required
-                                style="width:100%; margin-bottom: 1rem; padding: 12px; border-radius: 10px;">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                                <input type="text" id="reg-name" class="btn-glass" placeholder="Institution Name" required
+                                    style="padding: 12px; border-radius: 10px;">
+                                <input type="text" id="reg-code" class="btn-glass" placeholder="Unique ID (Code)" required
+                                    style="padding: 12px; border-radius: 10px;">
+                            </div>
                             <select id="reg-type" class="btn-glass"
                                 style="width:100%; margin-bottom: 1rem; padding: 12px; border-radius: 10px;">
                                 <option value="club">Premier Club</option>
                                 <option value="school">Member School</option>
+                                <option value="academy">Youth Academy</option>
+                                <option value="scout_org">Scouting Organization</option>
                             </select>
-                            <input type="text" id="reg-code" class="btn-glass" placeholder="Member Code" required
-                                style="width:100%; margin-bottom: 1.5rem; padding: 12px; border-radius: 10px;">
+                            <input type="text" id="reg-stadium" class="btn-glass" placeholder="Stadium Name" required
+                                style="width:100%; margin-bottom: 1rem; padding: 12px; border-radius: 10px;">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                                <input type="text" id="reg-province" class="btn-glass" placeholder="Province" required
+                                    style="padding: 12px; border-radius: 10px;">
+                                <input type="text" id="reg-district" class="btn-glass" placeholder="District" required
+                                    style="padding: 12px; border-radius: 10px;">
+                            </div>
                             <div
                                 style="background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem;">
                                 <div style="display:flex; align-items:center; gap:10px;">
@@ -181,8 +195,14 @@
                         </form>
                     </div>
                     <div class="card glass">
-                        <h3>Active Registry</h3>
-                        <div id="member-list-display"></div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                            <h3 style="margin: 0;">Federation Node Registry</h3>
+                            <input type="text" id="member-search" class="btn-glass" placeholder="🔍 Search entities..." 
+                                   style="padding: 8px 15px; border-radius: 8px; font-size: 0.8rem; width: 250px;" onkeyup="renderMembers()">
+                        </div>
+                        <div id="member-list-display" style="overflow-x: auto;">
+                            <!-- Table will be rendered here -->
+                        </div>
                     </div>
                 </div>
             </section>
@@ -242,6 +262,32 @@
         </main>
     </div>
 
+    <!-- Edit Institution Modal -->
+    <div id="editInstModal" class="modal">
+        <div class="modal-content glass" style="max-width: 500px;">
+            <h2>Update Institution Profile</h2>
+            <form id="edit-inst-form" style="margin-top: 1.5rem;">
+                <input type="hidden" id="edit-id">
+                <div style="margin-bottom: 1rem;">
+                    <label style="font-size: 0.8rem; color: var(--text-dim);">Official Name</label>
+                    <input type="text" id="edit-name" class="btn-glass" style="width:100%; padding:12px; border-radius:10px;" required>
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label style="font-size: 0.8rem; color: var(--text-dim);">Home Stadium</label>
+                    <input type="text" id="edit-stadium" class="btn-glass" style="width:100%; padding:12px; border-radius:10px;" required>
+                </div>
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="font-size: 0.8rem; color: var(--text-dim);">Seating Capacity</label>
+                    <input type="number" id="edit-capacity" class="btn-glass" style="width:100%; padding:12px; border-radius:10px;" required>
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <button type="button" class="btn" style="flex:1" onclick="document.getElementById('editInstModal').classList.remove('active')">Cancel</button>
+                    <button type="submit" class="btn btn-primary" style="flex:1">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="../assets/js/app.js"></script>
     <script>
         let playersCache = [];
@@ -249,20 +295,19 @@
         async function initStableHub() {
             try {
                 const [entities, talent, forensics, matches, history] = await Promise.all([
-                    fetch('/api/ferwafa/entities/all').then(r => r.json()),
-                    fetch('/api/ferwafa/scouting/top-players').then(r => r.json()),
-                    fetch('/api/ferwafa/activity/global').then(r => r.json()),
-                    fetch('/api/ferwafa/fixtures/all').then(r => r.json()),
-                    fetch('/api/ferwafa/fixtures/history').then(r => r.json())
+                    secureFetch('/api/ferwafa/entities/all').then(r => r.json()),
+                    secureFetch('/api/ferwafa/scouting/top-players').then(r => r.json()),
+                    secureFetch('/api/ferwafa/activity/global').then(r => r.json()),
+                    secureFetch('/api/ferwafa/fixtures/all').then(r => r.json()),
+                    secureFetch('/api/ferwafa/fixtures/history').then(r => r.json())
                 ]);
 
+                // Store for filtering
+                window.entitiesCache = entities;
+                playersCache = talent;
+
                 // 1. Members
-                document.getElementById('member-list-display').innerHTML = entities.length ? entities.map(m => `
-                    <div class="log-line">
-                        <span>${m.name} ${m.has_floodlights ? '💡' : ''}</span>
-                        <span class="badge ${m.type === 'club' ? 'badge-online' : ''}">${m.type}</span>
-                    </div>
-                `).join('') : '<div class="empty-state">No entities registered.</div>';
+                renderMembers();
 
                 document.getElementById('gen-teams').innerHTML = entities.map(m => `
                     <div style="display:flex; gap:10px; margin-bottom:8px;">
@@ -296,16 +341,133 @@
             } catch (e) { console.error("Data Hub Error: ", e); }
         }
 
+        function renderMembers() {
+            const query = document.getElementById('member-search').value.toLowerCase();
+            const filtered = window.entitiesCache.filter(m => 
+                m.name.toLowerCase().includes(query) || 
+                m.type.toLowerCase().includes(query) ||
+                (m.code && m.code.toLowerCase().includes(query))
+            );
+
+            const container = document.getElementById('member-list-display');
+            if (!filtered.length) {
+                container.innerHTML = '<div class="empty-state">No matching entities found.</div>';
+                return;
+            }
+
+            container.innerHTML = `
+                <table class="data-table" style="width:100%; border-collapse: collapse; margin-top:1rem;">
+                    <thead>
+                        <tr style="text-align:left; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                            <th style="padding:12px;">NAME</th>
+                            <th style="padding:12px;">TYPE</th>
+                            <th style="padding:12px;">CODE</th>
+                            <th style="padding:12px;">STATUS</th>
+                            <th style="padding:12px;">COMMAND</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${filtered.map(m => `
+                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); hover: background: rgba(255,255,255,0.02);">
+                                <td style="padding:12px; font-weight:bold;">${m.name} ${m.has_floodlights ? '💡' : ''}</td>
+                                <td style="padding:12px;"><span class="badge ${m.type === 'club' ? 'badge-online' : ''}">${m.type.toUpperCase()}</span></td>
+                                <td style="padding:12px; color:var(--secondary); font-family:monospace;">${m.code || 'N/A'}</td>
+                                <td style="padding:12px;">
+                                    <span style="color:${m.is_active !== false ? '#00e676' : '#ff5252'};">
+                                        ${m.is_active !== false ? 'ACTIVE' : 'PAUSED'}
+                                    </span>
+                                </td>
+                                <td style="padding:12px; display:flex; gap:8px;">
+                                    <button class="btn btn-primary" style="padding: 4px 12px; font-size:0.7rem; background: var(--secondary); color: #000;" 
+                                            onclick="openEditModal(${JSON.stringify(m).replace(/"/g, '&quot;')})">
+                                        EDIT
+                                    </button>
+                                    <button class="btn btn-primary" style="padding: 4px 12px; font-size:0.7rem; background: ${m.is_active !== false ? 'rgba(255,255,255,0.1)' : '#00e676'}; color: #fff;" 
+                                            onclick="toggleStatus(${m.id})">
+                                        ${m.is_active !== false ? 'PAUSE' : 'ACTIVATE'}
+                                    </button>
+                                    <button class="btn btn-primary" style="padding: 4px 12px; font-size:0.7rem; background: var(--accent);" 
+                                            onclick="purgeEntity(${m.id}, '${m.name.replace(/'/g, "\\'")}')">PURGE</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        async function purgeEntity(id, name) {
+            if (!confirm(`CAUTION: You are about to PERMANENTLY PURGE '${name}' and all its associated data (players, matches, users). This action CANNOT be undone. Proceed?`)) return;
+            
+            try {
+                const res = await secureFetch(`/api/ferwafa/entities/${id}/purge`, { method: 'POST' });
+                const data = await res.json();
+                alert(data.message);
+                initStableHub();
+            } catch (e) {
+                alert("Purge command failed. Connection error.");
+            }
+        }
+
+        async function toggleStatus(id) {
+            try {
+                const res = await secureFetch(`/api/ferwafa/entities/${id}/toggle-status`, { method: 'PUT' });
+                const data = await res.json();
+                alert(data.message);
+                initStableHub();
+            } catch (e) {
+                alert("Toggle command failed.");
+            }
+        }
+
+        function openEditModal(m) {
+            document.getElementById('edit-id').value = m.id;
+            document.getElementById('edit-name').value = m.name;
+            document.getElementById('edit-stadium').value = m.stadium_name || m.location || '';
+            document.getElementById('edit-capacity').value = m.capacity || 5000;
+            document.getElementById('editInstModal').classList.add('active');
+        }
+
+        document.getElementById('edit-inst-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('edit-id').value;
+            const data = {
+                name: document.getElementById('edit-name').value,
+                stadium_name: document.getElementById('edit-stadium').value,
+                capacity: document.getElementById('edit-capacity').value
+            };
+
+            try {
+                const params = new URLSearchParams(data).toString();
+                const res = await secureFetch(`/api/ferwafa/entities/${id}?${params}`, { method: 'PUT' });
+                const result = await res.json();
+                alert(result.message);
+                document.getElementById('editInstModal').classList.remove('active');
+                initStableHub();
+            } catch (err) { alert("Update failed"); }
+        });
+
         function renderTalent() {
             const filter = document.getElementById('age-filter').value;
+            const query = document.getElementById('talent-search').value.toLowerCase();
+
             const filtered = playersCache.filter(p => {
-                if (filter === 'all') return true;
-                const age = parseInt(p.age);
-                if (isNaN(age)) return false;
-                if (filter === 'U15') return age <= 15;
-                if (filter === 'U17') return age > 15 && age <= 17;
-                if (filter === 'U20') return age > 17 && age <= 20;
-                return true;
+                // Age filter
+                let ageMatch = true;
+                if (filter !== 'all') {
+                    const age = parseInt(p.age);
+                    if (isNaN(age)) ageMatch = false;
+                    else if (filter === 'U15') ageMatch = (age <= 15);
+                    else if (filter === 'U17') ageMatch = (age > 15 && age <= 17);
+                    else if (filter === 'U20') ageMatch = (age > 17 && age <= 20);
+                }
+                
+                // Search query filter
+                const searchMatch = p.name.toLowerCase().includes(query) || 
+                                    p.position.toLowerCase().includes(query) || 
+                                    (p.club && p.club.toLowerCase().includes(query));
+
+                return ageMatch && searchMatch;
             });
 
             document.getElementById('talent-list').innerHTML = filtered.length ? filtered.map(p => `
@@ -355,7 +517,7 @@
             if (ids.length < 2 || !start || !end) return alert("Select teams and a full date range.");
 
             try {
-                const res = await fetch('/api/ferwafa/fixtures/auto-generate', {
+                const res = await secureFetch('/api/ferwafa/fixtures/auto-generate', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ institution_ids: ids, start_date: start, end_date: end, division_name: div })
@@ -365,6 +527,35 @@
                 initStableHub();
             } catch (e) { alert("Mixer Error"); }
         }
+
+        async function handleRegistration(e) {
+            e.preventDefault();
+            const data = {
+                name: document.getElementById('reg-name').value,
+                type: document.getElementById('reg-type').value,
+                code: document.getElementById('reg-code').value,
+                stadium_name: document.getElementById('reg-stadium').value,
+                province: document.getElementById('reg-province').value,
+                district: document.getElementById('reg-district').value,
+                sector: "N/A",
+                cell: "N/A",
+                has_floodlights: document.getElementById('reg-lights').checked
+            };
+
+            try {
+                const queryParams = new URLSearchParams(data).toString();
+                const res = await secureFetch(`/api/ferwafa/entities/create?${queryParams}`, {
+                    method: 'POST'
+                });
+                const result = await res.json();
+                alert(result.message || "Registration Successful");
+                initStableHub();
+            } catch (err) {
+                alert("Registration failed");
+            }
+        }
+
+        document.getElementById('reg-form').addEventListener('submit', handleRegistration);
 
         initStableHub();
     </script>

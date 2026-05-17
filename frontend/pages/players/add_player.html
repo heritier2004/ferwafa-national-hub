@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New Player | Football Intelligence Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-primary: #020617;
+            --bg-secondary: #0f172a;
+            --accent-primary: #6366f1;
+            --accent-glow: rgba(99, 102, 241, 0.4);
+            --text-primary: #f8fafc;
+            --text-dim: #94a3b8;
+            --border: rgba(255, 255, 255, 0.08);
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background-color: var(--bg-primary);
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 85% 30%, rgba(16, 185, 129, 0.05) 0%, transparent 50%);
+            color: var(--text-primary);
+            font-family: 'Outfit', sans-serif;
+            min-height: 100vh;
+            padding-bottom: 80px;
+        }
+
+        /* --- HEADER --- */
+        .top-nav {
+            background: rgba(2, 6, 23, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            padding: 1.5rem 3rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .back-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-family: inherit;
+            font-weight: 800;
+            font-size: 0.8rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: 0.2s;
+            text-decoration: none;
+        }
+        .back-btn:hover { background: rgba(255,255,255,0.05); }
+
+        .header-title h1 {
+            font-size: 1.8rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+            margin: 0;
+        }
+        .header-title p {
+            color: var(--text-dim);
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-top: 4px;
+        }
+
+        /* --- MAIN CONTAINER --- */
+        .container {
+            max-width: 1200px;
+            margin: 3rem auto;
+            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 2rem;
+        }
+
+        /* --- CARDS & FORMS --- */
+        .form-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .form-section::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 3px;
+            background: linear-gradient(90deg, var(--accent-primary), transparent);
+            opacity: 0.5;
+        }
+
+        .section-tag {
+            font-size: 0.85rem;
+            color: var(--accent-primary);
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .section-tag i { font-size: 1.2rem; }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem; }
+
+        .input-group { margin-bottom: 1.5rem; }
+        .input-group.full { grid-column: 1 / -1; }
+        
+        .input-group label {
+            display: block;
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 8px;
+        }
+
+        .input-field {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 14px 16px;
+            color: white;
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            background: rgba(0,0,0,0.6);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+
+        select.input-field {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            background-size: 16px;
+        }
+
+        textarea.input-field {
+            height: 120px;
+            resize: vertical;
+        }
+
+        /* --- PHOTO UPLOAD ZONE --- */
+        .photo-upload-zone {
+            border: 2px dashed rgba(255,255,255,0.15);
+            border-radius: 12px;
+            padding: 3rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            background: rgba(0,0,0,0.2);
+            transition: 0.3s;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .photo-upload-zone:hover {
+            border-color: var(--accent-primary);
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        #photo-preview {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--bg-secondary);
+            box-shadow: 0 0 0 2px var(--accent-primary);
+            display: none;
+            margin-bottom: 1rem;
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: var(--text-dim);
+            margin-bottom: 1rem;
+            transition: 0.3s;
+        }
+        .photo-upload-zone:hover .upload-icon { color: var(--accent-primary); transform: translateY(-5px); }
+
+        /* --- SAVE BUTTON --- */
+        .save-container {
+            position: sticky;
+            top: 100px;
+        }
+
+        .btn-save {
+            width: 100%;
+            background: var(--accent-primary);
+            color: white;
+            border: none;
+            padding: 1.5rem;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 900;
+            font-family: inherit;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 10px 30px var(--accent-glow);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-save:hover {
+            transform: translateY(-3px);
+            background: #4f46e5;
+            box-shadow: 0 15px 40px var(--accent-glow);
+        }
+
+        .btn-save:disabled {
+            background: #334155;
+            box-shadow: none;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .container { grid-template-columns: 1fr; }
+            .save-container { position: static; margin-top: 2rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 1. HEADER -->
+    <nav class="top-nav">
+        <a href="javascript:history.back()" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Back to Hub</a>
+        <div class="header-title" style="text-align: right;">
+            <h1>Player Registry</h1>
+            <p><span style="color: var(--success);">● SECURE</span> &bull; ATHLETE ENROLLMENT</p>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- LEFT COLUMN: FORMS -->
+        <div class="form-wrapper">
+            <form id="player-form">
+                
+                <!-- 2. BASIC INFORMATION -->
+                <div class="form-section">
+                    <div class="section-tag"><i class="fa-solid fa-id-card"></i> 01. Basic Information</div>
+                    <div class="grid-2">
+                        <div class="input-group">
+                            <label>First Name</label>
+                            <input type="text" id="firstName" class="input-field" placeholder="e.g. Jean" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Last Name</label>
+                            <input type="text" id="lastName" class="input-field" placeholder="e.g. Mugisha" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Date of Birth</label>
+                            <input type="date" id="dob" class="input-field" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Nationality</label>
+                            <input type="text" id="nationality" class="input-field" value="Rwandan" required>
+                        </div>
+                        <div class="input-group full">
+                            <label>Phone Number / Contact</label>
+                            <input type="tel" id="phone" class="input-field" placeholder="+250 78...">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. FOOTBALL INFORMATION -->
+                <div class="form-section">
+                    <div class="section-tag"><i class="fa-solid fa-futbol"></i> 02. Tactical Profile</div>
+                    <div class="grid-3">
+                        <div class="input-group full">
+                            <label>Primary Position</label>
+                            <select id="primaryPos" class="input-field" required>
+                                <option value="">Select Position...</option>
+                                <optgroup label="Goalkeeper"><option value="GK">GK - Goalkeeper</option></optgroup>
+                                <optgroup label="Defenders">
+                                    <option value="CB">CB - Center Back</option>
+                                    <option value="LB">LB - Left Back</option>
+                                    <option value="RB">RB - Right Back</option>
+                                </optgroup>
+                                <optgroup label="Midfielders">
+                                    <option value="CDM">CDM - Defensive Mid</option>
+                                    <option value="CM">CM - Central Mid</option>
+                                    <option value="CAM">CAM - Attacking Mid</option>
+                                    <option value="LM">LM - Left Mid</option>
+                                    <option value="RM">RM - Right Mid</option>
+                                </optgroup>
+                                <optgroup label="Attackers">
+                                    <option value="LW">LW - Left Wing</option>
+                                    <option value="RW">RW - Right Wing</option>
+                                    <option value="ST">ST - Striker</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Secondary Pos</label>
+                            <select id="secondaryPos" class="input-field">
+                                <option value="NONE">None</option><option value="CB">CB</option><option value="CM">CM</option><option value="ST">ST</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Preferred Foot</label>
+                            <select id="prefFoot" class="input-field">
+                                <option value="Right">Right</option><option value="Left">Left</option><option value="Both">Both</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Jersey Number</label>
+                            <input type="number" id="jerseyNumber" class="input-field" placeholder="1 - 99">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. PHYSICAL & MEDICAL -->
+                <div class="form-section">
+                    <div class="section-tag"><i class="fa-solid fa-heart-pulse"></i> 03. Physical & Medical</div>
+                    <div class="grid-2">
+                        <div class="input-group">
+                            <label>Height (cm)</label>
+                            <input type="number" id="height" class="input-field" placeholder="e.g. 182">
+                        </div>
+                        <div class="input-group">
+                            <label>Weight (kg)</label>
+                            <input type="number" id="weight" class="input-field" placeholder="e.g. 75">
+                        </div>
+                        <div class="input-group">
+                            <label>Fitness Status</label>
+                            <select id="fitnessStatus" class="input-field">
+                                <option value="Fit">Fit (100%)</option>
+                                <option value="Recovering">Recovering</option>
+                                <option value="Injured">Injured</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Injury Status</label>
+                            <select id="injuryStatus" class="input-field">
+                                <option value="None">None</option>
+                                <option value="Minor">Minor Strain</option>
+                                <option value="Major">Major Injury</option>
+                            </select>
+                        </div>
+                        <div class="input-group full" style="margin-bottom: 0;">
+                            <label>Medical Notes / Clearances</label>
+                            <textarea id="medicalNotes" class="input-field" placeholder="Document surgical history, chronic conditions, or specific clearance notes..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+
+        <!-- RIGHT COLUMN: PHOTO & SUBMIT -->
+        <div class="save-container">
+            <!-- 5. PHOTO UPLOAD -->
+            <div class="form-section" style="padding: 1.5rem; text-align: center; height: 320px; display: flex; flex-direction: column;">
+                <div class="section-tag" style="justify-content: center; margin-bottom: 1rem;"><i class="fa-solid fa-camera"></i> 04. Biometrics</div>
+                <div class="photo-upload-zone" id="dropzone">
+                    <img id="photo-preview" src="" alt="Preview">
+                    <div id="upload-prompt">
+                        <div class="upload-icon"><i class="fa-solid fa-fingerprint"></i></div>
+                        <p style="font-weight: 800; font-size: 0.9rem; color: var(--text-primary);">UPLOAD HEADSHOT</p>
+                        <p style="font-size: 0.7rem; color: var(--text-dim); margin-top: 5px;">Required for AI Tracking (JPG/PNG)</p>
+                    </div>
+                    <input type="file" id="photoInput" style="display: none;" accept="image/*">
+                </div>
+            </div>
+
+            <!-- 6. SAVE BUTTON -->
+            <button type="submit" form="player-form" class="btn-save" id="save-btn">
+                <i class="fa-solid fa-check-double"></i> Authorize & Enroll
+            </button>
+            <div style="text-align: center; margin-top: 1rem; font-size: 0.7rem; color: var(--text-dim); font-weight: 700; text-transform: uppercase;">
+                <i class="fa-solid fa-shield-halved"></i> Secured by FERWAFA Infrastructure
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Photo Upload Logic
+        const dropzone = document.getElementById('dropzone');
+        const photoInput = document.getElementById('photoInput');
+        const photoPreview = document.getElementById('photo-preview');
+        const uploadPrompt = document.getElementById('upload-prompt');
+
+        dropzone.onclick = () => photoInput.click();
+
+        photoInput.onchange = (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    photoPreview.src = e.target.result;
+                    photoPreview.style.display = 'block';
+                    uploadPrompt.style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+            }
+        };
+
+        // Form Submit Logic
+        document.getElementById('player-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const saveBtn = document.getElementById('save-btn');
+            const originalText = saveBtn.innerHTML;
+            
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> ENROLLING...';
+
+            const payload = {
+                name: `${document.getElementById('firstName').value} ${document.getElementById('lastName').value}`,
+                date_of_birth: document.getElementById('dob').value,
+                nationality: document.getElementById('nationality').value,
+                phone_number: document.getElementById('phone').value,
+                position: document.getElementById('primaryPos').value,
+                secondary_position: document.getElementById('secondaryPos').value,
+                jersey_number: parseInt(document.getElementById('jerseyNumber').value) || 0,
+                preferred_foot: document.getElementById('prefFoot').value,
+                height: parseFloat(document.getElementById('height').value) || 0,
+                weight: parseFloat(document.getElementById('weight').value) || 0,
+                fitness_status: document.getElementById('fitnessStatus').value,
+                injury_status: document.getElementById('injuryStatus').value,
+                medical_notes: document.getElementById('medicalNotes').value
+            };
+
+            const token = localStorage.getItem('access_token');
+
+            try {
+                const response = await fetch('/api/club/player/create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    alert("PLAYER ENROLLED SUCCESSFULLY\nPLAYER ID: " + data.player_code);
+                    history.back(); // Return to dashboard
+                } else {
+                    const err = await response.json();
+                    alert("ENROLLMENT FAILED: " + (err.detail || "Unknown error"));
+                }
+            } catch (err) {
+                alert("NETWORK ERROR: SERVER UNREACHABLE");
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = originalText;
+            }
+        };
+    </script>
+</body>
+</html>

@@ -8,6 +8,7 @@ import os
 import asyncio
 import aiohttp
 from ai_machine.config import Config
+from ai_machine.check_hardware import check_hardware
 
 
 def clear():
@@ -56,8 +57,18 @@ def run_wizard():
     header()
     config = Config()
 
-    print("  This wizard will configure your AI Pitch Machine.")
-    print("  You need the API Key and Match Token from the Match Control page.\n")
+    print("  This wizard will configure your AI Pitch Machine Pro.")
+    print("  You need the API Key and Match Token from your Dashboard.\n")
+
+    # ── Step 0: Hardware Authorization ──────────────────────────────────
+    section("STEP 0 — Hardware Capability Scan")
+    hw = check_hardware()
+    if not hw["elite_ready"]:
+        warn("This device may struggle with real-time AI. Continue at your own risk.")
+    else:
+        success("Accelerator Authorized: Elite Performance Enabled.")
+    input("\n  Press ENTER to continue setup...")
+    clear(); header()
 
     # ── Step 1: Server URL ──────────────────────────────────────────────
     section("STEP 1 — Server URL")

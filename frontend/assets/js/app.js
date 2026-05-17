@@ -6,24 +6,44 @@
 function checkAuth() {
     const token = localStorage.getItem('access_token');
     if (!token && !window.location.pathname.includes('login.html') && !window.location.pathname.includes('index.html')) {
-        window.location.href = '../login.html';
+        window.location.href = '/login.html';
     }
 }
 
 function logout() {
     localStorage.clear();
-    const loginPath = window.location.pathname.includes('pages/') ? '../login.html' : 'login.html';
-    window.location.href = loginPath;
+    window.location.href = '/login.html';
+}
+
+async function secureFetch(url, options = {}) {
+    const token = localStorage.getItem('access_token');
+    const headers = {
+        ...options.headers,
+        'Authorization': `Bearer ${token}`
+    };
+
+    // Auto-generate idempotency key for mutating requests
+    const mutatingMethods = ['POST', 'PUT', 'PATCH'];
+    if (mutatingMethods.includes(options.method?.toUpperCase())) {
+        if (!headers['X-Idempotency-Key']) {
+            headers['X-Idempotency-Key'] = `auto-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        }
+    }
+
+    return fetch(url, { ...options, headers });
 }
 
 function goHome() {
     const role = localStorage.getItem('role');
     const REDIRECT_MAP = {
-        'SUPER_ADMIN': 'admin.html',
-        'FERWAFA': 'ferwafa_dashboard.html',
-        'CLUB': 'club_dashboard.html'
+        'SUPER_ADMIN': 'super_admin.html',
+        'FERWAFA': 'ferwafa.html',
+        'CLUB': 'club.html',
+        'SCHOOL': 'school.html',
+        'ACADEMY': 'academy.html'
     };
-    window.location.href = REDIRECT_MAP[role] || 'dashboard.html';
+    const prefix = window.location.pathname.includes('dashboards/') ? '' : 'pages/dashboards/';
+    window.location.href = (prefix + (REDIRECT_MAP[role] || 'club.html'));
 }
 
 function roleGuard() {
@@ -66,6 +86,18 @@ const SYSTEM_ARCHITECTURE = {
         { name: 'Match Center', id: 'match', icon: `<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>` },
         { name: 'Match History', id: 'history', icon: `<circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>` },
         { name: 'Player Scouting', id: 'scouting', icon: `<circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>` }
+    ],
+    'SCHOOL': [
+        { name: 'Program Summary', id: 'edu-overview', icon: `<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2-2H5a2 2 0 0 1-2-2z"></path>` },
+        { name: 'Registry Hub', id: 'attendance', icon: `<polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>` },
+        { name: 'Youth Trajectory', id: 'youth-dev', icon: `<path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path>` },
+        { name: 'Match Day', id: 'match-day', icon: `<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>` }
+    ],
+    'ACADEMY': [
+        { name: 'Talent Matrix', id: 'talent-overview', icon: `<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>` },
+        { name: 'AI Training', id: 'training-ai', icon: `<path d="M12 2L2 7l10 5 10-5-10-5z"></path><circle cx="12" cy="12" r="3"></circle>` },
+        { name: 'Roster Hub', id: 'squad-mgmt', icon: `<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle>` },
+        { name: 'Elite Reports', id: 'scouting-reports', icon: `<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline>` }
     ]
 };
 
@@ -129,7 +161,7 @@ function switchTab(tabId) {
 // ⚙️ Global Infrastructure Synchronization
 async function syncGlobalInfrastructure() {
     try {
-        const res = await fetch('/api/admin/system/settings');
+        const res = await secureFetch('/api/admin/system/settings');
         const settings = await res.json();
         
         settings.forEach(s => {

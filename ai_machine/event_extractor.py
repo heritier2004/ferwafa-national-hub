@@ -182,14 +182,3 @@ class EventExtractor:
 
     def get_stats(self) -> dict:
         return dict(self.stats)
-inf')
-        team = None
-        for p in players:
-            d = self._distance((ball['x'], ball['y']), (p['x'], p['y']))
-            if d < min_d:
-                min_d = d
-                team = p.get('team')
-        return team
-
-    def get_stats(self) -> dict:
-        return dict(self.stats)

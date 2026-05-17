@@ -17,8 +17,15 @@ from typing import List, Optional
 import uuid
 import secrets
 from datetime import datetime
+from backend.app.utils.crud import CrudMixin, transactional, crud_error
 
-router = APIRouter(prefix="/api/match", tags=["match_control"])
+from backend.app.auth.dependencies import get_current_user, RoleChecker
+
+router = APIRouter(
+    prefix="/api/match", 
+    tags=["match_control"],
+    dependencies=[Depends(RoleChecker(["FERWAFA", "CLUB", "SCHOOL", "ACADEMY"]))]
+)
 
 
 # ======================================================
@@ -27,7 +34,7 @@ router = APIRouter(prefix="/api/match", tags=["match_control"])
 
 def generate_api_key(institution_code: str) -> str:
     """Bulletproof generator: FWFA-{CODE}-{YEAR}-{RAND4}"""
-    rand = secrets.token_hex(2).upper()
+    rand = secrets.token_hex(3).upper()
     year = datetime.now().year
     # Handle empty or short codes gracefully
     safe_code = (institution_code or "UNKN").upper().replace(" ", "").strip()
@@ -37,8 +44,10 @@ def generate_api_key(institution_code: str) -> str:
 
 
 def generate_match_token() -> str:
-    """UUID v4 match session token"""
-    return str(uuid.uuid4())
+    """Human-readable match session token: MATCH-YEAR-RANDOM"""
+    rand = secrets.token_hex(3).upper()
+    year = datetime.now().year
+    return f"MATCH-{year}-{rand}"
 
 
 # ======================================================
@@ -55,9 +64,9 @@ class CreateMatchRequest(BaseModel):
 
 class SquadPlayer(BaseModel):
     player_id: int
-    role: str                # "starting" or "bench"
-    position: str            # GK, LB, CB, RB, CDM, CM, CAM, LW, RW, ST
-    jersey_number: int
+    role: str                # "starting" or "substitute"
+    position: Optional[str] = None
+    jersey_number: Optional[int] = None
 
 
 class AssignSquadRequest(BaseModel):
@@ -106,16 +115,27 @@ class UpdateEventRequest(BaseModel):
     minute: Optional[int] = None
     event_type: Optional[str] = None
 
+class AiAuthRequest(BaseModel):
+    api_key: str
+    match_token: str
+
 
 # ======================================================
 # ENDPOINTS
 # ======================================================
 
 @router.post("/create")
-def create_match(req: CreateMatchRequest, db: Session = Depends(get_db)):
+def create_match(req: CreateMatchRequest, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
     """Create a new match session and generate API Key + Match Token."""
+    # RBAC: CLUB role is limited to its own institution
+    inst_id = req.institution_id
+    if current_user["role"] == "CLUB":
+        inst_id = current_user["institution_id"]
+        if not inst_id:
+            raise HTTPException(status_code=403, detail="CLUB user is not linked to an institution")
+
     institution = db.query(Institution).filter(
-        Institution.id == req.institution_id
+        Institution.id == inst_id
     ).first()
     if not institution:
         raise HTTPException(status_code=404, detail="Institution not found")
@@ -128,33 +148,28 @@ def create_match(req: CreateMatchRequest, db: Session = Depends(get_db)):
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid date format. Use ISO 8601.")
 
-    new_match = Match(
-        home_team_id=req.institution_id,
-        stadium=req.venue,
-        match_date=match_dt,
-        competition_type=req.competition_type,
-        opponent_name=req.opponent_name,
-        api_key=api_key,
-        match_token=match_token,
-        status="SCHEDULED"
-    )
-    db.add(new_match)
-    db.flush()
+    with transactional(db):
+        match_payload = {
+            "home_team_id": inst_id,
+            "stadium": req.venue,
+            "match_date": match_dt,
+            "competition_type": req.competition_type,
+            "opponent_name": req.opponent_name,
+            "api_key": api_key,
+            "match_token": match_token,
+            "status": "SCHEDULED"
+        }
+        new_match = CrudMixin.create(Match, db, match_payload, actor_id=current_user["id"])
+        
+        session_payload = {
+            "match_id": new_match.id,
+            "match_token": match_token
+        }
+        CrudMixin.create(MatchSession, db, session_payload, actor_id=current_user["id"])
 
-    session = MatchSession(
-        match_id=new_match.id,
-        match_token=match_token
-    )
-    db.add(session)
-
-    log = SystemActivity(
-        action="MATCH_CREATED",
-        description=f"Match: {institution.name} vs {req.opponent_name} @ {req.venue} ({req.competition_type})",
-        actor_email="SYSTEM"
-    )
-    db.add(log)
-    db.commit()
-
+        # CrudMixin already handles AuditLog for create(), but we can add a specific activity log if needed
+        # but for now, the CrudMixin.create is sufficient for forensics.
+        
     return {
         "match_id": new_match.id,
         "api_key": api_key,
@@ -162,15 +177,72 @@ def create_match(req: CreateMatchRequest, db: Session = Depends(get_db)):
         "message": "Match session created. Configure squad and kits, then install the API Key on the AI Machine."
     }
 
+@router.post("/save-setup")
+def save_match_setup(data: dict, db: Session = Depends(get_db)):
+    """Save lineup, kits, and stadium settings in one call."""
+    match_id = data.get("match_id")
+    match = db.query(Match).filter(Match.id == match_id).first()
+    if not match:
+        raise HTTPException(status_code=404, detail="Match not found")
+    
+    if "kits" in data:
+        match.kit_home_color = data["kits"].get("home")
+        match.kit_away_color = data["kits"].get("away")
+    
+    if "stadium" in data:
+        match.stadium = data["stadium"]
+        
+    db.commit()
+    return {"status": "Setup saved"}
+
+@router.post("/generate-token")
+def refresh_token(match_id: int, db: Session = Depends(get_db)):
+    """Explicit endpoint to refresh Match Token/API Key."""
+    match = db.query(Match).filter(Match.id == match_id).first()
+    if not match:
+        raise HTTPException(status_code=404, detail="Match not found")
+    
+    match.match_token = generate_match_token()
+    db.commit()
+    return {"match_token": match.match_token}
+
+@router.post("/validate-ai")
+def validate_ai_credentials(req: AiAuthRequest, db: Session = Depends(get_db)):
+    """AI Machine validates its credentials before connecting."""
+    match = db.query(Match).filter(
+        Match.match_token == req.match_token,
+        Match.api_key == req.api_key
+    ).first()
+    if not match:
+        raise HTTPException(status_code=401, detail="Invalid token or API key")
+
+    return {"valid": True, "match_id": match.id}
+
+@router.post("/end")
+def end_match(match_id: int, db: Session = Depends(get_db)):
+    """Finalize match and generate reports."""
+    match = db.query(Match).filter(Match.id == match_id).first()
+    if not match:
+        raise HTTPException(status_code=404, detail="Match not found")
+    
+    match.status = "COMPLETED"
+    match.is_finalized = True
+    db.commit()
+    return {"status": "Match finalized", "report_url": f"/api/match/{match_id}/export/csv"}
+
 
 @router.get("/all")
-def get_all_matches(institution_id: Optional[int] = None, db: Session = Depends(get_db)):
-    """List all matches, optionally filtered by institution."""
+def get_all_matches(institution_id: Optional[int] = None, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
+    """List all matches. Filtered by institution for CLUB role or by parameter."""
     query = db.query(Match)
-    if institution_id:
-        query = query.filter(
-            (Match.home_team_id == institution_id) | (Match.away_team_id == institution_id)
-        )
+    
+    # RBAC: CLUB role is strictly limited to its own matches
+    if current_user["role"] == "CLUB":
+        inst_id = current_user["institution_id"]
+        query = query.filter((Match.home_team_id == inst_id) | (Match.away_team_id == inst_id))
+    elif institution_id:
+        query = query.filter((Match.home_team_id == institution_id) | (Match.away_team_id == institution_id))
+        
     matches = query.order_by(Match.match_date.desc()).all()
 
     result = []
@@ -241,42 +313,44 @@ def get_match(match_id: int, db: Session = Depends(get_db)):
 
 
 @router.post("/{match_id}/squad")
-def assign_squad(match_id: int, req: AssignSquadRequest, db: Session = Depends(get_db)):
+def assign_squad(match_id: int, req: AssignSquadRequest, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
     """Assign 18-man squad with positions and roles (starting/bench)."""
     match = db.query(Match).filter(Match.id == match_id).first()
     if not match:
         raise HTTPException(status_code=404, detail="Match not found")
 
     # Clear existing squad
-    db.query(MatchSquad).filter(MatchSquad.match_id == match_id).delete()
-    db.flush()
-
-    for p in req.players:
-        squad_entry = MatchSquad(
-            match_id=match_id,
-            player_id=p.player_id,
-            role=p.role,
-            position=p.position,
-            jersey_number=p.jersey_number
-        )
-        db.add(squad_entry)
-
-    db.commit()
+    with transactional(db):
+        db.query(MatchSquad).filter(MatchSquad.match_id == match_id).delete()
+        
+        for p in req.players:
+            squad_payload = {
+                "match_id": match_id,
+                "player_id": p.player_id,
+                "role": p.role,
+                "position": p.position,
+                "jersey_number": p.jersey_number
+            }
+            # MatchSquad is a join table, we use db.add but wrap in transaction
+            db.add(MatchSquad(**squad_payload))
+            
     return {"message": f"Squad of {len(req.players)} players assigned successfully"}
 
 
 @router.post("/{match_id}/kits")
-def set_kits(match_id: int, req: KitRequest, db: Session = Depends(get_db)):
+def set_kits(match_id: int, req: KitRequest, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
     """Set home and away kit colors for AI jersey detection."""
     match = db.query(Match).filter(Match.id == match_id).first()
     if not match:
         raise HTTPException(status_code=404, detail="Match not found")
 
-    match.kit_home_color = req.kit_home_color
-    match.kit_home_socks_color = req.kit_home_socks_color
-    match.kit_away_color = req.kit_away_color
-    match.kit_away_socks_color = req.kit_away_socks_color
-    db.commit()
+    kit_payload = {
+        "kit_home_color": req.kit_home_color,
+        "kit_home_socks_color": req.kit_home_socks_color,
+        "kit_away_color": req.kit_away_color,
+        "kit_away_socks_color": req.kit_away_socks_color
+    }
+    CrudMixin.update(Match, db, match_id, kit_payload, actor_id=current_user["id"])
     return {"message": "Kit colors saved. AI Machine will use these for jersey detection."}
 
 
@@ -287,39 +361,38 @@ async def manual_event(match_id: int, req: ManualEventRequest, db: Session = Dep
     if not match:
         raise HTTPException(status_code=404, detail="Match not found")
 
-    # 1. Store as a Match Event
-    event = MatchEvent(
-        match_id=match_id,
-        player_id=req.player_id,
-        event_type=req.event_type,
-        timestamp_match=req.minute,
-        x_pos=req.x,
-        y_pos=req.y,
-        source="manual",
-        is_confirmed=True,
-        value=1.0
-    )
-    db.add(event)
+    with transactional(db):
+        # 1. Store as a Match Event
+        event_payload = {
+            "match_id": match_id,
+            "player_id": req.player_id,
+            "event_type": req.event_type,
+            "timestamp_match": req.minute,
+            "x_pos": req.x,
+            "y_pos": req.y,
+            "source": "manual",
+            "is_confirmed": True,
+            "value": 1.0
+        }
+        event = CrudMixin.create(MatchEvent, db, event_payload, actor_id=current_user["id"])
 
-    # 2. Update Global Match Score for Goals
-    if req.event_type == "goal":
-        if req.team == "home":
-            match.score_home = (match.score_home or 0) + 1
-        else:
-            match.score_away = (match.score_away or 0) + 1
+        # 2. Update Global Match Score for Goals
+        if req.event_type == "goal":
+            score_field = "score_home" if req.team == "home" else "score_away"
+            new_score = (getattr(match, score_field) or 0) + 1
+            CrudMixin.update(Match, db, match_id, {score_field: new_score}, actor_id=current_user["id"])
 
-    # 3. CRITICAL: Add to National Disciplinary Record for Cards
-    if req.event_type in ["yellow_card", "red_card"]:
-        disc = DisciplinaryRecord(
-            match_id=match_id,
-            player_id=req.player_id,
-            card_type="YELLOW" if req.event_type == "yellow_card" else "RED",
-            description=req.description or f"Manual card issued in min {req.minute}",
-            minute=req.minute
-        )
-        db.add(disc)
-
-    db.commit()
+        # 3. CRITICAL: Add to National Disciplinary Record for Cards
+        if req.event_type in ["yellow_card", "red_card"]:
+            disc_payload = {
+                "match_id": match_id,
+                "player_id": req.player_id,
+                "card_type": "YELLOW" if req.event_type == "yellow_card" else "RED",
+                "description": req.description or f"Manual card issued in min {req.minute}",
+                "minute": req.minute
+            }
+            CrudMixin.create(DisciplinaryRecord, db, disc_payload, actor_id=current_user["id"])
+    
     db.refresh(event)
 
     # 4. Real-time Broadcast
@@ -342,6 +415,12 @@ async def manual_event(match_id: int, req: ManualEventRequest, db: Session = Dep
     return {"message": "Event recorded and synced to National Database", "event_id": event.id}
 
 
+@router.post("/{match_id}/event")
+async def log_event_simple(match_id: int, req: ManualEventRequest, db: Session = Depends(get_db)):
+    """Simple event alias — same as /event/manual. Used by the Match Control Center UI."""
+    return await manual_event(match_id, req, db)
+
+
 @router.delete("/{match_id}/correct/{event_id}")
 async def var_correction(match_id: int, event_id: int, db: Session = Depends(get_db)):
     """VAR-style correction: remove an incorrect event."""
@@ -354,11 +433,13 @@ async def var_correction(match_id: int, event_id: int, db: Session = Depends(get
 
     # Revert goal score if needed
     match = db.query(Match).filter(Match.id == match_id).first()
-    if event.event_type == "goal" and match:
-        match.score_home = max(0, (match.score_home or 0) - 1)
+    with transactional(db):
+        if event.event_type == "goal" and match:
+            score_field = "score_home" if any(p.player_id == event.player_id for p in match.squad if p.role == "starting" or p.role == "substitute") else "score_away"
+            new_score = max(0, (getattr(match, score_field) or 0) - 1)
+            CrudMixin.update(Match, db, match_id, {score_field: new_score}, actor_id=current_user["id"])
 
-    db.delete(event)
-    db.commit()
+        CrudMixin.soft_delete(MatchEvent, db, event_id, actor_id=current_user["id"])
 
     from backend.app.match_control.ai_ingest import manager
     await manager.broadcast_match_event(match_id, {
@@ -401,14 +482,9 @@ def get_events(match_id: int, db: Session = Depends(get_db)):
 
 
 @router.post("/{match_id}/event/{event_id}/approve")
-def approve_event(match_id: int, event_id: int, db: Session = Depends(get_db)):
+def approve_event(match_id: int, event_id: int, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
     """Manually approve an AI-generated event."""
-    event = db.query(MatchEvent).filter(MatchEvent.id == event_id, MatchEvent.match_id == match_id).first()
-    if not event:
-        raise HTTPException(status_code=404, detail="Event not found")
-    
-    event.is_confirmed = True
-    db.commit()
+    CrudMixin.update(MatchEvent, db, event_id, {"is_confirmed": True}, actor_id=current_user["id"])
     return {"message": "Event approved", "id": event_id}
 
 
@@ -485,8 +561,7 @@ async def update_status(match_id: int, req: StatusRequest, db: Session = Depends
     if not match:
         raise HTTPException(status_code=404, detail="Match not found")
 
-    match.status = req.status
-    db.commit()
+    CrudMixin.update(Match, db, match_id, {"status": req.status}, actor_id=current_user["id"])
 
     from backend.app.match_control.ai_ingest import manager
     await manager.broadcast_match_event(match_id, {
@@ -497,56 +572,33 @@ async def update_status(match_id: int, req: StatusRequest, db: Session = Depends
     return {"message": f"Match status → {req.status}"}
 
 
-@router.get("/token/{token}/validate")
-def validate_token(token: str, key: str, db: Session = Depends(get_db)):
-    """AI Machine validates its credentials before connecting."""
-    match = db.query(Match).filter(
-        Match.match_token == token,
-        Match.api_key == key
-    ).first()
-    if not match:
-        raise HTTPException(status_code=401, detail="Invalid token or API key — connection rejected")
-
-    home = db.query(Institution).filter(Institution.id == match.home_team_id).first()
-    
-    # Fetch squad for AI identity binding
-    squad_data = []
-    for member in match.squad:
-        player = db.query(Player).filter(Player.id == member.player_id).first()
-        squad_data.append({
-            "player_id": member.player_id,
-            "name": player.name if player else "Unknown",
-            "jersey": member.jersey_number,
-            "team": "home" # Assuming home institution managed squad for now
-        })
-
-    return {
-        "valid": True,
-        "match_id": match.id,
-        "home_team": home.name if home else "Unknown",
-        "opponent": match.opponent_name,
-        "status": match.status,
-        "kit_home": match.kit_home_color,
-        "kit_home_socks": match.kit_home_socks_color,
-        "kit_away": match.kit_away_color,
-        "kit_away_socks": match.kit_away_socks_color,
-        "venue": match.stadium,
-        "competition": match.competition_type,
-        "squad": squad_data
-    }
 
 
 @router.get("/institution/{institution_id}/players")
-def get_institution_players(institution_id: int, db: Session = Depends(get_db)):
-    """Fetch players for squad selection on the Match Page."""
-    players = db.query(Player).filter(Player.institution_id == institution_id).all()
+def get_institution_players(institution_id: int, team_category: Optional[str] = None, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
+    """Fetch players for an institution (with RBAC and category filtering)."""
+    # RBAC: CLUB role can only see its own players
+    if current_user["role"] == "CLUB" and current_user["institution_id"] != institution_id:
+        raise HTTPException(
+            status_code=403, 
+            detail="CROSS-CLUB ACCESS DENIED: You can only access players for your own club."
+        )
+
+    query = db.query(Player).filter(Player.institution_id == institution_id)
+    if team_category:
+        query = query.filter(Player.team_category == team_category)
+        
+    players = query.all()
     return [
         {
             "id": p.id,
             "name": p.name,
             "position": p.position,
             "player_code": p.player_code,
-            "number": None  # jersey number assigned during squad setup
+            "team_category": p.team_category,
+            "age": p.age,
+            "nationality": p.nationality,
+            "jersey_number": p.jersey_number # default from registry
         }
         for p in players
     ]

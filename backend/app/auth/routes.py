@@ -23,6 +23,7 @@ class Token(BaseModel):
     full_name: str
     logo_url: Optional[str] = None
     stadium_name: Optional[str] = None
+    institution_name: Optional[str] = None
 
 @router.post("/register", status_code=status.HTTP_201_CREATED)
 def register(user: UserCreate, db: Session = Depends(get_db)):
@@ -45,7 +46,8 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
 
 @router.post("/login", response_model=Token)
 def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.email == form_data.username).first()
+    # Case-insensitive email lookup for Global Standard compliance
+    user = db.query(User).filter(User.email.ilike(form_data.username)).first()
     if not user or not verify_password(form_data.password, user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -53,7 +55,12 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    access_token = create_access_token(data={"sub": user.email, "role": user.role})
+    access_token = create_access_token(data={
+        "sub": user.email, 
+        "id": user.id,
+        "role": user.role,
+        "institution_id": user.institution_id
+    })
     
     # Fetch Institution details if applicable
     from backend.app.database.models import Institution
@@ -72,5 +79,6 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
         "role": user.role, 
         "full_name": user.full_name,
         "logo_url": logo,
-        "stadium_name": stadium
+        "stadium_name": stadium,
+        "institution_name": inst.name if user.institution_id and inst else user.full_name
     }

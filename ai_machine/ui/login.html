@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Hub | Secure Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Night Mode (Black & Blue Theme) */
+            --bg: #000000;
+            --panel: #0F172A;
+            --primary: #2563EB;
+            --border: #1E293B;
+            --text-main: #FFFFFF;
+            --text-dim: #94A3B8;
+            --input-bg: #000;
+        }
+
+        [data-theme="day"] {
+            /* Day Mode */
+            --bg: #F1F5F9;
+            --panel: #FFFFFF;
+            --primary: #2563EB;
+            --border: #CBD5E1;
+            --text-main: #0F172A;
+            --text-dim: #64748B;
+            --input-bg: #F8FAFC;
+        }
+
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            background-color: var(--bg);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            display: flex; align-items: center; justify-content: center;
+            transition: background-color 0.3s ease;
+        }
+
+        /* THEME TOGGLE */
+        .theme-toggle {
+            position: absolute; top: 30px; right: 30px;
+            background: var(--panel); border: 1px solid var(--border);
+            padding: 10px 20px; border-radius: 30px;
+            cursor: pointer; font-family: 'Orbitron'; font-size: 0.7rem;
+            font-weight: 900; color: var(--text-main);
+            display: flex; align-items: center; gap: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .login-card {
+            width: 440px; padding: 3.5rem; background: var(--panel);
+            border: 1px solid var(--border); border-radius: 28px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.2);
+            text-align: center; transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .logo {
+            font-family: 'Orbitron'; font-size: 1.8rem; font-weight: 900;
+            color: var(--primary); letter-spacing: 6px; margin-bottom: 2rem;
+        }
+
+        .input-group { margin-bottom: 1.8rem; text-align: left; }
+        .label { display: block; font-size: 0.75rem; font-weight: 800; color: var(--text-dim); text-transform: uppercase; margin-bottom: 10px; }
+        
+        .field {
+            width: 100%; padding: 15px; background: var(--input-bg); border: 2px solid var(--border);
+            border-radius: 12px; color: var(--text-main); font-size: 1rem; font-weight: 600;
+            transition: 0.2s;
+        }
+        .field::placeholder { color: var(--text-dim); opacity: 0.5; }
+        .field:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 10px rgba(37, 99, 235, 0.1); }
+
+        .btn-login {
+            width: 100%; padding: 18px; background: var(--primary); color: #FFF;
+            border: none; border-radius: 14px; font-family: 'Orbitron'; font-weight: 900;
+            text-transform: uppercase; cursor: pointer; transition: 0.2s; margin-top: 1rem;
+            font-size: 1rem; letter-spacing: 2px;
+        }
+        .btn-login:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(37, 99, 235, 0.4); }
+
+        .error-msg { color: #EF4444; font-size: 0.85rem; font-weight: 700; margin-top: 1.2rem; display: none; }
+    </style>
+</head>
+<body data-theme="night">
+
+    <button class="theme-toggle" onclick="toggleTheme()">
+        <span id="theme-icon">🌙</span> <span id="theme-text">NIGHT MODE</span>
+    </button>
+
+    <div class="login-card">
+        <div class="logo">FERWAFA</div>
+        <div style="font-size:0.75rem; color:var(--text-dim); margin-bottom:2.5rem; font-family:'Orbitron'; font-weight:700; letter-spacing:2px;">NATIONAL FOOTBALL INTELLIGENCE SYSTEM</div>
+
+        <form id="login-form">
+            <div class="input-group">
+                <label class="label">Operator ID</label>
+                <input type="text" class="field" id="username" placeholder="Username" required autocomplete="off">
+            </div>
+            <div class="input-group">
+                <label class="label">Secret Password</label>
+                <input type="password" class="field" id="password" placeholder="••••••••" required>
+            </div>
+            <button type="submit" class="btn-login">Unlock System</button>
+            <div class="error-msg" id="error-msg">ACCESS DENIED: INVALID CREDENTIALS</div>
+        </form>
+    </div>
+
+    <script>
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.getElementById('theme-icon');
+            const text = document.getElementById('theme-text');
+            
+            if (body.getAttribute('data-theme') === 'night') {
+                body.setAttribute('data-theme', 'day');
+                icon.textContent = '☀️';
+                text.textContent = 'DAY MODE';
+            } else {
+                body.setAttribute('data-theme', 'night');
+                icon.textContent = '🌙';
+                text.textContent = 'NIGHT MODE';
+            }
+        }
+
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const u = document.getElementById('username').value;
+            const p = document.getElementById('password').value;
+            
+            const res = await fetch('/auth/login', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({username: u, password: p})
+            });
+
+            if (res.ok) {
+                window.location.href = '/';
+            } else {
+                document.getElementById('error-msg').style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>

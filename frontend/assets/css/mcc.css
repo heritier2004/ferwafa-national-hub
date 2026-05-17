@@ -1,0 +1,142 @@
+/* 
+   ELITE MATCH CONTROL CENTER CORE STYLES
+   Minimalist, Professional, Tactical
+*/
+
+:root {
+    --mcc-bg: #020617;
+    --mcc-card: #0f172a;
+    --mcc-accent: #6366f1;
+    --mcc-text: #f8fafc;
+    --mcc-text-dim: #94a3b8;
+    --mcc-border: rgba(255, 255, 255, 0.08);
+    --mcc-pitch: #064e3b;
+    --mcc-success: #10b981;
+}
+
+.mcc-wrapper {
+    background: var(--mcc-bg);
+    color: var(--mcc-text);
+    padding: 6rem;
+    min-height: 100vh;
+    animation: fadeIn 0.6s ease-out;
+}
+
+.mcc-container {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.mcc-hero {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 5rem;
+    border-bottom: 1px solid var(--mcc-border);
+    padding-bottom: 3rem;
+}
+
+.mcc-hero h1 {
+    font-size: 3.5rem;
+    font-weight: 900;
+    letter-spacing: -0.05em;
+    text-transform: uppercase;
+}
+
+.mcc-card {
+    background: var(--mcc-card);
+    border: 1px solid var(--mcc-border);
+    border-radius: 30px;
+    padding: 4rem;
+    margin-bottom: 4rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.mcc-section-tag {
+    font-size: 0.8rem;
+    color: var(--mcc-accent);
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.25em;
+    margin-bottom: 2.5rem;
+    display: block;
+}
+
+/* --- GRID UTILITIES --- */
+.mcc-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3rem; }
+.mcc-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; }
+.mcc-grid-squad { display: grid; grid-template-columns: 1fr 1.5fr; gap: 5rem; }
+
+/* --- INPUTS --- */
+.mcc-field-group { margin-bottom: 2rem; }
+.mcc-field-group label {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: var(--mcc-text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 1rem;
+}
+.mcc-input {
+    width: 100%;
+    background: #000;
+    border: 1px solid var(--mcc-border);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    color: white;
+    font-family: inherit;
+    font-size: 1rem;
+    transition: all 0.2s;
+}
+.mcc-input:focus {
+    outline: none;
+    border-color: var(--mcc-accent);
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+}
+
+/* --- TACTICAL PITCH --- */
+.mcc-pitch-elite {
+    background: radial-gradient(circle at center, #065f46 0%, #064e3b 100%);
+    border-radius: 40px;
+    border: 15px solid rgba(255, 255, 255, 0.05);
+    aspect-ratio: 16/10;
+    position: relative;
+    overflow: hidden;
+}
+
+/* --- SQUAD LIST --- */
+.mcc-list-box {
+    background: #000;
+    border-radius: 24px;
+    border: 1px solid var(--mcc-border);
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.mcc-player-row {
+    padding: 1.5rem 2.5rem;
+    border-bottom: 1px solid var(--mcc-border);
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.mcc-player-row:hover { background: rgba(255, 255, 255, 0.03); }
+.mcc-player-row.selected { background: rgba(99, 102, 241, 0.1); border-left: 6px solid var(--mcc-accent); }
+
+/* --- BADGES & STATUS --- */
+.mcc-badge {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--mcc-success);
+    border: 1px solid var(--mcc-success);
+    padding: 8px 20px;
+    border-radius: 40px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }

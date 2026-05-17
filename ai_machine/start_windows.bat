@@ -1,11 +1,14 @@
-@echo off
-echo ===================================================
-echo   AI Pitch Machine (Edge Client) - Windows Start
-echo ===================================================
-echo.
-echo Installing dependencies (if needed)...
-python -m pip install -r requirements.txt > nul 2>&1
+    echo [INFO] Creating Virtual Environment...
+    python -m venv .venv
+    echo [INFO] Installing dependencies (this may take a few minutes)...
+    .venv\Scripts\python -m pip install --upgrade pip
+    .venv\Scripts\python -m pip install -r requirements.txt
+)
 
-echo Starting Setup Wizard...
-python setup_wizard.py
+:: 3. Run Setup Wizard (checks for config)
+echo [INFO] Starting AI Pitch Machine...
+.venv\Scripts\python setup_wizard.py
+
+:: 4. Start Main Application
+.venv\Scripts\python main.py
 pause

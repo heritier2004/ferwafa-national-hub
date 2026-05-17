@@ -27,10 +27,11 @@ class VideoProcessor:
     YOLO (Boxes) → ByteTrack (IDs) → OCR (Identity Binding) → Database Mapping
     """
 
-    def __init__(self, config, connection, squad_list=None):
+    def __init__(self, config, connection, squad_list=None, venue_metadata=None):
         self.config = config
         self.connection = connection
         self.squad_list = squad_list or []
+        self.venue_metadata = venue_metadata or {}
 
         self.is_running = False
         self.is_paused = False
@@ -38,6 +39,18 @@ class VideoProcessor:
         self.start_time = None
         self._logs = []
         self._log_cb = None
+
+        # ── Environmental Adaptation ──────────────────────────────────
+        # Adjust confidence based on venue quality (1.0 - 5.0)
+        quality = float(self.venue_metadata.get('venue_quality', 1.0))
+        self.detection_threshold = self.config.confidence_threshold
+        if quality < 2.0:
+            self.detection_threshold -= 0.05 # Be more lenient in poor conditions
+        elif quality > 4.0:
+            self.detection_threshold += 0.05 # Be stricter in perfect conditions
+            
+        self.log(f"📍 Location Intelligence: {self.venue_metadata.get('district', 'Unknown')}")
+        self.log(f"🏟️ Pitch: {self.venue_metadata.get('pitch_type', 'Standard')} | Quality Index: {quality}")
 
         # ── Identity Binding Logic ────────────────────────────────────
         # mapping: track_id -> { "player_id": id, "name": name, "confidence": float }
@@ -227,7 +240,7 @@ class VideoProcessor:
                     best = max(results, key=lambda x: x[2])
                     num_str = "".join(filter(str.isdigit, best[1]))
                     if num_str and best[2] > 0.4:
-                        self.ocr_results[track_id] = num_str
+                        self.ocr_results[track_id] = {'num': num_str, 'conf': best[2]}
                 self.ocr_queue.task_done()
             except queue.Empty:
                 continue

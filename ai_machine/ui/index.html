@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>National Football Intelligence System | Executive Summary</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@400;600;800&family=Montserrat:wght@900&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #000000;
+            --primary: #2563EB;
+            --text: #FFFFFF;
+            --panel: #0F172A;
+            --border: #1E293B;
+        }
+
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            overflow-y: auto;
+        }
+
+        /* Tactical Grid Background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: radial-gradient(circle at center, #1E293B 0%, #000000 80%);
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        /* Header Summary */
+        .header {
+            text-align: center;
+            margin-bottom: 6rem;
+        }
+
+        .sup-title {
+            font-family: 'Orbitron';
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 10px;
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+            font-weight: 900;
+        }
+
+        .main-title {
+            font-family: 'Montserrat';
+            font-size: 4.5rem;
+            font-weight: 900;
+            line-height: 1;
+            letter-spacing: -2px;
+            margin-bottom: 2rem;
+        }
+
+        .main-title span {
+            color: var(--primary);
+        }
+
+        .summary-desc {
+            max-width: 800px;
+            margin: 0 auto;
+            font-size: 1.2rem;
+            color: #94A3B8;
+            line-height: 1.6;
+        }
+
+        /* System Pillars */
+        .pillars-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin-bottom: 6rem;
+        }
+
+        .pillar-card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            padding: 3rem 2rem;
+            border-radius: 24px;
+            transition: 0.3s;
+            text-align: left;
+        }
+
+        .pillar-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-10px);
+            background: rgba(37, 99, 235, 0.05);
+        }
+
+        .pillar-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .pillar-title {
+            font-family: 'Orbitron';
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            font-weight: 900;
+            color: #FFF;
+        }
+
+        .pillar-text {
+            font-size: 0.95rem;
+            color: #94A3B8;
+            line-height: 1.5;
+        }
+
+        /* Start CTA */
+        .cta-section {
+            text-align: center;
+            padding: 4rem;
+            background: var(--panel);
+            border-radius: 32px;
+            border: 1px solid var(--border);
+        }
+
+        .btn-enter {
+            display: inline-block;
+            background: var(--primary);
+            color: #FFF;
+            padding: 1.5rem 5rem;
+            font-family: 'Orbitron';
+            font-size: 1.5rem;
+            font-weight: 900;
+            border-radius: 16px;
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            box-shadow: 0 10px 40px rgba(37, 99, 235, 0.4);
+            transition: 0.3s;
+        }
+
+        .btn-enter:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 50px rgba(37, 99, 235, 0.6);
+        }
+
+        footer {
+            margin-top: 5rem;
+            text-align: center;
+            color: #475569;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            padding-bottom: 4rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <header class="header">
+            <div class="sup-title">Official Authority Release</div>
+            <h1 class="main-title">NATIONAL FOOTBALL<br><span>INTELLIGENCE SYSTEM</span></h1>
+            <p class="summary-desc">A professional-grade AI infrastructure designed for national stadium operations,
+                providing real-time player tracking, tactical analysis, and database synchronization.</p>
+        </header>
+
+        <div class="pillars-grid">
+            <div class="pillar-card">
+                <div class="pillar-icon">📡</div>
+                <div class="pillar-title">MEDIA INTAKE</div>
+                <p class="pillar-text">Multi-infrastructure ingestion supporting USB, RTSP, RTMP, Video Files, and TV
+                    Studio protocols (SDI, NDI, SRT).</p>
+            </div>
+            <div class="pillar-card">
+                <div class="pillar-icon">🧠</div>
+                <div class="pillar-title">AI INTELLIGENCE</div>
+                <p class="pillar-text">Neural engine powered by YOLOv8 for detection and ByteTracker for persistent,
+                    high-accuracy player movement analysis.</p>
+            </div>
+            <div class="pillar-card">
+                <div class="pillar-icon">🆔</div>
+                <div class="pillar-title">IDENTITY BINDING</div>
+                <p class="pillar-text">Automated synchronization between live visual data and the National Squad
+                    Database via jersey recognition and OCR.</p>
+            </div>
+        </div>
+
+        <div class="cta-section">
+            <div
+                style="font-family:'Orbitron'; font-size:0.8rem; color:var(--primary); margin-bottom:1.5rem; letter-spacing:3px;">
+                SYSTEM READY FOR OPERATION</div>
+            <a href="/dashboard" class="btn-enter">Enter Control Room</a>
+        </div>
+
+        <footer>
+            &copy; 2026 FERWAFA NATIONAL AUTHORITY | SECURED BROADCAST INTERFACE
+        </footer>
+    </div>
+
+</body>
+
+</html>

@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from backend.app.database.additional_models import LiveSession
+from backend.app.database.models import LiveSession
 import uuid
 
 class LiveSessionManager:

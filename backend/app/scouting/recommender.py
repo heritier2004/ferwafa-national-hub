@@ -1,6 +1,5 @@
 from sqlalchemy.orm import Session
-from backend.app.players.models import Player
-from backend.app.matches.models import AIAnalysis, PlayerStat
+from backend.app.database.models import Player, AIAnalysis, PlayerStat
 from sqlalchemy import func
 
 class ScoutingRecommender:

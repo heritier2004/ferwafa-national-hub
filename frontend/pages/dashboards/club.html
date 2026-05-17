@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Club Dashboard | Football Intelligence Platform</title>
+    
+    <!-- FONTS -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- ICONS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- STYLES -->
+    <link rel="stylesheet" href="../../assets/css/club_dashboard.css?v=2.0">
+    <link rel="stylesheet" href="../../assets/css/mcc.css?v=2.0">
+</head>
+<body>
+    <div class="app-container">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <span class="logo">Club Intelligence</span>
+                <span class="sub-logo">National Football Hub</span>
+            </div>
+            
+            <nav class="nav-menu">
+                <div class="nav-item active" data-module="overview">
+                    <i class="fa-solid fa-gauge-high"></i>
+                    <span>Dashboard Overview</span>
+                </div>
+                <div class="nav-item" data-module="players">
+                    <i class="fa-solid fa-users"></i>
+                    <span>Players</span>
+                </div>
+                <div class="nav-item" data-module="teams">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <span>Teams</span>
+                </div>
+                <div class="nav-item" data-module="coaches">
+                    <i class="fa-solid fa-user-tie"></i>
+                    <span>Coaches</span>
+                </div>
+                <div class="nav-item" data-module="training">
+                    <i class="fa-solid fa-person-running"></i>
+                    <span>Training</span>
+                </div>
+                <div class="nav-item" onclick="window.location.href='../match/match_control.html'" style="border-left-color: var(--accent-primary); background: rgba(99, 102, 241, 0.05);">
+                    <i class="fa-solid fa-gamepad"></i>
+                    <span>Match Control Center <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 0.6rem; margin-left: 5px;"></i></span>
+                </div>
+                <div class="nav-item" data-module="competitions">
+                    <i class="fa-solid fa-trophy"></i>
+                    <span>Competitions</span>
+                </div>
+                <div class="nav-item" data-module="analytics">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>Analytics</span>
+                </div>
+                <div class="nav-item" data-module="scouting">
+                    <i class="fa-solid fa-binoculars"></i>
+                    <span>Scouting</span>
+                </div>
+                <div class="nav-item" data-module="medical">
+                    <i class="fa-solid fa-heart-pulse"></i>
+                    <span>Medical & Fitness</span>
+                </div>
+                <div class="nav-item" data-module="transfers">
+                    <i class="fa-solid fa-right-left"></i>
+                    <span>Transfers</span>
+                </div>
+                <div class="nav-item" data-module="reports">
+                    <i class="fa-solid fa-file-contract"></i>
+                    <span>Reports</span>
+                </div>
+                <div class="nav-item" data-module="documents">
+                    <i class="fa-solid fa-folder-open"></i>
+                    <span>Documents</span>
+                </div>
+                <div class="nav-item" data-module="settings">
+                    <i class="fa-solid fa-gear"></i>
+                    <span>Settings</span>
+                </div>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <button class="btn btn-outline" style="width: 100%; border-color: var(--danger); color: var(--danger);" onclick="ClubDashboard.logout()">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span>Logout</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+            <!-- TOP HEADER -->
+            <header class="top-header">
+                <div class="page-title" id="current-page-title">DASHBOARD OVERVIEW</div>
+                
+                <div class="header-actions">
+                    <div id="sys-status" style="font-size: 0.75rem; color: var(--success);">
+                        <i class="fa-solid fa-circle"></i> AI CONNECTED
+                    </div>
+                    <div class="user-profile">
+                        <div class="user-avatar" id="user-avatar">C</div>
+                        <div style="font-size: 0.875rem; font-weight: 600;" id="user-name">Loading...</div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- CONTENT AREA -->
+            <div class="content-area">
+                
+                <!-- MODULE: OVERVIEW -->
+                <section id="mod-overview" class="module active" style="padding: 0; background: var(--bg-primary); font-family: 'Outfit', sans-serif;">
+                    <div style="max-width: 1200px; margin: 0 auto; padding: 4rem 2rem;">
+                        
+                        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 3rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 2rem;">
+                            <div>
+                                <h1 style="font-size: 2.5rem; font-weight: 900; text-transform: uppercase; margin: 0; color: white;">Club Intelligence Core</h1>
+                                <div style="color: #94a3b8; font-size: 0.9rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; margin-top: 0.5rem;">Strategic Overview &bull; <span style="color: #10b981;">● SYNCED</span></div>
+                            </div>
+                        </div>
+
+                        <!-- STATS -->
+                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-bottom: 3rem;">
+                            <div style="background: #000; border-radius: 12px; padding: 2rem; border: 1px solid rgba(255,255,255,0.05);">
+                                <div style="font-size: 0.7rem; color: #94a3b8; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase;">Total Players</div>
+                                <div style="font-size: 2.5rem; font-weight: 900; margin-top: 1rem; color: white;" id="total-players-count">0</div>
+                                <div style="font-size: 0.8rem; color: #10b981; margin-top: 0.5rem; font-weight: 600;"><i class="fa-solid fa-arrow-up"></i> +2 this month</div>
+                            </div>
+                            <div style="background: #000; border-radius: 12px; padding: 2rem; border: 1px solid rgba(255,255,255,0.05); border-left: 4px solid #6366f1;">
+                                <div style="font-size: 0.7rem; color: #94a3b8; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase;">Active Squad</div>
+                                <div style="font-size: 2.5rem; font-weight: 900; margin-top: 1rem; color: white;">24</div>
+                                <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 0.5rem; font-weight: 600;">Full Capacity</div>
+                            </div>
+                            <div style="background: #000; border-radius: 12px; padding: 2rem; border: 1px solid rgba(255,255,255,0.05);">
+                                <div style="font-size: 0.7rem; color: #94a3b8; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase;">Team Performance</div>
+                                <div style="font-size: 2.5rem; font-weight: 900; margin-top: 1rem; color: white;">8.7</div>
+                                <div style="font-size: 0.8rem; color: #10b981; margin-top: 0.5rem; font-weight: 600;"><i class="fa-solid fa-arrow-up"></i> +0.3 vs Last Match</div>
+                            </div>
+                            <div style="background: #000; border-radius: 12px; padding: 2rem; border: 1px solid rgba(255,255,255,0.05);">
+                                <div style="font-size: 0.7rem; color: #94a3b8; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase;">Injury Status</div>
+                                <div style="font-size: 2.5rem; font-weight: 900; margin-top: 1rem; color: white;">2</div>
+                                <div style="font-size: 0.8rem; color: #ef4444; margin-top: 0.5rem; font-weight: 600;"><i class="fa-solid fa-circle-exclamation"></i> Critical: 1</div>
+                            </div>
+                        </div>
+
+                        <!-- RECENT & INSIGHTS -->
+                        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
+                            <div style="background: #0f172a; border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 3rem;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 1rem;">
+                                    <div style="font-size: 0.85rem; font-weight: 800; color: #6366f1; text-transform: uppercase; letter-spacing: 0.15em;">Recent Results</div>
+                                    <button style="background: transparent; border: 1px solid rgba(255,255,255,0.2); color: white; padding: 8px 16px; border-radius: 8px; font-weight: 800; text-transform: uppercase; cursor: pointer; font-size: 0.7rem;">VIEW ALL</button>
+                                </div>
+                                <table style="width: 100%; border-collapse: collapse; color: white; font-size: 0.9rem;">
+                                    <thead>
+                                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); color: #94a3b8;">
+                                            <th style="text-align: left; padding: 1rem; font-weight: 800; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.1em;">Date</th>
+                                            <th style="text-align: left; padding: 1rem; font-weight: 800; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.1em;">Opponent</th>
+                                            <th style="text-align: left; padding: 1rem; font-weight: 800; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.1em;">Venue</th>
+                                            <th style="text-align: left; padding: 1rem; font-weight: 800; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.1em;">Score</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="recent-matches-list">
+                                        <!-- Populated by JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div style="background: #0f172a; border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 3rem;">
+                                <div style="font-size: 0.85rem; font-weight: 800; color: #6366f1; text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 1rem;">AI Match Insights</div>
+                                <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                                    <div style="background: rgba(99, 102, 241, 0.05); padding: 1.5rem; border-radius: 8px; border-left: 3px solid #6366f1;">
+                                        <div style="font-weight: 800; font-size: 0.7rem; color: white; letter-spacing: 0.1em; margin-bottom: 0.5rem; text-transform: uppercase;">Attacking Intensity</div>
+                                        <p style="font-size: 0.8rem; color: #94a3b8; line-height: 1.5;">Team maintains 68% pressure in the final third. Transition speed is elite.</p>
+                                    </div>
+                                    <div style="background: rgba(16, 185, 129, 0.05); padding: 1.5rem; border-radius: 8px; border-left: 3px solid #10b981;">
+                                        <div style="font-weight: 800; font-size: 0.7rem; color: white; letter-spacing: 0.1em; margin-bottom: 0.5rem; text-transform: uppercase;">Defensive Shape</div>
+                                        <p style="font-size: 0.8rem; color: #94a3b8; line-height: 1.5;">High line efficiency at 92%. Offside trap synchronization is optimal.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </section>
+
+                <!-- MODULE: PLAYERS -->
+                <section id="mod-players" class="module">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                        <h2 style="font-size: 1.5rem; font-weight: 800;">PLAYER REGISTRY</h2>
+                        <button class="btn btn-primary" onclick="window.location.href='../players/add_player.html'"><i class="fa-solid fa-plus"></i> REGISTER PLAYER</button>
+                    </div>
+                    <div class="grid-stats" id="players-grid">
+                        <!-- Populated by JS -->
+                    </div>
+                </section>
+
+                <!-- MODULE: MATCH CONTROL CENTER (15-POINT ELITE SPEC) -->
+                <section id="mod-match-control" class="module" style="padding: 0; background: var(--mcc-bg); font-family: 'Outfit', sans-serif;">
+                    <div style="max-width: 1200px; margin: 0 auto; padding: 4rem 2rem;">
+                        
+                        <!-- 1. HEADER -->
+                        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 3rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 2rem;">
+                            <div>
+                                <h1 style="font-size: 2.5rem; font-weight: 900; text-transform: uppercase; margin: 0; color: white;">Match Control Center</h1>
+                                <div style="color: #94a3b8; font-size: 0.9rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; margin-top: 0.5rem;">Competition: <span style="color: white;">National Premier League</span> &bull; <span style="color: #10b981;">● PRE-MATCH</span></div>
+                            </div>
+                            <div style="display: flex; gap: 1rem;">
+                                <button style="background: transparent; border: 1px solid rgba(255,255,255,0.2); color: white; padding: 12px 24px; border-radius: 8px; font-weight: 800; text-transform: uppercase; cursor: pointer;"><i class="fa-brands fa-windows"></i> Windows AI Machine</button>
+                                <button style="background: transparent; border: 1px solid rgba(255,255,255,0.2); color: white; padding: 12px 24px; border-radius: 8px; font-weight: 800; text-transform: uppercase; cursor: pointer;"><i class="fa-brands fa-linux"></i> Linux AI Machine</button>
+                            </div>
+                        </div>
+
+                        <!-- 2. MATCH SETUP -->
+                        <div style="background: #0f172a; border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 3rem; margin-bottom: 3rem;">
+                            <div style="font-size: 0.85rem; font-weight: 800; color: #6366f1; text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 1rem;">2. Match Setup</div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                                <div style="margin-bottom: 0.5rem;"><label style="display: block; font-size: 0.7rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem;">Our Team</label><input type="text" style="width: 100%; background: #000; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 1rem; color: white;" value="Home Institution" readonly></div>
+                                <div style="margin-bottom: 0.5rem;"><label style="display: block; font-size: 0.7rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem;">Opponent Team</label><input type="text" style="width: 100%; background: #000; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 1rem; color: white;" placeholder="Search Opponent..."></div>
+                                <div style="margin-bottom: 0.5rem;"><label style="display: block; font-size: 0.7rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem;">Match Type</label><select style="width: 100%; background: #000; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 1rem; color: white;"><option>Official League Match</option><option>Cup Match</option><option>Friendly</option></select></div>
+                                <div style="margin-bottom: 0.5rem;"><label style="display: block; font-size: 0.7rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem;">Stadium / Venue</label><input type="text" style="width: 100%; background: #000; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 1rem; color: white;" placeholder="Enter Venue Name"></div>
+                                <div style="margin-bottom: 0.5rem;"><label style="display: block; font-size: 0.7rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem;">Match Date</label><input type="date" style="width: 100%; background: #000; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 1rem; color: white;"></div>
+                                <div style="margin-bottom: 0.5rem;"><label style="display: block; font-size: 0.7rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem;">Kickoff Time</label><input type="time" style="width: 100%; background: #000; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 1rem; color: white;"></div>
+                            </div>
+                        </div>
+
+                        <!-- 3. OUR TEAM SQUAD -->
+                        <div style="background: #0f172a; border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 3rem; margin-bottom: 3rem;">
+                            <div style="font-size: 0.85rem; font-weight: 800; color: #6366f1; text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 1rem;">3. Our Team Squad</div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                                <!-- 18-Man Squad -->
+                                <div>
+                                    <div style="margin-bottom: 1rem; font-weight: 800; font-size: 0.9rem;">18-MAN SQUAD</div>
+                                    <input type="text" style="width: 100%; background: #000; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 1rem; color: white; margin-bottom: 1rem;" placeholder="Search player...">
+                                    <div style="background: #000; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); max-height: 400px; overflow-y: auto;">
+                                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                            <div style="display: flex; align-items: center; gap: 1rem;"><span style="color: #94a3b8; font-weight: 800; font-size: 0.8rem; width: 20px; text-align: right;">1</span> <span style="font-weight: 800;">GK</span> <span style="color: white;">John Doe</span></div>
+                                            <input type="checkbox" checked style="width: 18px; height: 18px;">
+                                        </div>
+                                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                            <div style="display: flex; align-items: center; gap: 1rem;"><span style="color: #94a3b8; font-weight: 800; font-size: 0.8rem; width: 20px; text-align: right;">4</span> <span style="font-weight: 800;">CB</span> <span style="color: white;">Samuel Smith</span></div>
+                                            <input type="checkbox" checked style="width: 18px; height: 18px;">
+                                        </div>
+                                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                            <div style="display: flex; align-items: center; gap: 1rem;"><span style="color: #94a3b8; font-weight: 800; font-size: 0.8rem; width: 20px; text-align: right;">8</span> <span style="font-weight: 800;">CM</span> <span style="color: white;">David Mutabazi</span></div>
+                                            <input type="checkbox" style="width: 18px; height: 18px;">
+                                        </div>
+                                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                            <div style="display: flex; align-items: center; gap: 1rem;"><span style="color: #94a3b8; font-weight: 800; font-size: 0.8rem; width: 20px; text-align: right;">9</span> <span style="font-weight: 800;">ST</span> <span style="color: white;">Alex Johnson</span></div>
+                                            <input type="checkbox" checked style="width: 18px; height: 18px;">
+                                        </div>
+                                    </div>
+                                    <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 1rem; text-align: right;">Selected: 3 / 18</div>
+                                </div>
+                                
+                                <!-- Starting XI -->
+                                <div>
+                                    <div style="margin-bottom: 1rem; font-weight: 800; font-size: 0.9rem;">STARTING XI</div>
+                                    <select style="width: 100%; background: #000; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 1rem; color: white; margin-bottom: 1rem;">
+                                        <option>4-3-3</option>
+                                        <option>4-4-2</option>
+                                        <option>3-5-2</option>
+                                    </select>
+                                    <div style="background: #064e3b; border-radius: 12px; border: 2px solid rgba(255,255,255,0.1); width: 100%; aspect-ratio: 1.5; position: relative; overflow: hidden;">
+                                        <!-- Ultra Simple Pitch SVG -->
+                                        <svg viewBox="0 0 100 65" style="width:100%; height:100%;">
+                                            <rect x="5" y="5" width="90" height="55" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.5"/>
+                                            <line x1="50" y1="5" x2="50" y2="60" stroke="rgba(255,255,255,0.2)" stroke-width="0.5"/>
+                                            <circle cx="50" cy="32.5" r="8" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.5"/>
+                                            
+                                            <!-- Dummy nodes for formation -->
+                                            <circle cx="12" cy="32.5" r="2.5" fill="#fff"/>
+                                            <circle cx="28" cy="15" r="2.5" fill="#fff"/>
+                                            <circle cx="28" cy="32.5" r="2.5" fill="#fff"/>
+                                            <circle cx="28" cy="50" r="2.5" fill="#fff"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 4. KIT COLORS -->
+                        <div style="background: #0f172a; border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 3rem; margin-bottom: 3rem;">
+                            <div style="font-size: 0.85rem; font-weight: 800; color: #6366f1; text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 1rem;">4. Kit Colors</div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2rem;">
+                                <div>
+                                    <label style="display: block; font-size: 0.7rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem;">Jersey Color</label>
+                                    <input type="color" style="width: 100%; background: #000; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 5px; height: 60px; cursor: pointer;" value="#6366f1">
+                                </div>
+                                <div>
+                                    <label style="display: block; font-size: 0.7rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem;">Short Color</label>
+                                    <input type="color" style="width: 100%; background: #000; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 5px; height: 60px; cursor: pointer;" value="#ffffff">
+                                </div>
+                                <div>
+                                    <label style="display: block; font-size: 0.7rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem;">Sock Color</label>
+                                    <input type="color" style="width: 100%; background: #000; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 5px; height: 60px; cursor: pointer;" value="#6366f1">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 5. SAVE & GENERATE CREDENTIALS -->
+                        <div style="background: #0f172a; border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 3rem; margin-bottom: 3rem; text-align: center;">
+                            <div style="font-size: 0.85rem; font-weight: 800; color: #6366f1; text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 1rem; text-align: left;">5. Save & Generate Credentials</div>
+                            
+                            <button style="background: #6366f1; color: white; padding: 1.5rem; font-size: 1.2rem; width: 100%; margin-bottom: 2rem; border-radius: 8px; font-weight: 800; text-transform: uppercase; border: none; cursor: pointer;" onclick="document.getElementById('club-creds').style.display='grid'">
+                                [ SAVE MATCH SETUP ]
+                            </button>
+                            
+                            <!-- Shows after save -->
+                            <div style="display: none; grid-template-columns: 1fr 1fr 1fr; gap: 2rem; text-align: left;" id="club-creds">
+                                <div style="background: #000; border-radius: 12px; padding: 2rem; text-align: center; border: 1px solid rgba(255,255,255,0.05);">
+                                    <label style="font-size: 0.7rem; color: #94a3b8; font-weight: 800; letter-spacing: 0.1em;">MATCH TOKEN</label>
+                                    <div style="font-size: 1.5rem; font-weight: 900; margin: 1rem 0; letter-spacing: 0.1em;">MT-992-XX</div>
+                                    <button style="background: transparent; border: 1px solid rgba(255,255,255,0.2); color: white; padding: 10px; border-radius: 8px; width: 100%; cursor: pointer;">Copy</button>
+                                </div>
+                                <div style="background: #000; border-radius: 12px; padding: 2rem; text-align: center; border: 1px solid rgba(255,255,255,0.05);">
+                                    <label style="font-size: 0.7rem; color: #94a3b8; font-weight: 800; letter-spacing: 0.1em;">API KEY</label>
+                                    <div style="font-size: 1.5rem; font-weight: 900; margin: 1rem 0; letter-spacing: 0.05em;">AK-778-ZY</div>
+                                    <button style="background: transparent; border: 1px solid rgba(255,255,255,0.2); color: white; padding: 10px; border-radius: 8px; width: 100%; cursor: pointer;">Copy</button>
+                                </div>
+                                <div style="background: #000; border-radius: 12px; padding: 2rem; text-align: center; border: 1px solid rgba(255,255,255,0.05);">
+                                    <label style="font-size: 0.7rem; color: #94a3b8; font-weight: 800; letter-spacing: 0.1em;">SESSION STATUS</label>
+                                    <div style="font-size: 1.5rem; font-weight: 900; margin: 1rem 0; color: #10b981;">● Ready</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 6. LIVE MATCH CONTROL -->
+                        <div style="background: #0f172a; border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 3rem; margin-bottom: 3rem;">
+                            <div style="font-size: 0.85rem; font-weight: 800; color: #6366f1; text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 1rem;">6. Live Match Control</div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                                <div style="font-size: 4rem; font-weight: 900; letter-spacing: 15px;">0 - 0</div>
+                                <div style="text-align: center;">
+                                    <div style="font-size: 2.5rem; font-weight: 900; color: #06b6d4;">00:00</div>
+                                </div>
+                                <div style="display: flex; gap: 1rem;">
+                                    <button style="background: transparent; border: 1px solid #f59e0b; color: #f59e0b; padding: 12px 24px; border-radius: 8px; font-weight: 800; text-transform: uppercase; cursor: pointer;">Pause Match</button>
+                                    <button style="background: #ef4444; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 800; text-transform: uppercase; cursor: pointer;">End Match</button>
+                                </div>
+                            </div>
+                            
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                                <div style="background: #064e3b; border-radius: 12px; border: 2px solid rgba(255,255,255,0.1); width: 100%; aspect-ratio: 1.5; position: relative; overflow: hidden;">
+                                    <svg viewBox="0 0 100 65" style="width:100%; height:100%;">
+                                        <rect x="5" y="5" width="90" height="55" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.5"/>
+                                        <line x1="50" y1="5" x2="50" y2="60" stroke="rgba(255,255,255,0.2)" stroke-width="0.5"/>
+                                        <circle cx="50" cy="32.5" r="8" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.5"/>
+                                        <!-- ball -->
+                                        <circle cx="50" cy="32.5" r="1.5" fill="#fff"/>
+                                    </svg>
+                                </div>
+                                <div style="background: #000; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column;">
+                                    <div style="padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); font-weight: 800; font-size: 0.8rem; color: #94a3b8; letter-spacing: 0.1em;">MATCH EVENTS</div>
+                                    <div style="padding: 1.5rem; flex: 1; overflow-y: auto;">
+                                        <div style="color: #94a3b8; text-align: center; margin-top: 2rem; font-size: 0.9rem;">No events yet (Goals, Cards, Fouls, Subs)</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 7. MATCH STATISTICS -->
+                        <div style="background: #0f172a; border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 3rem;">
+                            <div style="font-size: 0.85rem; font-weight: 800; color: #6366f1; text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 1rem;">7. Match Statistics</div>
+                            <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 1.5rem;">
+                                <div style="background: #000; border-radius: 12px; padding: 1.5rem; text-align: center; border: 1px solid rgba(255,255,255,0.05);">
+                                    <div style="font-size: 0.7rem; color: #94a3b8; font-weight: 800; letter-spacing: 0.05em;">POSSESSION</div>
+                                    <div style="font-size: 2.5rem; font-weight: 900; margin-top: 1rem;">50%</div>
+                                </div>
+                                <div style="background: #000; border-radius: 12px; padding: 1.5rem; text-align: center; border: 1px solid rgba(255,255,255,0.05);">
+                                    <div style="font-size: 0.7rem; color: #94a3b8; font-weight: 800; letter-spacing: 0.05em;">SHOTS</div>
+                                    <div style="font-size: 2.5rem; font-weight: 900; margin-top: 1rem;">0</div>
+                                </div>
+                                <div style="background: #000; border-radius: 12px; padding: 1.5rem; text-align: center; border: 1px solid rgba(255,255,255,0.05);">
+                                    <div style="font-size: 0.7rem; color: #94a3b8; font-weight: 800; letter-spacing: 0.05em;">SHOTS ON TARGET</div>
+                                    <div style="font-size: 2.5rem; font-weight: 900; margin-top: 1rem;">0</div>
+                                </div>
+                                <div style="background: #000; border-radius: 12px; padding: 1.5rem; text-align: center; border: 1px solid rgba(255,255,255,0.05);">
+                                    <div style="font-size: 0.7rem; color: #94a3b8; font-weight: 800; letter-spacing: 0.05em;">PASSES</div>
+                                    <div style="font-size: 2.5rem; font-weight: 900; margin-top: 1rem;">0</div>
+                                </div>
+                                <div style="background: #000; border-radius: 12px; padding: 1.5rem; text-align: center; border: 1px solid rgba(255,255,255,0.05);">
+                                    <div style="font-size: 0.7rem; color: #94a3b8; font-weight: 800; letter-spacing: 0.05em;">PLAYER RATINGS</div>
+                                    <div style="font-size: 2.5rem; font-weight: 900; margin-top: 1rem; color: #10b981;">Avg</div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </section>
+
+                <!-- MODULE: TEAMS -->
+                <section id="mod-teams" class="module">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                        <h2 style="font-size: 1.5rem; font-weight: 900; text-transform: uppercase;">Team Formations & Squads</h2>
+                        <button class="btn btn-primary"><i class="fa-solid fa-plus"></i> CREATE SQUAD</button>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem;">
+                        <div class="card" style="border-top: 4px solid var(--accent-primary);">
+                            <h3 style="margin-bottom: 0.5rem;">First Team (Senior)</h3>
+                            <div class="badge badge-success" style="margin-bottom: 1.5rem;">ACTIVE</div>
+                            <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 1rem;">Formation: 4-3-3 Attacking</div>
+                            <div style="display: flex; justify-content: space-between; font-weight: 800; font-size: 0.9rem; padding: 10px 0; border-top: 1px solid var(--border);">
+                                <span>Total Players</span>
+                                <span>24</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-weight: 800; font-size: 0.9rem; padding: 10px 0; border-top: 1px solid var(--border);">
+                                <span>Team Rating</span>
+                                <span style="color: var(--accent-primary);">8.7</span>
+                            </div>
+                            <button class="btn btn-outline" style="width: 100%; margin-top: 1rem;">MANAGE SQUAD</button>
+                        </div>
+                        <div class="card" style="border-top: 4px solid #f59e0b;">
+                            <h3 style="margin-bottom: 0.5rem;">U-21 Reserves</h3>
+                            <div class="badge badge-warning" style="margin-bottom: 1.5rem;">DEVELOPMENT</div>
+                            <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 1rem;">Formation: 4-4-2 Balanced</div>
+                            <div style="display: flex; justify-content: space-between; font-weight: 800; font-size: 0.9rem; padding: 10px 0; border-top: 1px solid var(--border);">
+                                <span>Total Players</span>
+                                <span>28</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-weight: 800; font-size: 0.9rem; padding: 10px 0; border-top: 1px solid var(--border);">
+                                <span>Team Rating</span>
+                                <span style="color: #f59e0b;">7.2</span>
+                            </div>
+                            <button class="btn btn-outline" style="width: 100%; margin-top: 1rem;">MANAGE SQUAD</button>
+                        </div>
+                        <div class="card" style="border-top: 4px solid #10b981;">
+                            <h3 style="margin-bottom: 0.5rem;">U-18 Academy</h3>
+                            <div class="badge badge-success" style="margin-bottom: 1.5rem;">ACTIVE</div>
+                            <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 1rem;">Formation: 3-5-2 Fluid</div>
+                            <div style="display: flex; justify-content: space-between; font-weight: 800; font-size: 0.9rem; padding: 10px 0; border-top: 1px solid var(--border);">
+                                <span>Total Players</span>
+                                <span>32</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-weight: 800; font-size: 0.9rem; padding: 10px 0; border-top: 1px solid var(--border);">
+                                <span>Team Rating</span>
+                                <span style="color: #10b981;">6.8</span>
+                            </div>
+                            <button class="btn btn-outline" style="width: 100%; margin-top: 1rem;">MANAGE SQUAD</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- MODULE: COACHES -->
+                <section id="mod-coaches" class="module">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                        <h2 style="font-size: 1.5rem; font-weight: 800;">TECHNICAL STAFF</h2>
+                        <button class="btn btn-primary"><i class="fa-solid fa-plus"></i> ADD STAFF MEMBER</button>
+                    </div>
+                    <div class="analytics-grid">
+                        <div class="card stat-card" style="border-top: 4px solid var(--accent-primary);">
+                            <div style="font-weight: 700;">Jean-Pierre Kwizera</div>
+                            <div class="stat-label">Head Coach</div>
+                            <div style="margin-top: 1rem; font-size: 0.8rem; color: var(--text-secondary);">Tactical Specialization: Possession-based 4-3-3</div>
+                        </div>
+                        <div class="card stat-card">
+                            <div style="font-weight: 700;">Marie-Louise Murekatete</div>
+                            <div class="stat-label">Assistant Coach</div>
+                            <div style="margin-top: 1rem; font-size: 0.8rem; color: var(--text-secondary);">Focus: Set Piece Optimization</div>
+                        </div>
+                        <div class="card stat-card">
+                            <div style="font-weight: 700;">Olivier Habimana</div>
+                            <div class="stat-label">Fitness Coach</div>
+                            <div style="margin-top: 1rem; font-size: 0.8rem; color: var(--text-secondary);">Focus: Recovery & Stamina</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- MODULE: COMPETITIONS -->
+                <section id="mod-competitions" class="module">
+                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
+                        <div class="card">
+                            <h3>League Standings</h3>
+                            <table class="data-table" style="margin-top: 1rem;">
+                                <thead><tr><th>Pos</th><th>Club</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GD</th><th>Pts</th></tr></thead>
+                                <tbody>
+                                    <tr style="background: rgba(99, 102, 241, 0.05);"><td>1</td><td><b>Our Club</b></td><td>24</td><td>18</td><td>4</td><td>2</td><td>+32</td><td><b>58</b></td></tr>
+                                    <tr><td>2</td><td>Rayon Sports</td><td>24</td><td>17</td><td>3</td><td>4</td><td>+28</td><td>54</td></tr>
+                                    <tr><td>3</td><td>APR FC</td><td>24</td><td>16</td><td>5</td><td>3</td><td>+24</td><td>53</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="card">
+                            <h3>Upcoming Fixtures</h3>
+                            <div style="margin-top: 1rem; display: flex; flex-direction: column; gap: 10px;">
+                                <div class="medical-status" style="border-left: 3px solid var(--accent-primary);">
+                                    <div style="flex: 1;">
+                                        <div style="font-weight: 700; font-size: 0.8rem;">vs Rayon Sports</div>
+                                        <div style="font-size: 0.65rem; color: var(--text-secondary);">May 14, 2026 - 15:00</div>
+                                    </div>
+                                    <span class="badge badge-success">HOME</span>
+                                </div>
+                                <div class="medical-status" style="border-left: 3px solid var(--text-secondary);">
+                                    <div style="flex: 1;">
+                                        <div style="font-weight: 700; font-size: 0.8rem;">vs Kiyovu Sports</div>
+                                        <div style="font-size: 0.65rem; color: var(--text-secondary);">May 21, 2026 - 18:00</div>
+                                    </div>
+                                    <span class="badge badge-danger">AWAY</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- MODULE: TRAINING -->
+                <section id="mod-training" class="module">
+                    <div class="grid-stats" style="margin-bottom: 2rem;">
+                        <div class="card stat-card">
+                            <span class="stat-label">Attendance Rate</span>
+                            <span class="stat-value">94.2%</span>
+                        </div>
+                        <div class="card stat-card">
+                            <span class="stat-label">Average Intensity</span>
+                            <span class="stat-value">7.8/10</span>
+                        </div>
+                        <div class="card stat-card">
+                            <span class="stat-label">Workload (Last 7d)</span>
+                            <span class="stat-value">High</span>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                        <h3 style="font-size: 1.2rem; font-weight: 900; text-transform: uppercase;">Live Training Metrics</h3>
+                        <button class="btn btn-primary btn-sm"><i class="fa-solid fa-plus"></i> NEW SESSION</button>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem;">
+                        <div class="card" style="display: flex; align-items: center; gap: 1.5rem; background: rgba(16,185,129,0.05); border: 1px solid rgba(16,185,129,0.2);">
+                            <div style="width: 60px; height: 60px; border-radius: 50%; background: var(--bg-primary); display: flex; align-items: center; justify-content: center; border: 2px solid var(--success);">
+                                <i class="fa-solid fa-user" style="font-size: 1.5rem; color: var(--text-secondary);"></i>
+                            </div>
+                            <div style="flex: 1;">
+                                <div style="font-weight: 900; font-size: 1.1rem;">S. Hakizimana</div>
+                                <div style="font-size: 0.75rem; color: var(--success); font-weight: 700; letter-spacing: 0.1em; margin-bottom: 5px;">ACTIVE &bull; PRESENT</div>
+                                <div style="display: flex; gap: 1rem; font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">
+                                    <span><i class="fa-solid fa-fire"></i> 720 AU</span>
+                                    <span><i class="fa-solid fa-heart-pulse"></i> 142 BPM</span>
+                                </div>
+                            </div>
+                            <button class="btn btn-outline" style="padding: 10px; border-radius: 50%;"><i class="fa-solid fa-arrow-right"></i></button>
+                        </div>
+                        
+                        <div class="card" style="display: flex; align-items: center; gap: 1.5rem; background: rgba(16,185,129,0.05); border: 1px solid rgba(16,185,129,0.2);">
+                            <div style="width: 60px; height: 60px; border-radius: 50%; background: var(--bg-primary); display: flex; align-items: center; justify-content: center; border: 2px solid var(--success);">
+                                <i class="fa-solid fa-user" style="font-size: 1.5rem; color: var(--text-secondary);"></i>
+                            </div>
+                            <div style="flex: 1;">
+                                <div style="font-weight: 900; font-size: 1.1rem;">J. Tuyisenge</div>
+                                <div style="font-size: 0.75rem; color: var(--success); font-weight: 700; letter-spacing: 0.1em; margin-bottom: 5px;">ACTIVE &bull; PRESENT</div>
+                                <div style="display: flex; gap: 1rem; font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">
+                                    <span><i class="fa-solid fa-fire"></i> 680 AU</span>
+                                    <span><i class="fa-solid fa-heart-pulse"></i> 138 BPM</span>
+                                </div>
+                            </div>
+                            <button class="btn btn-outline" style="padding: 10px; border-radius: 50%;"><i class="fa-solid fa-arrow-right"></i></button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- MODULE: ANALYTICS -->
+                <section id="mod-analytics" class="module">
+                    <div class="analytics-grid">
+                        <div class="card">
+                            <span class="stat-label">Passing Networks</span>
+                            <div style="height: 200px; background: rgba(0,0,0,0.2); margin-top: 1rem; border-radius: 8px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.05);">
+                                <!-- Professional SVG replacing FontAwesome/Emoji -->
+                                <svg width="100" height="100" viewBox="0 0 100 100" fill="none" stroke="var(--accent-primary)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="20" cy="50" r="8" fill="rgba(99, 102, 241, 0.2)"/>
+                                    <circle cx="80" cy="20" r="8" fill="rgba(99, 102, 241, 0.2)"/>
+                                    <circle cx="80" cy="80" r="8" fill="rgba(99, 102, 241, 0.2)"/>
+                                    <circle cx="50" cy="50" r="12" fill="rgba(99, 102, 241, 0.4)"/>
+                                    <path d="M28 50 L38 50" stroke-dasharray="4 4"/>
+                                    <path d="M58 42 L73 26" stroke-width="5"/>
+                                    <path d="M58 58 L73 74"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <span class="stat-label">Pressure Maps</span>
+                            <div style="height: 200px; background: rgba(0,0,0,0.2); margin-top: 1rem; border-radius: 8px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.05); position: relative;">
+                                <!-- Professional SVG Heatmap -->
+                                <svg width="100" height="100" viewBox="0 0 100 100" fill="none">
+                                    <rect x="10" y="10" width="80" height="80" stroke="rgba(255,255,255,0.2)" stroke-width="2" rx="4"/>
+                                    <circle cx="30" cy="40" r="25" fill="rgba(239, 68, 68, 0.4)" filter="blur(8px)"/>
+                                    <circle cx="70" cy="70" r="20" fill="rgba(239, 68, 68, 0.6)" filter="blur(10px)"/>
+                                    <circle cx="70" cy="70" r="10" fill="var(--danger)"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <span class="stat-label">Expected Goals (xG)</span>
+                            <div style="height: 200px; background: rgba(0,0,0,0.2); margin-top: 1rem; border-radius: 8px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.05);">
+                                <!-- Professional SVG Chart -->
+                                <svg width="120" height="100" viewBox="0 0 120 100" fill="none" stroke="var(--success)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M10 90 L110 90" stroke="rgba(255,255,255,0.2)" stroke-width="2"/>
+                                    <path d="M10 90 L10 10" stroke="rgba(255,255,255,0.2)" stroke-width="2"/>
+                                    <path d="M10 90 L30 70 L50 80 L70 40 L90 50 L110 20" stroke-width="4"/>
+                                    <circle cx="110" cy="20" r="5" fill="var(--success)"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- MODULE: SCOUTING -->
+                <section id="mod-scouting" class="module">
+                    <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 2rem;">
+                        <div class="card">
+                            <h3 style="margin-bottom: 1.5rem;">AI Recommendations</h3>
+                            <div class="scouting-card card" style="margin-bottom: 1rem;">
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span style="font-weight: 700;">Player X (ST)</span>
+                                    <span class="badge badge-success">92% MATCH</span>
+                                </div>
+                                <p style="font-size: 0.75rem; color: var(--text-secondary);">High pressing efficiency, fits 4-3-3 tactical profile perfectly.</p>
+                                <button class="btn btn-outline btn-sm">VIEW SCOUT REPORT</button>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <h3 style="margin-bottom: 1.5rem;">Global Talent Monitor</h3>
+                            <table class="data-table">
+                                <thead><tr><th>Target</th><th>Age</th><th>Club</th><th>Status</th><th>AI Rating</th></tr></thead>
+                                <tbody>
+                                    <tr><td>K. Musoni</td><td>18</td><td>Academy A</td><td><span class="badge badge-success">WATCHING</span></td><td>8.2</td></tr>
+                                    <tr><td>D. Niyomugabo</td><td>19</td><td>Club B</td><td><span class="badge badge-danger">MONITORING</span></td><td>7.9</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- MODULE: MEDICAL -->
+                <section id="mod-medical" class="module">
+                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
+                        <div class="card">
+                            <h3 style="margin-bottom: 1.5rem;">Injury Tracking</h3>
+                            <table class="data-table">
+                                <thead><tr><th>Athlete</th><th>Injury Type</th><th>Expected Return</th><th>Status</th></tr></thead>
+                                <tbody>
+                                    <tr><td>E. Sugira</td><td>Hamstring Strain</td><td>May 24, 2026</td><td><span class="badge badge-danger">RECOVERY</span></td></tr>
+                                    <tr><td>T. Manzi</td><td>Ankle Sprain</td><td>May 15, 2026</td><td><span class="badge badge-warning">TRAINING SOLO</span></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="card">
+                            <h3 style="margin-bottom: 1.5rem;">Workload Analysis</h3>
+                            <div class="medical-status">
+                                <i class="fa-solid fa-triangle-exclamation" style="color: var(--danger);"></i>
+                                <div style="font-size: 0.8rem;">3 Players at Fatigue Risk</div>
+                            </div>
+                            <div class="medical-status" style="margin-top: 10px;">
+                                <i class="fa-solid fa-check-circle" style="color: var(--success);"></i>
+                                <div style="font-size: 0.8rem;">Optimal Load for 18 Players</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- MODULE: TRANSFERS -->
+                <section id="mod-transfers" class="module">
+                    <div class="card">
+                        <h3 style="margin-bottom: 1.5rem;">Transfer Market Intelligence</h3>
+                        <div class="grid-stats">
+                            <div class="card stat-card" style="background: rgba(0,0,0,0.2);">
+                                <span class="stat-label">Budget Remaining</span>
+                                <span class="stat-value">$1.2M</span>
+                            </div>
+                            <div class="card stat-card" style="background: rgba(0,0,0,0.2);">
+                                <span class="stat-label">Contract Renewals</span>
+                                <span class="stat-value">4 Due</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- MODULE: REPORTS -->
+                <section id="mod-reports" class="module">
+                    <div class="card">
+                        <h3 style="margin-bottom: 1.5rem;">Football Intelligence Reports</h3>
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+                            <button class="btn btn-outline" style="height: 100px; flex-direction: column;"><i class="fa-solid fa-file-pdf"></i> MATCH REPORT (PDF)</button>
+                            <button class="btn btn-outline" style="height: 100px; flex-direction: column;"><i class="fa-solid fa-file-csv"></i> PLAYER STATS (CSV)</button>
+                            <button class="btn btn-outline" style="height: 100px; flex-direction: column;"><i class="fa-solid fa-file-chart-pie"></i> SEASON SUMMARY</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- MODULE: DOCUMENTS -->
+                <section id="mod-documents" class="module">
+                    <div class="card">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                            <h3>Club Legal & Tactical Vault</h3>
+                            <button class="btn btn-primary"><i class="fa-solid fa-upload"></i> UPLOAD DOCUMENT</button>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem;">
+                            <div class="card stat-card" style="text-align: center; cursor: pointer;">
+                                <i class="fa-solid fa-folder-closed" style="font-size: 2.5rem; color: var(--accent-primary); margin-bottom: 1rem;"></i>
+                                <div style="font-weight: 700; font-size: 0.8rem;">PLAYER CONTRACTS</div>
+                                <div style="font-size: 0.6rem; color: var(--text-secondary);">24 Files</div>
+                            </div>
+                            <div class="card stat-card" style="text-align: center; cursor: pointer;">
+                                <i class="fa-solid fa-folder-closed" style="font-size: 2.5rem; color: var(--accent-primary); margin-bottom: 1rem;"></i>
+                                <div style="font-weight: 700; font-size: 0.8rem;">TACTICAL GUIDES</div>
+                                <div style="font-size: 0.6rem; color: var(--text-secondary);">12 Files</div>
+                            </div>
+                            <div class="card stat-card" style="text-align: center; cursor: pointer;">
+                                <i class="fa-solid fa-folder-closed" style="font-size: 2.5rem; color: var(--accent-primary); margin-bottom: 1rem;"></i>
+                                <div style="font-weight: 700; font-size: 0.8rem;">MATCH ANALYSIS</div>
+                                <div style="font-size: 0.6rem; color: var(--text-secondary);">148 Files</div>
+                            </div>
+                            <div class="card stat-card" style="text-align: center; cursor: pointer;">
+                                <i class="fa-solid fa-folder-closed" style="font-size: 2.5rem; color: var(--accent-primary); margin-bottom: 1rem;"></i>
+                                <div style="font-weight: 700; font-size: 0.8rem;">MEDICAL RECORDS</div>
+                                <div style="font-size: 0.6rem; color: var(--text-secondary);">56 Files</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- MODULE: SETTINGS -->
+                <section id="mod-settings" class="module">
+                    <div class="card" style="max-width: 600px;">
+                        <h3 style="margin-bottom: 1.5rem;">System Configuration</h3>
+                        <div class="input-group">
+                            <label>AI Confidence Threshold</label>
+                            <input type="range" min="0" max="100" value="85" style="width: 100%;">
+                        </div>
+                        <div class="input-group">
+                            <label>Notification Frequency</label>
+                            <select class="input-field"><option>Real-time</option><option>Daily Summary</option></select>
+                        </div>
+                        <button class="btn btn-primary">SAVE CONFIGURATION</button>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    </div>
+
+    <!-- PLAYER PROFILE MODAL -->
+    <div id="player-modal" class="modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
+        <div class="card" style="width: 90%; max-width: 1000px; max-height: 90vh; overflow-y: auto; position: relative;">
+            <button onclick="ClubDashboard.closePlayerModal()" style="position: absolute; top: 20px; right: 20px; background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer;"><i class="fa-solid fa-xmark"></i></button>
+            
+            <div style="display: grid; grid-template-columns: 300px 1fr; gap: 2.5rem;">
+                <!-- Left: Quick Info -->
+                <div>
+                    <div style="width: 100%; aspect-ratio: 1; background: var(--bg-primary); border-radius: 12px; margin-bottom: 1.5rem; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                        <i class="fa-solid fa-user" style="font-size: 5rem; color: var(--border);"></i>
+                    </div>
+                    <h2 id="modal-player-name" style="font-size: 1.5rem; font-weight: 900;">PLAYER NAME</h2>
+                    <div id="modal-player-pos" class="stat-label" style="font-size: 1rem; margin-bottom: 1.5rem;">POSITION | #00</div>
+                    
+                    <div class="grid-stats" style="grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="card stat-card" style="padding: 1rem;">
+                            <span class="stat-label">AI RATING</span>
+                            <span id="modal-player-rating" style="font-size: 1.2rem; font-weight: 800; color: var(--accent-secondary);">8.4</span>
+                        </div>
+                        <div class="card stat-card" style="padding: 1rem;">
+                            <span class="stat-label">MATCHES</span>
+                            <span id="modal-player-matches" style="font-size: 1.2rem; font-weight: 800;">12</span>
+                        </div>
+                    </div>
+                    
+                    <div class="card" style="margin-top: 1.5rem; padding: 1rem;">
+                        <span class="stat-label">MEDICAL STATUS</span>
+                        <div id="modal-player-medical" class="badge badge-success" style="display: block; margin-top: 0.5rem; text-align: center;">FIT TO PLAY</div>
+                    </div>
+                </div>
+                
+                <!-- Right: Detailed Analytics -->
+                <div>
+                    <div style="display: flex; gap: 1rem; border-bottom: 1px solid var(--border); margin-bottom: 1.5rem;">
+                        <button class="btn btn-outline" style="border-bottom: 2px solid var(--accent-primary); border-radius: 0;">Performance</button>
+                        <button class="btn btn-outline" style="border: none;">Tactical</button>
+                        <button class="btn btn-outline" style="border: none;">Medical</button>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 1.5rem;">
+                        <div>
+                            <span class="stat-label">Season Heatmap</span>
+                            <div style="height: 250px; background: var(--pitch-green); border-radius: 12px; margin-top: 0.5rem; position: relative; opacity: 0.8;">
+                                <!-- Simulated Heatmap Overlays -->
+                                <div style="position: absolute; top: 20%; left: 30%; width: 60px; height: 60px; background: var(--accent-primary); filter: blur(20px); opacity: 0.6;"></div>
+                                <div style="position: absolute; top: 40%; left: 60%; width: 80px; height: 80px; background: var(--accent-primary); filter: blur(25px); opacity: 0.8;"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="stat-label">Key Statistics</span>
+                            <div style="margin-top: 1rem; display: flex; flex-direction: column; gap: 12px;">
+                                <div style="display: flex; justify-content: space-between;"><span>Goals</span><b id="modal-player-goals">4</b></div>
+                                <div style="display: flex; justify-content: space-between;"><span>Assists</span><b id="modal-player-assists">2</b></div>
+                                <div style="display: flex; justify-content: space-between;"><span>Pass Acc.</span><b>88%</b></div>
+                                <div style="display: flex; justify-content: space-between;"><span>Distance</span><b>10.2km</b></div>
+                                <div style="display: flex; justify-content: space-between;"><span>Top Speed</span><b>34.2km/h</b></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card" style="margin-top: 2rem;">
+                        <h3>Match History</h3>
+                        <table class="data-table" style="font-size: 0.8rem;">
+                            <thead><tr><th>Match</th><th>Min</th><th>Rating</th><th>G</th><th>A</th></tr></thead>
+                            <tbody>
+                                <tr><td>vs Rayon Sports</td><td>90'</td><td>8.2</td><td>1</td><td>0</td></tr>
+                                <tr><td>vs APR FC</td><td>75'</td><td>7.4</td><td>0</td><td>1</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- PLAYER REGISTRATION MODAL -->
+    <div id="register-modal" class="modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
+        <div class="card" style="width: 400px; padding: 30px;">
+            <h2 style="margin-bottom: 20px;">Register New Player</h2>
+            <div class="input-group">
+                <label>Full Name</label>
+                <input type="text" id="reg-name" class="input-field" placeholder="Enter name">
+            </div>
+            <div class="input-group">
+                <label>Position</label>
+                <select id="reg-position" class="input-field">
+                    <option>Goalkeeper</option>
+                    <option>Defender</option>
+                    <option>Midfielder</option>
+                    <option>Forward</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>Jersey Number</label>
+                <input type="number" id="reg-jersey" class="input-field" placeholder="10">
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 30px;">
+                <button class="btn btn-primary" style="flex: 1;" onclick="ClubDashboard.submitPlayer()">SAVE PLAYER</button>
+                <button class="btn btn-outline" onclick="ClubDashboard.closeRegisterModal()">CANCEL</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../assets/js/club_dashboard.js?v=2.0"></script>
+</body>
+</html>

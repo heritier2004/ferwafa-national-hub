@@ -12,10 +12,14 @@ const playerColors = {
 ws.onmessage = (event) => {
     const data = JSON.parse(event.data);
     
-    if (data.type === 'tracking') {
-        renderTracking(data.payload);
-    } else if (data.type === 'event') {
-        addEventToLog(data.payload);
+    if (data.type === 'tracking_update') {
+        const payload = data.players || [];
+        if (data.ball) {
+            payload.push({ id: 'ball', type: 'ball', x: data.ball.x, y: data.ball.y });
+        }
+        renderTracking(payload);
+    } else if (data.type === 'match_event') {
+        addEventToLog(data);
     }
 };
 
@@ -23,34 +27,35 @@ function renderTracking(payload) {
     // payload: [{id, x, y, team, type}, ...]
     payload.forEach(obj => {
         if (obj.type === 'ball') {
-            ballDot.setAttribute('cx', obj.x);
-            ballDot.setAttribute('cy', obj.y);
+            ballDot.setAttribute('cx', obj.x * 10);
+            ballDot.setAttribute('cy', obj.y * 6);
         } else {
-            let dot = document.getElementById(`player-${obj.id}`);
+            const playerId = obj.player_id || obj.id;
+            let dot = document.getElementById(`player-${playerId}`);
             if (!dot) {
                 dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-                dot.setAttribute('id', `player-${obj.id}`);
+                dot.setAttribute('id', `player-${playerId}`);
                 dot.setAttribute('r', '8');
                 dot.setAttribute('fill', obj.team === 'home' ? playerColors.home : playerColors.away);
                 dot.classList.add('player-dot');
                 playersLayer.appendChild(dot);
 
                 const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
-                text.setAttribute('id', `player-label-${obj.id}`);
+                text.setAttribute('id', `player-label-${playerId}`);
                 text.setAttribute('font-size', '10');
                 text.setAttribute('fill', '#fff');
                 text.setAttribute('text-anchor', 'middle');
                 text.setAttribute('dy', '-12');
-                text.textContent = obj.label || obj.id;
+                text.textContent = obj.label || playerId;
                 playersLayer.appendChild(text);
             }
-            dot.setAttribute('cx', obj.x);
-            dot.setAttribute('cy', obj.y);
+            dot.setAttribute('cx', obj.x * 10);
+            dot.setAttribute('cy', obj.y * 6);
 
-            const label = document.getElementById(`player-label-${obj.id}`);
+            const label = document.getElementById(`player-label-${playerId}`);
             if (label) {
-                label.setAttribute('x', obj.x);
-                label.setAttribute('y', obj.y);
+                label.setAttribute('x', obj.x * 10);
+                label.setAttribute('y', obj.y * 6);
             }
         }
     });
@@ -59,6 +64,8 @@ function renderTracking(payload) {
 function addEventToLog(event) {
     const div = document.createElement('div');
     div.className = 'event-item';
-    div.innerHTML = `[${event.time}'] <strong>${event.type.toUpperCase()}</strong> - ${event.player} (${event.team})`;
+    const min = event.minute || event.time || '00';
+    const type = (event.event_type || event.type || 'EVENT').toUpperCase();
+    div.innerHTML = `[${min}'] <strong>${type}</strong> - AI (${event.team})`;
     eventLog.prepend(div);
 }

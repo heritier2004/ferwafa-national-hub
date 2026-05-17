@@ -14,6 +14,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+from datetime import datetime
 
 from ai_machine.config import Config
 from ai_machine.connection import AIConnection
@@ -24,6 +25,10 @@ config = Config()
 connection: AIConnection = None
 processor: VideoProcessor = None
 _processing_task = None
+test_mode = False
+test_frames = 0
+test_events = 0
+authenticated = False
 
 app = FastAPI(title="AI Pitch Machine Control Panel", docs_url=None, redoc_url=None)
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
@@ -31,22 +36,82 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], all
 UI_DIR = Path(__file__).parent / "ui"
 
 
-# ── Serve Control Panel UI ─────────────────────────────────────────
+# ── Serve UI Routes ────────────────────────────────────────────────
 @app.get("/", response_class=HTMLResponse)
-async def serve_ui():
-    html_path = UI_DIR / "control_panel.html"
+async def serve_index():
+    if not authenticated:
+        return HTMLResponse((UI_DIR / "login.html").read_text(encoding="utf-8"))
+    
+    html_path = UI_DIR / "index.html"
     if html_path.exists():
         response = HTMLResponse(content=html_path.read_text(encoding="utf-8"))
-        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
-        response.headers["Pragma"] = "no-cache"
-        response.headers["Expires"] = "0"
         return response
+    return HTMLResponse("<h1>Index not found</h1>", status_code=404)
+
+
+@app.get("/dashboard", response_class=HTMLResponse)
+async def serve_dashboard():
+    if not authenticated:
+        return HTMLResponse((UI_DIR / "login.html").read_text(encoding="utf-8"))
+        
+    html_path = UI_DIR / "control_panel.html"
+    if html_path.exists():
+        return HTMLResponse(content=html_path.read_text(encoding="utf-8"))
     return HTMLResponse("<h1>Control Panel not found</h1>", status_code=404)
+
+
+# ── Auth Endpoints ────────────────────────────────────────────────
+@app.post("/auth/login")
+async def login(data: dict):
+    global authenticated
+    u = data.get("username")
+    p = data.get("password")
+    
+    # Secure Authority Credentials
+    if u == "admin" and p == "ferwafa2024":
+        authenticated = True
+        return {"success": True}
+    return JSONResponse({"success": False}, status_code=401)
+
+
+@app.get("/auth/logout")
+async def logout():
+    global authenticated
+    authenticated = False
+    return {"success": True}
 
 
 # ── Status Endpoint ────────────────────────────────────────────────
 @app.get("/status")
 async def get_status():
+    global test_frames, test_events
+    
+    # Model Availability
+    from ai_machine.processor import YOLO_AVAILABLE, OCR_AVAILABLE
+    
+    if test_mode:
+        test_frames += 24
+        if test_frames % 100 == 0: test_events += 1
+        return {
+            "configured": True,
+            "connected": True,
+            "processing": True,
+            "paused": False,
+            "frames_processed": test_frames,
+            "events_sent": test_events,
+            "match_minute": 45,
+            "video_source": "MOCK_TEST_FEED",
+            "api_key": "TEST_KEY_ACTIVE",
+            "match_token": "TEST_TOKEN_ACTIVE",
+            "server_url": "ws://mock.ferwafa.rw",
+            "kit_home": "#FF0000",
+            "kit_away": "#0000FF",
+            "yolo_active": True,
+            "tracker_active": True,
+            "ocr_active": True,
+            "device": "MOCK_GPU"
+        }
+
     return {
         "configured": config.is_configured(),
         "connected": connection.is_connected if connection else False,
@@ -60,7 +125,11 @@ async def get_status():
         "match_token": config.match_token[:8] + "..." if config.match_token else "",
         "server_url": config.server_url,
         "kit_home": config.kit_home,
-        "kit_away": config.kit_away
+        "kit_away": config.kit_away,
+        "yolo_active": YOLO_AVAILABLE and processor and processor.model is not None,
+        "tracker_active": YOLO_AVAILABLE and processor and processor.is_running,
+        "ocr_active": OCR_AVAILABLE and processor and processor.reader is not None,
+        "device": config.device
     }
 
 
@@ -69,6 +138,25 @@ async def get_status():
 async def get_logs():
     logs = processor.get_logs(100) if processor else []
     return {"logs": logs}
+
+
+# ── Detected Players Endpoint ──────────────────────────────────────
+@app.get("/detected_players")
+async def get_detected_players():
+    if not processor:
+        return {"players": []}
+    
+    # Return a list of players currently mapped in identity_map
+    players = []
+    for track_id, data in processor.identity_map.items():
+        players.append({
+            "track_id": track_id,
+            "player_id": data.get("player_id"),
+            "name": data.get("name"),
+            "jersey": data.get("jersey"),
+            "confidence": data.get("confidence")
+        })
+    return {"players": players}
 
 
 # ── Config GET/POST ────────────────────────────────────────────────
@@ -95,16 +183,47 @@ async def start_analysis():
     if processor and processor.is_running:
         return {"success": False, "error": "Already running"}
 
-    # 1. Fetch match context (kit colors, etc) via HTTP
+    # 1. Secure AI Handshake (signed)
     import urllib.request
     import json
-    url = f"{config.http_url}/api/match/token/{config.match_token}/validate?key={config.api_key}"
+    import hmac, hashlib
+    
+    url = f"{config.http_url}/api/ai/handshake"
+    payload = {
+        "timestamp": datetime.utcnow().isoformat(),
+        "action": "initialize_session"
+    }
+    msg_string = json.dumps(payload, sort_keys=True)
+    signature = hmac.new(
+        config.api_key.encode(),
+        msg_string.encode(),
+        hashlib.sha256
+    ).hexdigest()
+    
+    packet = json.dumps({
+        "payload": payload,
+        "signature": signature,
+        "match_token": config.match_token,
+        "api_key": config.api_key
+    }).encode('utf-8')
+
     squad_list = []
+    venue_metadata = {}
+    server_time_iso = None
     try:
-        with urllib.request.urlopen(url, timeout=5) as resp:
+        req = urllib.request.Request(url, data=packet, headers={'Content-Type': 'application/json'}, method='POST')
+        with urllib.request.urlopen(req, timeout=5) as resp:
             data = json.loads(resp.read().decode())
             if data.get("valid"):
                 squad_list = data.get("squad", [])
+                venue_metadata = {
+                    "location_id": data.get("location_id"),
+                    "region": data.get("region"),
+                    "district": data.get("district"),
+                    "venue_quality": data.get("venue_quality"),
+                    "pitch_type": data.get("pitch_type"),
+                    "has_floodlights": data.get("has_floodlights")
+                }
                 config.update({
                     "kit_home": data.get("kit_home", "#FF0000"),
                     "kit_home_socks": data.get("kit_home_socks", "#FFFFFF"),
@@ -114,9 +233,9 @@ async def start_analysis():
                 config.save()
                 server_time_iso = data.get("server_time_iso")
             else:
-                return JSONResponse({"success": False, "error": data.get("detail", "Invalid API Key or Match Token")}, status_code=401)
+                return JSONResponse({"success": False, "error": data.get("detail", "Handshake failed")}, status_code=401)
     except Exception as e:
-        return JSONResponse({"success": False, "error": f"Auth failed: {e}"}, status_code=401)
+        return JSONResponse({"success": False, "error": f"Secure Handshake failed: {e}"}, status_code=401)
 
     # 2. Start Managed Connection
     connection = AIConnection(config)
@@ -124,8 +243,8 @@ async def start_analysis():
         connection.sync_time(server_time_iso)
     await connection.start()
 
-    # 3. Start processing with full squad awareness
-    processor = VideoProcessor(config, connection, squad_list)
+    # 3. Start processing with full squad and location awareness
+    processor = VideoProcessor(config, connection, squad_list, venue_metadata)
     _processing_task = asyncio.create_task(processor.run())
     return {"success": True, "message": "Analysis started with automated database sync"}
 
@@ -144,7 +263,10 @@ async def pause_analysis():
 
 @app.post("/control/stop")
 async def stop_analysis():
-    global _processing_task
+    global _processing_task, test_mode, test_frames, test_events
+    test_mode = False
+    test_frames = 0
+    test_events = 0
     if processor:
         processor.stop()
     if connection:
@@ -152,6 +274,13 @@ async def stop_analysis():
     if _processing_task and not _processing_task.done():
         _processing_task.cancel()
     return {"success": True, "message": "Analysis stopped"}
+
+
+@app.post("/control/test")
+async def toggle_test_mode():
+    global test_mode
+    test_mode = not test_mode
+    return {"success": True, "test_mode": test_mode}
 
 
 # ── Entrypoint ─────────────────────────────────────────────────────
@@ -182,11 +311,20 @@ def main():
     server_thread.start()
 
     # Start Native Window GUI in Foreground
-    import webview
-    import time
-    time.sleep(1)  # small buffer to ensure uvicorn is listening before browser paints
-    webview.create_window("AI Pitch Machine", "http://127.0.0.1:7777", width=1200, height=800, background_color="#020509")
-    webview.start()
+    try:
+        import webview
+        import time
+        time.sleep(1)  # small buffer to ensure uvicorn is listening before browser paints
+        print("  🖥️  Opening National Hub Interface...")
+        webview.create_window("National Football Intelligence System", "http://127.0.0.1:7777", width=1280, height=850, background_color="#020509")
+        webview.start()
+    except Exception as e:
+        print(f"\n  ⚠️  Native GUI unavailable: {e}")
+        print("  🚀 Server is still running. Access manually at: http://127.0.0.1:7777")
+        # Keep the main thread alive since uvicorn is in a daemon thread
+        while True:
+            import time
+            time.sleep(10)
 
 
 if __name__ == "__main__":

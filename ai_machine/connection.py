@@ -4,6 +4,8 @@ import websockets
 import uuid
 import time
 from datetime import datetime
+import sqlite3
+import os
 
 
 class AIConnection:
@@ -15,11 +17,20 @@ class AIConnection:
         self._log_cb = None
         self.time_offset = 0 # seconds
         
-        # Resilience: Offline buffer and worker
-        self._buffer = asyncio.Queue(maxsize=1000)
+        # Resilience: SQLite Offline Buffer
+        self.db_path = "offline_buffer.db"
+        self._init_db()
         self._stop_event = asyncio.Event()
         self._worker_task = None
         self._heartbeat_task = None
+
+    def _init_db(self):
+        conn = sqlite3.connect(self.db_path)
+        c = conn.cursor()
+        c.execute('''CREATE TABLE IF NOT EXISTS pending_events
+                     (id INTEGER PRIMARY KEY AUTOINCREMENT, payload TEXT, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)''')
+        conn.commit()
+        conn.close()
 
     def set_log_callback(self, cb):
         self._log_cb = cb
@@ -74,9 +85,20 @@ class AIConnection:
                     await asyncio.sleep(5) # Throttle retries
                     continue
 
-            # Flush the buffer
+            # Flush the buffer from SQLite
             try:
-                payload = await self._buffer.get()
+                conn = sqlite3.connect(self.db_path)
+                c = conn.cursor()
+                c.execute("SELECT id, payload FROM pending_events ORDER BY id ASC LIMIT 1")
+                row = c.fetchone()
+                
+                if not row:
+                    conn.close()
+                    await asyncio.sleep(0.5)
+                    continue
+                    
+                event_id, payload_str = row
+                payload = json.loads(payload_str)
                 
                 # Sign the payload (Immutable Ledger Security)
                 msgString = json.dumps(payload, sort_keys=True)
@@ -93,7 +115,11 @@ class AIConnection:
                 
                 await self.ws.send(json.dumps(packet))
                 self.events_sent += 1
-                self._buffer.task_done()
+                
+                # Mark as synced (delete from buffer)
+                c.execute("DELETE FROM pending_events WHERE id = ?", (event_id,))
+                conn.commit()
+                conn.close()
             except websockets.exceptions.ConnectionClosed:
                 self.is_connected = False
                 self.log("⚠️ Connection lost — buffering events...")
@@ -115,9 +141,6 @@ class AIConnection:
 
     async def send_event(self, event: dict):
         """Queues an event for delivery. Adds unique ID and timestamp."""
-        if self._buffer.full():
-            self._buffer.get_nowait() # Drop oldest if full
-            
         # Add metadata for server-side validation and duplicate prevention
         if "source_event_id" not in event:
             event["source_event_id"] = str(uuid.uuid4())
@@ -127,27 +150,63 @@ class AIConnection:
             norm_dt = datetime.utcnow() + timedelta(seconds=self.time_offset)
             event["timestamp"] = norm_dt.isoformat()
             
-        await self._buffer.put(event)
+        # Write to persistent offline buffer
+        try:
+            conn = sqlite3.connect(self.db_path)
+            c = conn.cursor()
+            # Enforce max size ~10000 events to prevent massive disk bloat
+            c.execute("SELECT COUNT(*) FROM pending_events")
+            if c.fetchone()[0] > 10000:
+                c.execute("DELETE FROM pending_events WHERE id = (SELECT MIN(id) FROM pending_events)")
+            c.execute("INSERT INTO pending_events (payload) VALUES (?)", (json.dumps(event),))
+            conn.commit()
+            conn.close()
+        except Exception as e:
+            self.log(f"⚠️ Buffer write failed: {e}")
 
     async def send_tracking_update(self, players: list, ball: dict, stats: dict):
         """Send a full frame tracking snapshot."""
         # Low priority: only queue if not too backed up to prioritize match events
-        if self._buffer.qsize() > 100:
-            return
+        try:
+            conn = sqlite3.connect(self.db_path)
+            c = conn.cursor()
+            c.execute("SELECT COUNT(*) FROM pending_events")
+            count = c.fetchone()[0]
+            conn.close()
+            if count > 100:
+                return
+        except Exception:
+            pass
             
         await self.send_event({
-            "type": "tracking_update",
-            "players": players,
-            "ball": ball
+            "type": "player_position_update",
+            "players": players
         })
+        if ball:
+            await self.send_event({
+                "type": "ball_tracking_update",
+                "ball": ball
+            })
         if stats:
-            await self.send_event({"type": "stats_update", **stats})
+            await self.send_event({
+                "type": "match_stats_update",
+                **stats
+            })
 
     async def send_match_event(self, event_type: str, player_id=None, minute: int = 0,
                                 team: str = "home", extra: dict = None, confidence: float = 1.0):
         """Send a discrete match event (goal, foul, card, etc.)."""
+        # Map simple types to requested event types
+        type_map = {
+            "goal": "goal_event",
+            "foul": "foul_event",
+            "yellow_card": "card_event",
+            "red_card": "card_event",
+            "substitution": "substitution_event"
+        }
+        
         payload = {
-            "type": "match_event",
+            "type": type_map.get(event_type, "match_event"),
             "event_type": event_type,
             "player_id": player_id,
             "minute": minute,
