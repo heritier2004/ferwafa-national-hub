@@ -567,8 +567,23 @@
 
             document.getElementById('cfg-src-type').value = type;
 
-            if (type === 'obs') { updateMainSource('2'); }
-            if (type === 'phone') { updateMainSource('http://localhost:8080/video'); }
+            // Set sensible defaults per source type
+            switch (type) {
+                case 'phone':    updateMainSource('http://localhost:8080/video'); break;
+                case 'webcam':   updateMainSource('0'); break;
+                case 'pro':      updateMainSource('1'); break;
+                case 'obs':      updateMainSource('2'); break;
+                case 'broadcast': updateMainSource('3'); break;
+                // rtsp, youtube, browser, file — user fills in the value
+            }
+        }
+
+        function handleFileSelected(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const pathField = document.getElementById('cfg-file-path');
+            pathField.value = file.name;
+            updateMainSource(file.name);
         }
 
         function setPhoneMode(mode) {
@@ -621,18 +636,44 @@
         async function handleConnectDevice() {
             const btn = document.getElementById('btn-start');
             if (btn.textContent === "CONNECT DEVICE" || btn.textContent === "CONNECTING...") {
-                updateStepper(1); // DEVICE DETECTED
-                document.getElementById('loading-overlay').style.display = 'flex';
-                document.querySelector('#loading-overlay div:nth-child(2)').textContent = "CONNECTING STREAM";
-                
-                updateStepper(2); // CONNECTING STREAM
-                
                 const srcType = document.getElementById('cfg-src-type').value;
-                if (srcType === 'browser') {
+                const srcValue = document.getElementById('cfg-src').value;
+
+                // Source-specific professional overlay messages
+                const sourceLabels = {
+                    phone: 'PHONE CAMERA',
+                    browser: 'BROWSER WEBRTC STREAM',
+                    webcam: 'USB WEBCAM',
+                    pro: 'PROFESSIONAL CAPTURE CARD',
+                    rtsp: 'RTSP/IP CAMERA',
+                    youtube: 'YOUTUBE LIVE STREAM',
+                    obs: 'OBS VIRTUAL CAMERA',
+                    broadcast: 'TV BROADCAST DECODER',
+                    file: 'VIDEO FILE'
+                };
+                const label = sourceLabels[srcType] || 'VIDEO SOURCE';
+
+                // Validate that the user actually provided a value for URL-based sources
+                if (['rtsp', 'youtube'].includes(srcType) && (!srcValue || srcValue === '0')) {
+                    showError(`Please enter a valid ${label} URL before connecting.`);
+                    return;
+                }
+                if (srcType === 'file' && (!srcValue || srcValue === '0')) {
+                    showError('Please select or enter a video file path before connecting.');
+                    return;
+                }
+
+                updateStepper(1); // SOURCE CONNECTED
+                document.getElementById('loading-overlay').style.display = 'flex';
+                document.querySelector('#loading-overlay div:nth-child(2)').textContent = `CONNECTING ${label}`;
+                document.querySelector('#loading-overlay div:nth-child(3)').textContent = 'VALIDATING STREAM AND SYNCHRONIZING AI PIPELINE...';
+
+                // For browser-based sources, acquire local media stream for live preview
+                if (['browser', 'webcam'].includes(srcType)) {
                     try {
                         const deviceId = document.getElementById('cfg-src').value;
                         const constraints = {
-                            video: deviceId ? { deviceId: { exact: deviceId } } : true,
+                            video: (deviceId && deviceId !== '0') ? { deviceId: { exact: deviceId } } : true,
                             audio: false
                         };
                         localStream = await navigator.mediaDevices.getUserMedia(constraints);
@@ -643,30 +684,54 @@
                         document.getElementById('engine-ring').style.display = 'none';
                     } catch (err) {
                         console.error("Local stream permission denied", err);
+                        showError(`Camera access denied. Please allow ${label} permissions in your browser.`);
+                        resetConnectionState();
+                        return;
                     }
                 }
-                
+
+                updateStepper(2); // STREAM ACTIVE
+
                 try {
                     await saveConfig();
                     const r = await fetch(`${BASE}/control/start`, { method:'POST' });
                     const d = await r.json();
                     if (!d.success) {
-                        alert(d.error || "Failed to initialize background processing");
+                        showError(d.error || `Failed to initialize ${label} processing.`);
                         resetConnectionState();
                         return;
                     }
                 } catch(e) {
-                    alert("Backend connection failed");
+                    showError(`Backend connection failed. Ensure the AI engine is running on port 7777.`);
                     resetConnectionState();
                     return;
                 }
-                
+
                 setTimeout(() => {
                     document.getElementById('loading-overlay').style.display = 'none';
                 }, 1500);
             } else {
                 controlStop();
             }
+        }
+
+        // Professional error display — replaces raw alert() calls
+        function showError(message) {
+            document.getElementById('loading-overlay').style.display = 'none';
+            const logStream = document.getElementById('log-stream');
+            const errDiv = document.createElement('div');
+            errDiv.style.color = 'var(--red)';
+            errDiv.style.fontWeight = '800';
+            errDiv.textContent = `[ERROR] ${message}`;
+            logStream.insertBefore(errDiv, logStream.firstChild);
+            // Also show a temporary toast in the stepper area
+            const stepper = document.getElementById('status-stepper');
+            const toast = document.createElement('div');
+            toast.textContent = message;
+            toast.style.cssText = 'position:absolute;bottom:-30px;left:0;right:0;text-align:center;font-size:0.7rem;color:var(--red);font-weight:800;animation:fadeIn 0.3s;';
+            stepper.style.position = 'relative';
+            stepper.appendChild(toast);
+            setTimeout(() => toast.remove(), 5000);
         }
 
         function resetConnectionState() {
