@@ -5,137 +5,933 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>National Hub | Federation Authority</title>
     <link rel="stylesheet" href="../../assets/css/style.css?v=2.0">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        .badge-ferwafa { background: rgba(59, 130, 246, 0.1); color: var(--accent-primary); border: 1px solid var(--accent-primary); }
-    </style>
-</head>
-<body class="theme-ferwafa">
-    <div class="app-container">
+        .tab-pane { display: none; }
+        .tab-pane.active { display: block; }
+        table { width: 100%; border-collapse: collapse; }
+        th { padding: 1rem 1.5rem; text-align: left; font-size: 0.7rem; font-weight: 800; color: var(--text-secondary); letter-spacing: 0.1em; background: var(--bg-tertiary); }
+        td { padding: 1.25rem 1.5rem; font-size: 0.875rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: rgba(22,163,74,0.03); }
+        .badge-pending { background: rgba(245,158,11,0.1); color: var(--warning); border: 1px solid var(--warning); padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 800; }
+        .badge-approved { background: rgba(16,185,129,0.1); color: var(--success); border: 1px solid var(--success); padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 800; }
+        .badge-rejected { background: rgba(239,68,68,0.1); color: var(--danger); border: 1px solid var(--danger); padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 800; }
+        .action-btns { display: flex; gap: 0.5rem; }
+        .btn-sm { padding: 0.4rem 1rem; font-size: 0.75rem; border-radius: 8px; border: none; font-weight: 800; cursor: pointer; transition: all 0.2s; }
+        .btn-approve { background: rgba(16,185,129,0.15); color: var(--success); border: 1px solid var(--success); }
+        .btn-approve:hover { background: var(--success); color: #fff; }
+        .btn-reject { background: rgba(239,68,68,0.1); color: var(--danger); border: 1px solid var(--danger); }
+        .btn-reject:hover { background: var(--danger); color: #fff; }
+        .btn-info { background: rgba(245,158,11,0.1); color: var(--warning); border: 1px solid var(--warning); }
+        .pending-count { background: var(--danger); color: #fff; border-radius: 50%; width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 900; margin-left: 8px; }
+        .toast { position: fixed; bottom: 2rem; right: 2rem; padding: 1rem 2rem; border-radius: 12px; font-weight: 700; font-size: 0.875rem; z-index: 9999; display: none; animation: slideUp 0.3s ease; }
+        .toast-success { background: var(--success); color: #fff; }
+        .toast-error { background: var(--danger); color: #fff; }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .empty-state { text-align: center; padding: 4rem 2rem; color: var(--text-secondary); }
+        .empty-state i { font-size: 3rem; margin-bottom: 1rem; opacity: 0.3; display: block; }
+        .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.2); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .stat-card-mini { background: var(--bg-tertiary); border-radius: 12px; padding: 1.5rem; text-align: center; }
+        .stat-card-mini .val { font-size: 2rem; font-weight: 900; }
+        .stat-card-mini .lbl { font-size: 0.7rem; color: var(--text-secondary); font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; margin-top: 0.25rem; }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 500; display: none; align-items: center; justify-content: center; }
+        .modal-overlay.open { display: flex; }
+        .modal-box { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 20px; padding: 2.5rem; width: 520px; max-width: 95vw; }
+        .modal-box h2 { font-size: 1.1rem; font-weight: 900; margin-bottom: 1.5rem; }
+        .detail-row { display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--border); font-size: 0.875rem; }
+        .detail-row:last-child { border-bottom: none; }
+        .detail-row .lbl { color: var(--text-secondary); font-weight: 700; }
         
-        <!-- SIDEBAR -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <div class="logo">NATIONAL<span>HUB</span></div>
-                <div style="font-size: 0.6rem; color: var(--accent-primary); font-weight: 800; letter-spacing: 0.2em; margin-top: 5px; text-transform: uppercase;">Federation Authority</div>
-            </div>
-            
-            <nav class="sidebar-nav">
-                <div class="nav-item active" onclick="showPane('overview')">
-                    <i class="fa-solid fa-tower-observation"></i>
-                    <span>National Overview</span>
-                </div>
-                <div class="nav-item" onclick="showPane('institutions')">
-                    <i class="fa-solid fa-building-shield"></i>
-                    <span>Institutions</span>
-                </div>
-                <div class="nav-item" onclick="showPane('matches')">
-                    <i class="fa-solid fa-satellite"></i>
-                    <span>Match Monitoring</span>
-                </div>
-                <div class="nav-item" onclick="showPane('talent')">
-                    <i class="fa-solid fa-dna"></i>
-                    <span>Talent Registry</span>
-                </div>
-                <div class="nav-item" onclick="showPane('reports')">
-                    <i class="fa-solid fa-chart-pie"></i>
-                    <span>National Reports</span>
-                </div>
-                <div class="nav-item" onclick="showPane('forensics')">
-                    <i class="fa-solid fa-fingerprint"></i>
-                    <span>Audit Logs</span>
-                </div>
-            </nav>
-            
-            <div style="padding: 2rem;">
-                <button class="btn btn-outline" style="width: 100%; border-color: var(--danger); color: var(--danger);" onclick="logout()">
-                    <i class="fa-solid fa-right-from-bracket"></i>
-                    <span>Deauthorize</span>
-                </button>
-            </div>
-        </aside>
+        /* Carousel CSS */
+        .carousel-container { position: relative; width: 100%; height: 140px; overflow: hidden; border-radius: 20px; background: linear-gradient(135deg, var(--bg-tertiary), rgba(22,163,74,0.05)); margin-bottom: 2rem; border: 1px solid var(--border); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3); }
+        .carousel-slide { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.8s ease-in-out; text-align: center; padding: 2rem; }
+        .carousel-slide.active { opacity: 1; z-index: 10; }
+        .carousel-tag { display:inline-block; font-size: 0.7rem; padding: 4px 12px; border-radius: 20px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.2em; margin-bottom: 0.75rem; border: 1px solid currentColor; }
+        .carousel-title { font-size: 1.75rem; font-weight: 900; color: #fff; letter-spacing: -0.02em; }
+        .carousel-sub { font-size: 0.9rem; color: var(--text-secondary); margin-top: 0.5rem; }
+    </style>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="/assets/js/api.js"></script>
+</head>
+<body>
+<div class="app-container">
 
-        <!-- MAIN -->
-        <main class="main-content">
-            <header class="topbar">
-                <div style="font-weight: 900; letter-spacing: 0.15em;" id="pane-title">NATIONAL OVERVIEW</div>
-                <div style="display: flex; gap: 2rem; align-items: center;">
-                    <span style="font-size: 0.75rem; font-weight: 800; color: var(--success);"><i class="fa-solid fa-circle" style="font-size: 0.5rem; margin-right: 8px;"></i> LIVE TELEMETRY ACTIVE</span>
-                    <button class="btn btn-primary" onclick="showPane('institutions')"><i class="fa-solid fa-plus"></i> ONBOARD INSTITUTION</button>
-                </div>
-            </header>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">NATIONAL<span>HUB</span></div>
+            <div style="font-size:0.6rem;color:var(--accent-primary);font-weight:800;letter-spacing:0.2em;margin-top:5px;">FEDERATION AUTHORITY</div>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-item active" id="nav-overview" onclick="showPane('overview')">
+                <i data-lucide="tower"></i><span>Dashboard</span>
+            </div>
+            <div class="nav-item" id="nav-pending" onclick="showPane('pending')">
+                <i data-lucide="clock"></i>
+                <span>Pending Registrations</span>
+                <span class="pending-count" id="pending-badge" style="display:none;">0</span>
+            </div>
+            <div class="nav-item" id="nav-clubs" onclick="showPane('institutions', 'club')">
+                <i data-lucide="shield-half"></i><span>Clubs</span>
+            </div>
+            <div class="nav-item" id="nav-academies" onclick="showPane('institutions', 'academy')">
+                <i data-lucide="graduation-cap"></i><span>Academies</span>
+            </div>
+            <div class="nav-item" id="nav-schools" onclick="showPane('institutions', 'school')">
+                <i data-lucide="school"></i><span>Schools</span>
+            </div>
+            <div class="nav-item" id="nav-players" onclick="showPane('players')">
+                <i data-lucide="user"></i><span>Players Database</span>
+            </div>
+            <div class="nav-item" id="nav-young-talents" onclick="showPane('young-talents')">
+                <i data-lucide="seedling"></i><span>Young Talents</span>
+            </div>
+            <div class="nav-item" id="nav-tournaments" onclick="showPane('tournaments')">
+                <i data-lucide="trophy"></i><span>Tournaments</span>
+            </div>
+            <div class="nav-item" id="nav-live-matches" onclick="showPane('live-matches')">
+                <i data-lucide="satellite"></i><span>Live Matches</span>
+            </div>
+            <div class="nav-item" id="nav-development" onclick="showPane('development')">
+                <i data-lucide="line-chart"></i><span>Football Development</span>
+            </div>
+            <div class="nav-item" id="nav-reports" onclick="showPane('reports')">
+                <i data-lucide="file-text"></i><span>National Reports</span>
+            </div>
+            <div class="nav-item" id="nav-events" onclick="showPane('events')">
+                <i data-lucide="zap"></i><span>Events & Activities</span>
+            </div>
+            <div class="nav-item" id="nav-notifications" onclick="showPane('notifications')">
+                <i data-lucide="bell"></i><span>Notifications</span>
+            </div>
+            <div class="nav-item" id="nav-security" onclick="showPane('security')">
+                <i data-lucide="shield"></i><span>Security & Access</span>
+            </div>
+            <div class="nav-item" id="nav-settings" onclick="showPane('settings')">
+                <i data-lucide="settings"></i><span>Settings</span>
+            </div>
+        </nav>
+        <div style="padding:2rem;">
+            <button class="btn btn-outline" style="width:100%;border-color:var(--danger);color:var(--danger);" onclick="logout()">
+                <i data-lucide="log-out"></i><span>Deauthorize</span>
+            </button>
+        </div>
+    </aside>
 
-            <div class="main-stage">
-                
-                <!-- OVERVIEW -->
-                <section id="overview" class="tab-pane active">
-                    <span class="section-tag">National Intelligence KPIs</span>
-                    <div class="dashboard-grid">
-                        <div class="card">
-                            <label class="section-tag" style="margin-bottom: 0.5rem;">Registered Clubs</label>
-                            <div class="stat-value">52</div>
+    <!-- MAIN -->
+    <main class="main-content">
+        <header class="topbar">
+            <div style="font-weight:900;letter-spacing:0.15em;" id="pane-title">NATIONAL OVERVIEW</div>
+            <div style="display:flex;gap:1.5rem;align-items:center;">
+                <span style="font-size:0.75rem;font-weight:800;color:var(--success);">
+                    <i data-lucide="circle" style="font-size:0.5rem;margin-right:8px;"></i>LIVE TELEMETRY ACTIVE
+                </span>
+                <span style="font-size:0.8rem;font-weight:700;color:var(--text-secondary);" id="header-user">FERWAFA HQ</span>
+            </div>
+        </header>
+
+        <div class="main-stage">
+
+            <!-- OVERVIEW PANE -->
+            <section id="overview" class="tab-pane active">
+                <!-- Top Carousel -->
+                <div class="carousel-container" id="exec-carousel">
+                    <div class="carousel-slide active">
+                        <span class="carousel-tag" style="color:var(--danger);background:rgba(239,68,68,0.1);border-color:var(--danger);">Live Telemetry Alert</span>
+                        <div class="carousel-title">AI Node 3 Detected High Fatigue</div>
+                        <div class="carousel-sub">National Youth League U17 • Matchday 7</div>
+                    </div>
+                    <div class="carousel-slide">
+                        <span class="carousel-tag" style="color:var(--success);background:rgba(16,185,129,0.1);border-color:var(--success);">Federation Announcement</span>
+                        <div class="carousel-title">New Coaching Curriculum Deployed</div>
+                        <div class="carousel-sub">Available for all active Academy nodes</div>
+                    </div>
+                    <div class="carousel-slide">
+                        <span class="carousel-tag" style="color:var(--accent-secondary);background:rgba(6,182,212,0.1);border-color:var(--accent-secondary);">Live Match Score</span>
+                        <div class="carousel-title">APR FC 2 - 1 Rayon Sports</div>
+                        <div class="carousel-sub">67' • Kigali Pelé Stadium</div>
+                    </div>
+                </div>
+
+                <span class="section-tag">National KPIs</span>
+                <div class="dashboard-grid" id="kpi-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 2.5rem; gap: 1rem;">
+                    <div class="card stat-card-mini" style="padding:1.5rem 1rem;">
+                        <div class="val" id="kpi-clubs">—</div><div class="lbl">Total Clubs</div>
+                    </div>
+                    <div class="card stat-card-mini" style="padding:1.5rem 1rem;">
+                        <div class="val" id="kpi-academies">—</div><div class="lbl">Total Academies</div>
+                    </div>
+                    <div class="card stat-card-mini" style="padding:1.5rem 1rem;">
+                        <div class="val" id="kpi-schools">—</div><div class="lbl">Total Schools</div>
+                    </div>
+                    <div class="card stat-card-mini" style="padding:1.5rem 1rem;">
+                        <div class="val" style="color:var(--warning);" id="kpi-pending">—</div><div class="lbl">Pending Reg.</div>
+                    </div>
+                    <div class="card stat-card-mini" style="padding:1.5rem 1rem;">
+                        <div class="val" style="color:var(--accent-primary);" id="kpi-matches">—</div><div class="lbl">Total Matches</div>
+                    </div>
+                    <div class="card stat-card-mini" style="padding:1.5rem 1rem;">
+                        <div class="val" style="color:var(--accent-secondary);" id="kpi-tournaments">—</div><div class="lbl">Tournaments</div>
+                    </div>
+                    <div class="card stat-card-mini" style="padding:1.5rem 1rem;">
+                        <div class="val" id="kpi-players">—</div><div class="lbl">Registered Players</div>
+                    </div>
+                    <div class="card stat-card-mini" style="padding:1.5rem 1rem;">
+                        <div class="val" style="color:var(--success);" id="kpi-users">—</div><div class="lbl">Active Users</div>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid" style="gap:2rem;">
+                    <!-- Column 1 -->
+                    <div style="display:flex;flex-direction:column;gap:2rem;">
+                        <div>
+                            <span class="section-tag">System Activity Feed</span>
+                            <div class="card" style="padding:2rem;">
+                                <div style="border-left:2px solid var(--border); margin-left:0.5rem; padding-left:1.5rem;">
+                                    <div style="margin-bottom:1.5rem; position:relative;">
+                                        <div style="position:absolute; left:-1.8rem; top:0; width:10px; height:10px; border-radius:50%; background:var(--accent-primary); border:2px solid var(--bg-secondary);"></div>
+                                        <span style="font-size:0.75rem; color:var(--text-secondary);">Just Now</span>
+                                        <h5 style="font-weight:700;">AI Analysis Completed</h5>
+                                    </div>
+                                    <div style="margin-bottom:1.5rem; position:relative;">
+                                        <div style="position:absolute; left:-1.8rem; top:0; width:10px; height:10px; border-radius:50%; background:var(--success); border:2px solid var(--bg-secondary);"></div>
+                                        <span style="font-size:0.75rem; color:var(--text-secondary);">2 mins ago</span>
+                                        <h5 style="font-weight:700;">Match Started (U17 League)</h5>
+                                    </div>
+                                    <div style="position:relative;">
+                                        <div style="position:absolute; left:-1.8rem; top:0; width:10px; height:10px; border-radius:50%; background:var(--warning); border:2px solid var(--bg-secondary);"></div>
+                                        <span style="font-size:0.75rem; color:var(--text-secondary);">15 mins ago</span>
+                                        <h5 style="font-weight:700;">New Academy Registration</h5>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="card">
-                            <label class="section-tag" style="margin-bottom: 0.5rem;">Academy Hubs</label>
-                            <div class="stat-value">124</div>
-                        </div>
-                        <div class="card">
-                            <label class="section-tag" style="margin-bottom: 0.5rem;">Active Players</label>
-                            <div class="stat-value" id="total-players">4,281</div>
-                        </div>
-                        <div class="card">
-                            <label class="section-tag" style="margin-bottom: 0.5rem;">Live Matches</label>
-                            <div class="stat-value" style="color: var(--accent-secondary);">08</div>
+
+                        <div>
+                            <span class="section-tag">Football Development Snapshot</span>
+                            <div class="card" style="padding:1.5rem;">
+                                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                                    <span style="font-size:0.9rem;font-weight:700;">Youth Participation Growth</span>
+                                    <span style="color:var(--success);font-weight:900;">+24%</span>
+                                </div>
+                                <div style="display:flex; justify-content:space-between; align-items:center;">
+                                    <span style="font-size:0.9rem;font-weight:700;">Most Active Province</span>
+                                    <span style="color:var(--accent-secondary);font-weight:900;">Kigali</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <div style="margin-top: 3rem;">
-                        <span class="section-tag">Active National Operations</span>
-                        <div class="card" style="padding: 0; overflow: hidden;">
-                            <table style="width: 100%; border-collapse: collapse;">
-                                <thead style="background: var(--bg-tertiary);">
-                                    <tr>
-                                        <th style="padding: 1.5rem; text-align: left; font-size: 0.7rem; font-weight: 800; color: var(--text-secondary);">INSTITUTION</th>
-                                        <th style="padding: 1.5rem; text-align: left; font-size: 0.7rem; font-weight: 800; color: var(--text-secondary);">LOCATION</th>
-                                        <th style="padding: 1.5rem; text-align: left; font-size: 0.7rem; font-weight: 800; color: var(--text-secondary);">STATUS</th>
-                                        <th style="padding: 1.5rem; text-align: left; font-size: 0.7rem; font-weight: 800; color: var(--text-secondary);">ACTION</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="national-ops-list">
-                                    <!-- Populated by JS -->
-                                </tbody>
-                            </table>
+                    <!-- Column 2 -->
+                    <div style="display:flex;flex-direction:column;gap:2rem;">
+                        <div>
+                            <span class="section-tag">User & System Monitoring</span>
+                            <div class="card" style="padding:2rem;">
+                                <div style="display:flex;align-items:center;gap:1.25rem;margin-bottom:1.5rem;">
+                                    <div style="width:48px;height:48px;border-radius:50%;background:rgba(16,185,129,0.1);display:flex;align-items:center;justify-content:center;color:var(--success);font-size:1.25rem;"><i data-lucide="server"></i></div>
+                                    <div>
+                                        <div style="font-weight:800;font-size:1rem;">AI Node Health</div>
+                                        <div style="font-size:0.8rem;color:var(--text-secondary);">15/15 Active • No latency</div>
+                                    </div>
+                                </div>
+                                <div style="display:flex;align-items:center;gap:1.25rem;">
+                                    <div style="width:48px;height:48px;border-radius:50%;background:rgba(22,163,74,0.1);display:flex;align-items:center;justify-content:center;color:var(--accent-primary);font-size:1.25rem;"><i data-lucide="user"></i></div>
+                                    <div>
+                                        <div style="font-weight:800;font-size:1rem;">Online Institutions</div>
+                                        <div style="font-size:0.8rem;color:var(--text-secondary);">22 Clubs • 45 Academies logging telemetry</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <span class="section-tag">Young Talent Snapshot</span>
+                            <div class="card" style="padding:1.5rem;">
+                                <div style="display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--border); padding-bottom:1rem; margin-bottom:1rem;">
+                                    <div>
+                                        <div style="font-weight:800;font-size:1rem;">Kwizera Jean</div>
+                                        <div style="font-size:0.75rem;color:var(--text-secondary);">U17 • Forward • Intare FA</div>
+                                    </div>
+                                    <div style="text-align:right;">
+                                        <div style="font-weight:900;color:var(--accent-primary);font-size:1.2rem;">9.2</div>
+                                        <div style="font-size:0.7rem;color:var(--success);">+12% Growth</div>
+                                    </div>
+                                </div>
+                                <div style="display:flex; align-items:center; justify-content:space-between;">
+                                    <div>
+                                        <div style="font-weight:800;font-size:1rem;">Hakizimana Eric</div>
+                                        <div style="font-size:0.75rem;color:var(--text-secondary);">U15 • Midfielder • APR Academy</div>
+                                    </div>
+                                    <div style="text-align:right;">
+                                        <div style="font-weight:900;color:var(--accent-primary);font-size:1.2rem;">8.8</div>
+                                        <div style="font-size:0.7rem;color:var(--success);">+15% Growth</div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </section>
+                </div>
+            </section>
 
-                <!-- Additional Panes ... -->
+            <!-- PENDING APPROVALS PANE -->
+            <section id="pending" class="tab-pane">
+                <span class="section-tag">Registration Queue — Awaiting FERWAFA Decision</span>
+                <div class="card" style="padding:0;overflow:hidden;">
+                    <table>
+                        <thead><tr>
+                            <th>INSTITUTION</th><th>TYPE</th><th>PROVINCE / DISTRICT</th><th>EMAIL</th><th>SUBMITTED</th><th>ACTIONS</th>
+                        </tr></thead>
+                        <tbody id="pending-list">
+                            <tr><td colspan="6"><div class="empty-state"><span class="spinner"></span></div></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
 
-            </div>
-        </main>
+            <!-- INSTITUTIONS PANE -->
+            <section id="institutions" class="tab-pane">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem;">
+                    <span class="section-tag" style="margin-bottom:0;">All Registered Institutions</span>
+                    <div style="display:flex;gap:1rem;">
+                        <select id="filter-type" class="btn btn-outline" style="cursor:pointer;" onchange="loadInstitutions()">
+                            <option value="">All Types</option>
+                            <option value="club">Clubs</option>
+                            <option value="academy">Academies</option>
+                            <option value="school">Schools</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="card" style="padding:0;overflow:hidden;">
+                    <table>
+                        <thead><tr>
+                            <th>NAME</th><th>CODE</th><th>TYPE</th><th>DISTRICT</th><th>STATUS</th><th>ACTIONS</th>
+                        </tr></thead>
+                        <tbody id="institutions-list">
+                            <tr><td colspan="6"><div class="empty-state"><span class="spinner"></span></div></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
 
+            <!-- PLAYERS DATABASE PANE -->
+            <section id="players" class="tab-pane">
+                <span class="section-tag">National Players Database</span>
+                <div class="dashboard-grid">
+                    <div class="card">
+                        <label class="section-tag" style="margin-bottom:0.5rem;">Total Players</label>
+                        <div class="stat-value" id="talent-total">—</div>
+                    </div>
+                    <div class="card">
+                        <label class="section-tag" style="margin-bottom:0.5rem;">Elite Prospects</label>
+                        <div class="stat-value" style="color:var(--accent-secondary);" id="talent-elite">—</div>
+                    </div>
+                </div>
+                <div style="margin-top:3rem;">
+                    <span class="section-tag">Top Talent by Score</span>
+                    <div class="card" style="padding:0;overflow:hidden;">
+                        <table>
+                            <thead><tr>
+                                <th>PLAYER</th><th>POSITION</th><th>INSTITUTION</th><th>TALENT SCORE</th><th>ELITE</th>
+                            </tr></thead>
+                            <tbody id="talent-list">
+                                <tr><td colspan="5"><div class="empty-state"><span class="spinner"></span></div></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- YOUNG TALENTS PANE -->
+            <section id="young-talents" class="tab-pane">
+                <span class="section-tag">Youth Development Monitoring</span>
+                <div class="dashboard-grid">
+                    <div class="card" style="display:flex; flex-direction:column; align-items:center; text-align:center;">
+                        <i data-lucide="user" style="font-size:3rem; color:var(--accent-primary); margin-bottom:1rem;"></i>
+                        <h4 style="font-weight:800;">Kwizera Jean</h4>
+                        <span style="font-size:0.8rem; color:var(--text-secondary); margin-bottom:1rem;">U17 • Forward • Intare FA</span>
+                        <div style="width:100%; display:flex; justify-content:space-between; font-size:0.8rem; border-top:1px solid var(--border); padding-top:0.5rem;">
+                            <span>Growth: <span style="color:var(--success);">+12%</span></span>
+                            <span>Score: <strong>9.2</strong></span>
+                        </div>
+                    </div>
+                    <div class="card" style="display:flex; flex-direction:column; align-items:center; text-align:center;">
+                        <i data-lucide="user" style="font-size:3rem; color:var(--accent-primary); margin-bottom:1rem;"></i>
+                        <h4 style="font-weight:800;">Hakizimana Eric</h4>
+                        <span style="font-size:0.8rem; color:var(--text-secondary); margin-bottom:1rem;">U15 • Midfielder • APR Academy</span>
+                        <div style="width:100%; display:flex; justify-content:space-between; font-size:0.8rem; border-top:1px solid var(--border); padding-top:0.5rem;">
+                            <span>Growth: <span style="color:var(--success);">+15%</span></span>
+                            <span>Score: <strong>8.8</strong></span>
+                        </div>
+                    </div>
+                    <div class="card" style="display:flex; flex-direction:column; align-items:center; text-align:center;">
+                        <i data-lucide="user" style="font-size:3rem; color:var(--accent-primary); margin-bottom:1rem;"></i>
+                        <h4 style="font-weight:800;">Niyonzima Claude</h4>
+                        <span style="font-size:0.8rem; color:var(--text-secondary); margin-bottom:1rem;">U17 • Defender • Heroes FC</span>
+                        <div style="width:100%; display:flex; justify-content:space-between; font-size:0.8rem; border-top:1px solid var(--border); padding-top:0.5rem;">
+                            <span>Growth: <span style="color:var(--success);">+8%</span></span>
+                            <span>Score: <strong>8.5</strong></span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TOURNAMENTS PANE -->
+            <section id="tournaments" class="tab-pane">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem;">
+                    <span class="section-tag" style="margin-bottom:0;">National Competitions</span>
+                    <button class="btn btn-primary btn-sm"><i data-lucide="plus"></i> New Tournament</button>
+                </div>
+                <div class="card" style="padding:0;overflow:hidden;">
+                    <table>
+                        <thead><tr>
+                            <th>COMPETITION</th><th>CATEGORY</th><th>TEAMS</th><th>STATUS</th><th>PROGRESS</th>
+                        </tr></thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>National Youth League U17</strong><br><small style="color:var(--text-secondary);">Kigali Region</small></td>
+                                <td><span class="badge" style="background:rgba(16,185,129,0.1);color:var(--success);border:1px solid var(--success);">Youth</span></td>
+                                <td>16</td>
+                                <td><span class="badge" style="background:rgba(22,163,74,0.1);color:var(--accent-primary);border:1px solid var(--accent-primary);">Active</span></td>
+                                <td>
+                                    <div style="width:100px;height:6px;background:var(--bg-tertiary);border-radius:3px;">
+                                        <div style="width:45%;height:100%;background:var(--accent-primary);border-radius:3px;"></div>
+                                    </div>
+                                    <span style="font-size:0.7rem;color:var(--text-secondary);">Matchday 7/15</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Inter-School Championship</strong><br><small style="color:var(--text-secondary);">National</small></td>
+                                <td><span class="badge" style="background:rgba(245,158,11,0.1);color:var(--warning);border:1px solid var(--warning);">School</span></td>
+                                <td>32</td>
+                                <td><span class="badge" style="background:rgba(22,163,74,0.1);color:var(--accent-primary);border:1px solid var(--accent-primary);">Active</span></td>
+                                <td>
+                                    <div style="width:100px;height:6px;background:var(--bg-tertiary);border-radius:3px;">
+                                        <div style="width:15%;height:100%;background:var(--accent-primary);border-radius:3px;"></div>
+                                    </div>
+                                    <span style="font-size:0.7rem;color:var(--text-secondary);">Group Stages</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- LIVE MATCHES PANE -->
+            <section id="live-matches" class="tab-pane">
+                <span class="section-tag">Live Match Monitoring</span>
+                <div class="dashboard-grid">
+                    <div class="card" style="position:relative; overflow:hidden;">
+                        <div style="position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg, var(--danger), #ef4444);"></div>
+                        <div style="display:flex; justify-content:space-between; margin-bottom:1.5rem;">
+                            <span class="badge" style="background:rgba(239,68,68,0.1);color:var(--danger);border:1px solid var(--danger);"><i data-lucide="circle" style="font-size:0.5rem;margin-right:5px;animation: pulse 1.5s infinite;"></i> LIVE</span>
+                            <span style="font-weight:800; color:var(--danger);">67'</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                            <h3 style="font-size:1.25rem; font-weight:900;">APR FC</h3>
+                            <h2 style="font-size:2rem; font-weight:900; color:var(--text-primary);">2</h2>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
+                            <h3 style="font-size:1.25rem; font-weight:900;">Rayon Sports</h3>
+                            <h2 style="font-size:2rem; font-weight:900; color:var(--text-primary);">1</h2>
+                        </div>
+                        <button class="btn btn-outline" style="width:100%; justify-content:center;" onclick="window.location.href='../match/match_control.html'"><i data-lucide="satellite"></i> Open Match Detail</button>
+                    </div>
+
+                    <div class="card" style="position:relative; overflow:hidden;">
+                        <div style="position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg, var(--danger), #ef4444);"></div>
+                        <div style="display:flex; justify-content:space-between; margin-bottom:1.5rem;">
+                            <span class="badge" style="background:rgba(239,68,68,0.1);color:var(--danger);border:1px solid var(--danger);"><i data-lucide="circle" style="font-size:0.5rem;margin-right:5px;animation: pulse 1.5s infinite;"></i> LIVE</span>
+                            <span style="font-weight:800; color:var(--danger);">34'</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                            <h3 style="font-size:1.25rem; font-weight:900;">Police FC</h3>
+                            <h2 style="font-size:2rem; font-weight:900; color:var(--text-primary);">0</h2>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
+                            <h3 style="font-size:1.25rem; font-weight:900;">Kiyovu</h3>
+                            <h2 style="font-size:2rem; font-weight:900; color:var(--text-primary);">0</h2>
+                        </div>
+                        <button class="btn btn-outline" style="width:100%; justify-content:center;" onclick="window.location.href='../match/match_control.html'"><i data-lucide="satellite"></i> Open Match Detail</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- DEVELOPMENT PANE -->
+            <section id="development" class="tab-pane">
+                <span class="section-tag">Strategic Football Growth</span>
+                <div class="dashboard-grid" style="margin-bottom:2rem;">
+                    <div class="card stat-card-mini">
+                        <i data-lucide="trending-up" style="font-size:2rem;color:var(--success);margin-bottom:1rem;"></i>
+                        <div class="val" style="color:var(--success);">+24%</div>
+                        <div class="lbl">Youth Participation Growth (YTD)</div>
+                    </div>
+                    <div class="card stat-card-mini">
+                        <i data-lucide="map-pin" style="font-size:2rem;color:var(--accent-secondary);margin-bottom:1rem;"></i>
+                        <div class="val">Kigali</div>
+                        <div class="lbl">Most Active Province</div>
+                    </div>
+                    <div class="card stat-card-mini">
+                        <i data-lucide="graduation-cap" style="font-size:2rem;color:var(--accent-primary);margin-bottom:1rem;"></i>
+                        <div class="val">142</div>
+                        <div class="lbl">Registered Academies</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- REPORTS PANE -->
+            <section id="reports" class="tab-pane">
+                <span class="section-tag">Executive Intelligence</span>
+                <div class="dashboard-grid">
+                    <div class="card" style="display:flex;align-items:center;gap:1.5rem;">
+                        <i data-lucide="file" style="font-size:2.5rem;color:var(--danger);"></i>
+                        <div>
+                            <h4 style="font-weight:700;">Monthly Academy Growth</h4>
+                            <p style="font-size:0.8rem;color:var(--text-secondary);">Generated May 2026</p>
+                            <button class="btn-sm" style="margin-top:0.5rem;background:rgba(255,255,255,0.05);color:#fff;border:1px solid var(--border);">Download PDF</button>
+                        </div>
+                    </div>
+                    <div class="card" style="display:flex;align-items:center;gap:1.5rem;">
+                        <i data-lucide="file" style="font-size:2.5rem;color:var(--success);"></i>
+                        <div>
+                            <h4 style="font-weight:700;">National Talent Export</h4>
+                            <p style="font-size:0.8rem;color:var(--text-secondary);">Q1 2026 Analytics</p>
+                            <button class="btn-sm" style="margin-top:0.5rem;background:rgba(255,255,255,0.05);color:#fff;border:1px solid var(--border);">Download CSV</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- EVENTS PANE -->
+            <section id="events" class="tab-pane">
+                <span class="section-tag">Live Operations Feed</span>
+                <div class="card">
+                    <div style="border-left:2px solid var(--border); margin-left:1rem; padding-left:1.5rem; position:relative;">
+                        <div style="margin-bottom:1.5rem; position:relative;">
+                            <div style="position:absolute; left:-1.8rem; top:0; width:10px; height:10px; border-radius:50%; background:var(--accent-primary); border:2px solid var(--bg-secondary);"></div>
+                            <span style="font-size:0.75rem; color:var(--text-secondary);">Just Now</span>
+                            <h4 style="font-weight:700;">AI Analysis Completed</h4>
+                            <p style="font-size:0.85rem; color:var(--text-secondary);">Match: Intare FA vs Heroes FC. Tactical insights generated.</p>
+                        </div>
+                        <div style="margin-bottom:1.5rem; position:relative;">
+                            <div style="position:absolute; left:-1.8rem; top:0; width:10px; height:10px; border-radius:50%; background:var(--success); border:2px solid var(--bg-secondary);"></div>
+                            <span style="font-size:0.75rem; color:var(--text-secondary);">2 mins ago</span>
+                            <h4 style="font-weight:700;">Match Started</h4>
+                            <p style="font-size:0.85rem; color:var(--text-secondary);">National Youth League U17 Matchday 7 kickoff.</p>
+                        </div>
+                        <div style="position:relative;">
+                            <div style="position:absolute; left:-1.8rem; top:0; width:10px; height:10px; border-radius:50%; background:var(--warning); border:2px solid var(--bg-secondary);"></div>
+                            <span style="font-size:0.75rem; color:var(--text-secondary);">15 mins ago</span>
+                            <h4 style="font-weight:700;">New Academy Registration</h4>
+                            <p style="font-size:0.85rem; color:var(--text-secondary);">Kigali Talent School submitted registration for review.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- NOTIFICATIONS PANE -->
+            <section id="notifications" class="tab-pane">
+                <span class="section-tag">Federation Alerts</span>
+                <div class="card" style="padding:0;overflow:hidden;">
+                    <table>
+                        <tbody>
+                            <tr>
+                                <td style="width:50px;text-align:center;"><i data-lucide="triangle" style="color:var(--warning);"></i></td>
+                                <td><strong>System Update</strong><br><span style="font-size:0.8rem;color:var(--text-secondary);">Database maintenance scheduled for 02:00 AM CAT.</span></td>
+                                <td style="text-align:right;"><span style="font-size:0.7rem;color:var(--text-secondary);">2h ago</span></td>
+                            </tr>
+                            <tr>
+                                <td style="width:50px;text-align:center;"><i data-lucide="circle" style="color:var(--success);"></i></td>
+                                <td><strong>API Health Normal</strong><br><span style="font-size:0.8rem;color:var(--text-secondary);">All 15 AI pitch nodes are fully operational and connected.</span></td>
+                                <td style="text-align:right;"><span style="font-size:0.7rem;color:var(--text-secondary);">5h ago</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- SECURITY PANE -->
+            <section id="security" class="tab-pane">
+                <span class="section-tag">System Integrity</span>
+                <div class="dashboard-grid">
+                    <div class="card stat-card-mini">
+                        <i data-lucide="shield-half" style="font-size:2rem;color:var(--success);margin-bottom:1rem;"></i>
+                        <div class="val" style="font-size:1.5rem;color:var(--success);">SECURE</div>
+                        <div class="lbl">Overall System Status</div>
+                    </div>
+                    <div class="card stat-card-mini">
+                        <i data-lucide="user" style="font-size:2rem;color:var(--accent-primary);margin-bottom:1rem;"></i>
+                        <div class="val">14</div>
+                        <div class="lbl">Active Admin Sessions</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SETTINGS PANE -->
+            <section id="settings" class="tab-pane">
+                <span class="section-tag">System Configuration</span>
+                <div class="empty-state">
+                    <i data-lucide="settings" style="font-size:4rem;color:var(--text-secondary);opacity:0.5;"></i>
+                    <h3 style="margin-top:1rem;">Global Settings</h3>
+                    <p style="color:var(--text-secondary);margin-top:0.5rem;">Platform configurations and environment variables.</p>
+                </div>
+            </section>
+
+        </div>
+    </main>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="modal-overlay" id="detail-modal">
+    <div class="modal-box">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;">
+            <h2 id="modal-title">Institution Details</h2>
+            <button onclick="closeModal()" style="background:none;border:none;color:var(--text-secondary);font-size:1.5rem;cursor:pointer;">&times;</button>
+        </div>
+        <div id="modal-body"></div>
+        <div style="display:flex;gap:1rem;margin-top:2rem;" id="modal-actions"></div>
     </div>
+</div>
 
-    <script>
-        function showPane(paneId) {
-            document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            
-            const target = document.getElementById(paneId);
-            if (target) {
-                target.classList.add('active');
-                document.getElementById('pane-title').innerText = paneId.replace('-', ' ').toUpperCase();
-                document.querySelector(`.nav-item[onclick*="${paneId}"]`).classList.add('active');
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+    const token = localStorage.getItem('access_token');
+    if (!token) window.location.href = '/login.html';
+
+    document.getElementById('header-user').textContent = localStorage.getItem('full_name') || 'FERWAFA HQ';
+
+    function showPane(id, type = null) {
+        document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        
+        const pane = document.getElementById(id);
+        if (pane) pane.classList.add('active');
+        
+        // Handle nav highlighting for subtypes
+        let navId = 'nav-' + id;
+        if (id === 'institutions' && type) {
+            navId = 'nav-' + type + 's'; // e.g., nav-clubs
+        }
+        const nav = document.getElementById(navId);
+        if (nav) nav.classList.add('active');
+        
+        // Handle titles and loads
+        let title = id.replace('-', ' ').toUpperCase();
+        if (id === 'institutions' && type) title = type.toUpperCase() + 'S';
+        document.getElementById('pane-title').textContent = title;
+        
+        if (id === 'pending') loadPending();
+        if (id === 'institutions') {
+            const filterEl = document.getElementById('filter-type');
+            if (filterEl) filterEl.value = type || '';
+            loadInstitutions();
+        }
+        if (id === 'players') loadTalent();
+    }
+
+    function logout() { localStorage.clear(); window.location.href = '/login.html'; }
+
+    function toast(msg, type = 'success') {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.className = `toast toast-${type}`;
+        t.style.display = 'block';
+        setTimeout(() => { t.style.display = 'none'; }, 3500);
+    }
+
+    function closeModal() {
+        document.getElementById('detail-modal').classList.remove('open');
+    }
+
+    function typeBadge(type) {
+        const colors = { club: '#16A34A', academy: '#CA8A04', school: '#10b981' };
+        const c = colors[type] || '#94a3b8';
+        return `<span style="background:${c}22;color:${c};border:1px solid ${c};padding:3px 10px;border-radius:20px;font-size:0.7rem;font-weight:800;text-transform:uppercase;">${type}</span>`;
+    }
+
+    function statusBadge(status) {
+        const map = { APPROVED: 'approved', PENDING: 'pending', REJECTED: 'rejected' };
+        return `<span class="badge-${map[status] || 'pending'}">${status}</span>`;
+    }
+
+    // ===================== OVERVIEW =====================
+    async function loadOverview() {
+        try {
+            // 1. Load institutions for KPIs
+            const res = await fetch('/api/ferwafa/entities', { headers: { Authorization: `Bearer ${token}` } });
+            if (res.ok) {
+                const data = await res.json();
+                document.getElementById('kpi-clubs').textContent = data.filter(d => d.type === 'club').length;
+                document.getElementById('kpi-academies').textContent = data.filter(d => d.type === 'academy').length;
+                document.getElementById('kpi-schools').textContent = data.filter(d => d.type === 'school').length;
             }
+
+            // 2. Load pending count + badge
+            const pRes = await fetch('/api/ferwafa/entities/pending', { headers: { Authorization: `Bearer ${token}` } });
+            if (pRes.ok) {
+                const pending = await pRes.json();
+                document.getElementById('kpi-pending').textContent = pending.length;
+                if (pending.length > 0) {
+                    const badge = document.getElementById('pending-badge');
+                    badge.textContent = pending.length;
+                    badge.style.display = 'inline-flex';
+                }
+            }
+
+            // 3. Load total players
+            const plRes = await fetch('/api/players/', { headers: { Authorization: `Bearer ${token}` } });
+            if (plRes.ok) {
+                const players = await plRes.json();
+                const pList = Array.isArray(players) ? players : [];
+                document.getElementById('kpi-players').textContent = pList.length.toLocaleString();
+            }
+
+            // 4. Load matches count
+            const mRes = await fetch('/api/ferwafa/fixtures/all', { headers: { Authorization: `Bearer ${token}` } });
+            if (mRes.ok) {
+                const matches = await mRes.json();
+                document.getElementById('kpi-matches').textContent = Array.isArray(matches) ? matches.length : 0;
+            }
+
+            // 5. Load tournaments count
+            const tRes = await fetch('/api/ferwafa/competitions/all', { headers: { Authorization: `Bearer ${token}` } });
+            if (tRes.ok) {
+                const comps = await tRes.json();
+                document.getElementById('kpi-tournaments').textContent = Array.isArray(comps) ? comps.length : 0;
+            }
+
+            // 6. Load users count
+            const uRes = await fetch('/api/ferwafa/users/universal', { headers: { Authorization: `Bearer ${token}` } });
+            if (uRes.ok) {
+                const users = await uRes.json();
+                document.getElementById('kpi-users').textContent = Array.isArray(users) ? users.length : 0;
+            }
+        } catch (e) {
+            console.error('Overview load error:', e);
         }
+    }
 
-        async function loadOverview() {
-            // Load national stats
+    // ===================== PENDING =====================
+    async function loadPending() {
+        const tbody = document.getElementById('pending-list');
+        tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><span class="spinner"></span></div></td></tr>`;
+        const res = await fetch('/api/ferwafa/entities/pending', { headers: { Authorization: `Bearer ${token}` } });
+        if (!res.ok) {
+            tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state">Failed to load pending registrations.</div></td></tr>`;
+            return;
         }
+        const data = await res.json();
+        if (!data.length) {
+            tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><i data-lucide="circle"></i>All clear! No pending registrations.</div></td></tr>`;
+            return;
+        }
+        tbody.innerHTML = data.map(d => `
+            <tr id="row-${d.id}">
+                <td><strong>${d.name}</strong><br><small style="color:var(--text-secondary);">${d.code || ''}</small></td>
+                <td>${typeBadge(d.type)}</td>
+                <td style="color:var(--text-secondary);">${d.province || '—'} / ${d.district || '—'}</td>
+                <td style="color:var(--text-secondary);font-size:0.8rem;">${d.contact || '—'}</td>
+                <td style="color:var(--text-secondary);font-size:0.8rem;">#${d.id}</td>
+                <td>
+                    <div class="action-btns">
+                        <button class="btn-sm btn-approve" onclick="updateStatus(${d.id},'APPROVED','${d.name}')">
+                            <i data-lucide="check"></i> Approve
+                        </button>
+                        <button class="btn-sm btn-info" onclick="viewDetails(${d.id})">
+                            <i data-lucide="eye"></i> Review Data
+                        </button>
+                        <button class="btn-sm btn-reject" onclick="updateStatus(${d.id},'REJECTED','${d.name}')">
+                            <i data-lucide="x"></i> Reject
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `).join('');
+    }
 
-        function logout() { localStorage.clear(); window.location.href = '/login.html'; }
+    async function updateStatus(id, status, name) {
+        if (!confirm(`Set "${name}" to ${status}?`)) return;
+        const res = await fetch(`/api/ferwafa/entities/${id}/status`, {
+            method: 'PUT',
+            headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            toast(data.message || `${name} → ${status}`, 'success');
+            if (status === 'APPROVED' && data.raw_api_key) {
+                setTimeout(() => alert(`API KEY GENERATED:\n\n${data.raw_api_key}\n\nStore this securely. It will not be shown again.`), 500);
+            }
+            const row = document.getElementById(`row-${id}`);
+            if (row) row.remove();
+            loadOverview();
+        } else {
+            toast(data.detail || 'Action failed', 'error');
+        }
+    }
 
-        showPane('overview');
-    </script>
+    async function viewDetails(id) {
+        const res = await fetch(`/api/ferwafa/entities/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+        if (!res.ok) return toast('Failed to fetch details', 'error');
+        const d = await res.json();
+        
+        document.getElementById('modal-title').textContent = `Review Registration: ${d.name}`;
+        
+        const body = document.getElementById('modal-body');
+        body.innerHTML = `
+            <div class="detail-row"><span class="lbl">Institution Name</span><span>${d.name}</span></div>
+            <div class="detail-row"><span class="lbl">Type</span><span>${typeBadge(d.type)}</span></div>
+            <div class="detail-row"><span class="lbl">Code</span><span style="font-family:monospace;">${d.code || 'N/A'}</span></div>
+            <div class="detail-row"><span class="lbl">Admin Name</span><span>${d.admin_name || 'N/A'}</span></div>
+            <div class="detail-row"><span class="lbl">Admin Email</span><span>${d.admin_email || 'N/A'}</span></div>
+            <div class="detail-row"><span class="lbl">Contact Phone</span><span>${d.contact || 'N/A'}</span></div>
+            <div class="detail-row"><span class="lbl">Province</span><span>${d.province || 'N/A'}</span></div>
+            <div class="detail-row"><span class="lbl">District</span><span>${d.district || 'N/A'}</span></div>
+            <div class="detail-row"><span class="lbl">Sector</span><span>${d.sector || 'N/A'}</span></div>
+            <div class="detail-row"><span class="lbl">Stadium/Venue</span><span>${d.stadium_name || 'N/A'}</span></div>
+            <div class="detail-row"><span class="lbl">Current Status</span><span>${statusBadge(d.status)}</span></div>
+        `;
+        
+        const actions = document.getElementById('modal-actions');
+        if (d.status === 'PENDING') {
+            actions.innerHTML = `
+                <button class="btn btn-primary" style="flex:1;" onclick="updateStatus(${d.id},'APPROVED','${d.name}');closeModal();"><i data-lucide="check"></i> Approve</button>
+                <button class="btn btn-outline" style="flex:1;border-color:var(--danger);color:var(--danger);" onclick="updateStatus(${d.id},'REJECTED','${d.name}');closeModal();"><i data-lucide="x"></i> Reject</button>
+            `;
+        } else {
+            actions.innerHTML = `<button class="btn btn-outline" style="width:100%;" onclick="closeModal()">Close</button>`;
+        }
+        
+        document.getElementById('detail-modal').classList.add('open');
+    }
+
+    // ===================== INSTITUTIONS =====================
+    async function loadInstitutions() {
+        const tbody = document.getElementById('institutions-list');
+        tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><span class="spinner"></span></div></td></tr>`;
+        const type = document.getElementById('filter-type').value;
+        const url = type ? `/api/ferwafa/entities?type=${type}` : '/api/ferwafa/entities';
+        const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+        if (!res.ok) {
+            tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state">Failed to load.</div></td></tr>`;
+            return;
+        }
+        const data = await res.json();
+        if (!data.length) {
+            tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><i data-lucide="building"></i>No institutions found.</div></td></tr>`;
+            return;
+        }
+        tbody.innerHTML = data.map(d => `
+            <tr>
+                <td><strong>${d.name}</strong></td>
+                <td style="color:var(--text-secondary);font-family:monospace;">${d.code || '—'}</td>
+                <td>${typeBadge(d.type)}</td>
+                <td style="color:var(--text-secondary);">${d.district || '—'}</td>
+                <td>${statusBadge(d.status || 'APPROVED')}</td>
+                <td>
+                    <div class="action-btns" style="display: flex; gap: 0.5rem;">
+                        <button class="btn-sm" style="background:rgba(22,163,74,0.1);color:var(--accent-primary);border:1px solid var(--accent-primary);" onclick="toggleActive(${d.id}, '${d.name}')">
+                            <i data-lucide="power"></i> Toggle
+                        </button>
+                        <button class="btn-sm" style="background:rgba(239,68,68,0.1);color:var(--danger);border:1px solid var(--danger);" onclick="deleteInstitution(${d.id}, '${d.name}')">
+                            <i data-lucide="trash"></i> Delete
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    async function toggleActive(id, name) {
+        if (!confirm(`Toggle active status for "${name}"?`)) return;
+        const res = await fetch(`/api/ferwafa/entities/${id}/toggle-status`, {
+            method: 'PUT',
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (res.ok) {
+            toast(data.message, 'success');
+            loadInstitutions();
+        } else {
+            toast(data.detail || 'Failed', 'error');
+        }
+    }
+
+    async function deleteInstitution(id, name) {
+        if (!confirm(`WARNING: Are you sure you want to permanently delete "${name}"? This will disable all associated accounts.`)) return;
+        const res = await fetch(`/api/ferwafa/entities/${id}`, {
+            method: 'DELETE',
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (res.ok) {
+            toast(data.message || 'Institution deleted', 'success');
+            loadInstitutions();
+            loadOverview();
+        } else {
+            toast(data.detail || 'Deletion failed', 'error');
+        }
+    }
+
+    // ===================== TALENT =====================
+    async function loadTalent() {
+        try {
+            const res = await fetch('/api/players/', { headers: { Authorization: `Bearer ${token}` } });
+            if (!res.ok) {
+                document.getElementById('talent-list').innerHTML = `<tr><td colspan="5"><div class="empty-state">Failed to load players data.</div></td></tr>`;
+                return;
+            }
+            const data = await res.json();
+            const players = Array.isArray(data) ? data : (data.players || []);
+            document.getElementById('talent-total').textContent = players.length;
+            const elite = players.filter(p => p.is_elite_prospect).length;
+            document.getElementById('talent-elite').textContent = elite;
+            const sorted = [...players].sort((a, b) => (b.talent_score || 0) - (a.talent_score || 0)).slice(0, 20);
+            const tbody = document.getElementById('talent-list');
+            if (!sorted.length) {
+                tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><i data-lucide="user"></i>No players in registry.</div></td></tr>`;
+                return;
+            }
+            tbody.innerHTML = sorted.map(p => {
+                const instName = p.institution ? p.institution.name : (p.institution_name || '—');
+                return `
+                <tr>
+                    <td><strong>${p.name}</strong></td>
+                    <td style="color:var(--text-secondary);">${p.position || '—'}</td>
+                    <td style="color:var(--text-secondary);">${instName}</td>
+                    <td>
+                        <div style="display:flex;align-items:center;gap:0.75rem;">
+                            <div style="flex:1;height:6px;background:var(--bg-tertiary);border-radius:3px;">
+                                <div style="width:${Math.min((p.talent_score||0)*10,100)}%;height:100%;background:linear-gradient(90deg,var(--accent-primary),var(--accent-secondary));border-radius:3px;"></div>
+                            </div>
+                            <span style="font-weight:800;font-size:0.85rem;">${(p.talent_score||0).toFixed(1)}</span>
+                        </div>
+                    </td>
+                    <td>${p.is_elite_prospect ? '<span class="badge-approved">Elite</span>' : '<span style="color:var(--text-secondary);font-size:0.75rem;">Standard</span>'}</td>
+                </tr>
+            `}).join('');
+        } catch(e) {
+            console.error('Talent load error:', e);
+        }
+    }
+
+    // INIT
+    loadOverview();
+
+    // Carousel Auto-Switch Logic
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.carousel-slide');
+    if (slides.length > 0) {
+        setInterval(() => {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (currentSlide + 1) % slides.length;
+            slides[currentSlide].classList.add('active');
+        }, 5000);
+    }
+</script>
+    <script>lucide.createIcons();</script>
 </body>
 </html>

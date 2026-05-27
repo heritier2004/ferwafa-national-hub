@@ -3,150 +3,370 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elite Academy Hub | Football Intelligence Platform</title>
+    <title>Academy Hub | Football Intelligence Platform</title>
     <link rel="stylesheet" href="../../assets/css/style.css?v=2.0">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        .tab-pane { display: none; } .tab-pane.active { display: block; }
+        table { width: 100%; border-collapse: collapse; }
+        th { padding: 1rem 1.5rem; text-align: left; font-size: 0.7rem; font-weight: 800; color: var(--text-secondary); letter-spacing: 0.1em; background: var(--bg-tertiary); }
+        td { padding: 1.1rem 1.5rem; font-size: 0.875rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: rgba(22,163,74,0.03); }
+        .badge-pos { background: rgba(22,163,74,0.15); color: var(--accent-primary); border: 1px solid var(--accent-primary); padding: 3px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 800; }
+        .badge-elite { background: rgba(6,182,212,0.15); color: var(--accent-secondary); border: 1px solid var(--accent-secondary); padding: 3px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 800; }
+        .toast { position: fixed; bottom: 2rem; right: 2rem; padding: 1rem 2rem; border-radius: 12px; font-weight: 700; font-size: 0.875rem; z-index: 9999; display: none; }
+        .toast-success { background: var(--success); color: #fff; }
+        .toast-error { background: var(--danger); color: #fff; }
+        .score-bar { display: flex; align-items: center; gap: 0.75rem; }
+        .score-bar .bar { flex: 1; height: 6px; background: var(--bg-tertiary); border-radius: 3px; }
+        .score-bar .fill { height: 100%; background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary)); border-radius: 3px; }
+        .empty-state { text-align: center; padding: 4rem 2rem; color: var(--text-secondary); }
+        .empty-state i { font-size: 3rem; margin-bottom: 1rem; opacity: 0.3; display: block; }
+        .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.2); border-top-color: var(--accent-primary); border-radius: 50%; animation: spin 0.7s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .search-box { background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 10px; padding: 0.7rem 1.2rem; color: var(--text-primary); font-family: inherit; font-size: 0.875rem; width: 260px; }
+        .search-box:focus { outline: none; border-color: var(--accent-primary); }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+        .form-group label { display: block; font-size: 0.7rem; font-weight: 800; color: var(--text-secondary); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.1em; }
+        .form-group input, .form-group select { width: 100%; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 10px; padding: 0.9rem 1.2rem; color: var(--text-primary); font-family: inherit; font-size: 0.875rem; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--accent-primary); }
+        option { background: var(--bg-secondary); }
+    </style>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="/assets/js/api.js"></script>
 </head>
-<body class="theme-academy">
-    <div class="app-container">
-        
-        <!-- SIDEBAR -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <div class="logo">ACADEMY<span>HUB</span></div>
-                <div style="font-size: 0.65rem; color: var(--accent-secondary); font-weight: 800; letter-spacing: 0.1em; margin-top: 5px;">PROSPECT PIPELINE</div>
+<body>
+<div class="app-container">
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">ACADEMY<span>HUB</span></div>
+            <div style="font-size:0.65rem;color:var(--accent-secondary);font-weight:800;letter-spacing:0.1em;margin-top:5px;">PROSPECT PIPELINE</div>
+            <div style="margin-top:1.5rem;display:flex;align-items:center;gap:0.75rem;">
+                <div id="logo-wrap" style="width:40px;height:40px;border-radius:50%;background:var(--bg-tertiary);border:2px solid var(--accent-primary);overflow:hidden;flex-shrink:0;"></div>
+                <div>
+                    <div id="inst-name-sidebar" style="font-size:0.8rem;font-weight:800;"></div>
+                    <div style="font-size:0.65rem;color:var(--text-secondary);">ACADEMY</div>
+                </div>
             </div>
-            
-            <nav class="sidebar-nav">
-                <div class="nav-item active" onclick="showTab('overview')">
-                    <i class="fa-solid fa-gauge-high"></i>
-                    <span>Prospect Intelligence</span>
-                </div>
-                <div class="nav-item" onclick="showTab('players')">
-                    <i class="fa-solid fa-users"></i>
-                    <span>Academy Registry</span>
-                </div>
-                <div class="nav-item" onclick="showTab('match-control')">
-                    <i class="fa-solid fa-gamepad"></i>
-                    <span>Match Operations</span>
-                </div>
-                <div class="nav-item" onclick="showTab('settings')">
-                    <i class="fa-solid fa-gear"></i>
-                    <span>Settings</span>
-                </div>
-            </nav>
-            
-            <div style="padding: 2rem;">
-                <button class="btn btn-outline" style="width: 100%; border-color: var(--danger); color: var(--danger);" onclick="logout()">
-                    <i class="fa-solid fa-right-from-bracket"></i>
-                    <span>Logout</span>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-item active" id="nav-overview" onclick="showTab('overview')"><i data-lucide="gauge"></i><span>Prospect Intelligence</span></div>
+            <div class="nav-item" id="nav-players" onclick="showTab('players')"><i data-lucide="user"></i><span>Academy Registry</span></div>
+            <div class="nav-item" id="nav-matches" onclick="showTab('matches')"><i data-lucide="circle-dot"></i><span>Match History</span></div>
+            <div class="nav-item" onclick="window.location.href='../match/match_control.html'"><i data-lucide="gamepad"></i><span>Match Operations</span></div>
+            <div class="nav-item" id="nav-settings" onclick="showTab('settings')"><i data-lucide="settings"></i><span>Academy Settings</span></div>
+        </nav>
+        <div style="padding:2rem;">
+            <button class="btn btn-outline" style="width:100%;border-color:var(--danger);color:var(--danger);" onclick="logout()">
+                <i data-lucide="log-out"></i><span>Logout</span>
+            </button>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="topbar">
+            <div style="font-weight:900;letter-spacing:0.15em;" id="page-title">PROSPECT INTELLIGENCE</div>
+            <div style="display:flex;gap:1.5rem;align-items:center;">
+                <span id="inst-name" style="font-size:0.8rem;font-weight:800;color:var(--text-secondary);"></span>
+                <button class="btn btn-primary" onclick="window.location.href='../players/add_player.html'">
+                    <i data-lucide="plus"></i> NEW PROSPECT
                 </button>
             </div>
-        </aside>
+        </header>
 
-        <!-- MAIN -->
-        <main class="main-content">
-            <header class="topbar">
-                <div style="font-weight: 800; letter-spacing: 0.1em;" id="page-title">PROSPECT INTELLIGENCE</div>
-                <div style="display: flex; gap: 1.5rem; align-items: center;">
-                    <span id="inst-name" style="font-size: 0.8rem; font-weight: 800; color: var(--text-secondary);">LOADING...</span>
-                    <button class="btn btn-primary" onclick="window.location.href='../players/add_player.html'"><i class="fa-solid fa-plus"></i> NEW PROSPECT</button>
+        <div class="main-stage" id="main-stage">
+
+            <!-- OVERVIEW -->
+            <section id="overview" class="tab-pane active">
+                <span class="section-tag">Academy Performance Terminal</span>
+                <div class="dashboard-grid">
+                    <div class="card">
+                        <div style="color:var(--text-secondary);font-size:0.75rem;font-weight:800;margin-bottom:1rem;">TOTAL PROSPECTS</div>
+                        <div class="stat-value" id="kpi-total">—</div>
+                    </div>
+                    <div class="card">
+                        <div style="color:var(--text-secondary);font-size:0.75rem;font-weight:800;margin-bottom:1rem;">ELITE FLAGGED</div>
+                        <div class="stat-value" style="color:var(--accent-secondary);" id="kpi-elite">—</div>
+                    </div>
+                    <div class="card">
+                        <div style="color:var(--text-secondary);font-size:0.75rem;font-weight:800;margin-bottom:1rem;">AVG TALENT SCORE</div>
+                        <div class="stat-value" style="color:var(--accent-primary);" id="kpi-avg">—</div>
+                    </div>
+                    <div class="card">
+                        <div style="color:var(--text-secondary);font-size:0.75rem;font-weight:800;margin-bottom:1rem;">MATCHES PLAYED</div>
+                        <div class="stat-value" id="kpi-matches">—</div>
+                    </div>
                 </div>
-            </header>
 
-            <div class="main-stage" id="main-stage">
-                
-                <!-- OVERVIEW -->
-                <section id="overview" class="tab-pane active">
-                    <span class="section-tag">Academy Performance Terminal</span>
-                    <div class="dashboard-grid">
-                        <div class="card">
-                            <div style="color: var(--text-secondary); font-size: 0.75rem; font-weight: 800; margin-bottom: 1rem;">ELITE PROSPECTS</div>
-                            <div class="stat-value" id="total-prospects">--</div>
-                        </div>
-                        <div class="card">
-                            <div style="color: var(--text-secondary); font-size: 0.75rem; font-weight: 800; margin-bottom: 1rem;">SCOUTING VISIBILITY</div>
-                            <div class="stat-value" style="color: var(--success);">HIGH</div>
-                        </div>
-                        <div class="card">
-                            <div style="color: var(--text-secondary); font-size: 0.75rem; font-weight: 800; margin-bottom: 1rem;">AI TRAJECTORY</div>
-                            <div class="stat-value" style="color: var(--accent-primary);">OPTIMAL</div>
-                        </div>
+                <div style="margin-top:3rem;">
+                    <span class="section-tag">Top Prospects by AI Score</span>
+                    <div class="card" style="padding:0;overflow:hidden;">
+                        <table>
+                            <thead><tr>
+                                <th>#</th><th>PROSPECT</th><th>POSITION</th><th>AGE</th><th>AI TALENT SCORE</th><th>STATUS</th>
+                            </tr></thead>
+                            <tbody id="top-prospects">
+                                <tr><td colspan="6"><div class="empty-state"><span class="spinner"></span></div></td></tr>
+                            </tbody>
+                        </table>
                     </div>
-                </section>
+                </div>
+            </section>
 
-                <!-- PLAYERS -->
-                <section id="players" class="tab-pane">
-                    <span class="section-tag">Academy Prospect Registry</span>
-                    <div id="player-grid" class="dashboard-grid">
-                        <!-- Loaded via JS -->
+            <!-- REGISTRY -->
+            <section id="players" class="tab-pane">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem;">
+                    <span class="section-tag" style="margin-bottom:0;">Full Academy Registry</span>
+                    <input class="search-box" type="text" placeholder="Search prospect..." id="player-search" oninput="filterPlayers()">
+                </div>
+                <div class="card" style="padding:0;overflow:hidden;">
+                    <table>
+                        <thead><tr>
+                            <th>CODE</th><th>NAME</th><th>POSITION</th><th>AGE</th><th>NATIONALITY</th><th>TALENT SCORE</th><th>ELITE</th><th style="text-align:right;">ACTIONS</th>
+                        </tr></thead>
+                        <tbody id="players-table">
+                            <tr><td colspan="7"><div class="empty-state"><span class="spinner"></span></div></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- MATCH HISTORY -->
+            <section id="matches" class="tab-pane">
+                <span class="section-tag">Match History</span>
+                <div class="card" style="padding:0;overflow:hidden;">
+                    <table>
+                        <thead><tr>
+                            <th>DATE</th><th>COMPETITION</th><th>OPPONENT</th><th>RESULT</th><th>STATUS</th>
+                        </tr></thead>
+                        <tbody id="matches-table">
+                            <tr><td colspan="5"><div class="empty-state"><span class="spinner"></span></div></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- SETTINGS -->
+            <section id="settings" class="tab-pane">
+                <span class="section-tag">Academy Profile</span>
+                <div class="card" style="max-width:700px;">
+                    <div id="settings-info">
+                        <div class="empty-state"><span class="spinner"></span></div>
                     </div>
-                </section>
+                </div>
+            </section>
 
-                <!-- MATCH CONTROL -->
-                <section id="match-control" class="tab-pane" style="height: 100%; padding: 0;">
-                    <iframe id="mcc-iframe" src="about:blank" style="width: 100%; height: 100%; border: none;"></iframe>
-                </section>
+        </div>
+    </main>
+</div>
 
-            </div>
-        </main>
+<div class="toast" id="toast"></div>
 
-    </div>
+<script>
+    const token = localStorage.getItem('access_token');
+    if (!token) window.location.href = '/login.html';
+    const inst_id = localStorage.getItem('institution_id');
+    const instName = localStorage.getItem('institution_name') || 'ACADEMY';
+    document.getElementById('inst-name').textContent = instName;
+    document.getElementById('inst-name-sidebar').textContent = instName;
+    const logoUrl = localStorage.getItem('logo_url');
+    if (logoUrl && logoUrl !== 'null' && logoUrl !== 'undefined' && logoUrl.trim() !== '') {
+        document.getElementById('logo-wrap').innerHTML = `<img src="${logoUrl}" style="width:100%;height:100%;object-fit:cover;">`;
+    } else {
+        document.getElementById('logo-wrap').innerHTML = `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;"><i data-lucide="shield" style="width:20px;height:20px;color:var(--text-secondary);"></i></div>`;
+        lucide.createIcons();
+    }
 
-    <script>
-        const inst_id = localStorage.getItem('institution_id');
-        document.getElementById('inst-name').innerText = localStorage.getItem('institution_name') || 'AUTHORIZED ACADEMY';
+    let allPlayers = [];
 
-        function showTab(tabId) {
-            document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            
-            document.getElementById(tabId).classList.add('active');
-            document.getElementById('page-title').innerText = tabId.replace('-', ' ').toUpperCase();
-            
-            const stage = document.getElementById('main-stage');
-            if (tabId === 'match-control') {
-                stage.style.padding = '0';
-                initializeMatch();
-            } else {
-                stage.style.padding = '3rem';
+    function showTab(id) {
+        document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        const nav = document.getElementById('nav-' + id);
+        if (nav) nav.classList.add('active');
+        document.getElementById('page-title').textContent = id.replace('-', ' ').toUpperCase();
+        if (id === 'players') loadPlayers();
+        if (id === 'matches') loadMatches();
+        if (id === 'settings') loadSettings();
+    }
+
+    function toast(msg, type = 'success') {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.className = `toast toast-${type}`;
+        t.style.display = 'block';
+        setTimeout(() => t.style.display = 'none', 3500);
+    }
+
+    function logout() { localStorage.clear(); window.location.href = '/login.html'; }
+
+    async function loadOverview() {
+        if (!inst_id) return;
+        try {
+            const r = await fetch(`/api/ferwafa/players?institution_id=${inst_id}`, { headers: { Authorization: `Bearer ${token}` } });
+            if (!r.ok) return;
+            const players = await r.json();
+            const list = Array.isArray(players) ? players : (players.players || []);
+            allPlayers = list;
+            const elite = list.filter(p => p.is_elite_prospect).length;
+            const avg = list.length ? (list.reduce((s, p) => s + (p.talent_score || 0), 0) / list.length).toFixed(1) : '0.0';
+            document.getElementById('kpi-total').textContent = list.length;
+            document.getElementById('kpi-elite').textContent = elite;
+            document.getElementById('kpi-avg').textContent = avg;
+
+            const top = [...list].sort((a, b) => (b.talent_score || 0) - (a.talent_score || 0)).slice(0, 10);
+            const tbody = document.getElementById('top-prospects');
+            if (!top.length) {
+                tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><i data-lucide="user"></i>No prospects yet.</div></td></tr>`;
+                return;
             }
+            tbody.innerHTML = top.map((p, i) => `
+                <tr>
+                    <td style="color:var(--text-secondary);font-weight:800;">${i + 1}</td>
+                    <td><strong>${p.name}</strong><br><small style="color:var(--text-secondary);">${p.player_code}</small></td>
+                    <td><span class="badge-pos">${p.position || '—'}</span></td>
+                    <td style="color:var(--text-secondary);">${p.age || '—'}</td>
+                    <td>
+                        <div class="score-bar">
+                            <div class="bar"><div class="fill" style="width:${Math.min((p.talent_score||0)*10,100)}%"></div></div>
+                            <strong>${(p.talent_score || 0).toFixed(1)}</strong>
+                        </div>
+                    </td>
+                    <td>${p.is_elite_prospect ? '<span class="badge-elite">Elite</span>' : '<span style="color:var(--text-secondary);font-size:0.75rem;">Standard</span>'}</td>
+                </tr>
+            `).join('');
+        } catch (e) {}
 
-            if (tabId === 'players') loadPlayers();
+        // Match count
+        try {
+            const mr = await fetch(`/api/ferwafa/matches?institution_id=${inst_id}`, { headers: { Authorization: `Bearer ${token}` } });
+            if (mr.ok) {
+                const matches = await mr.json();
+                document.getElementById('kpi-matches').textContent = Array.isArray(matches) ? matches.length : '—';
+            }
+        } catch (e) { document.getElementById('kpi-matches').textContent = '—'; }
+    }
+
+    async function loadPlayers() {
+        if (allPlayers.length) { renderPlayers(allPlayers); return; }
+        try {
+            const r = await fetch(`/api/ferwafa/players?institution_id=${inst_id}`, { headers: { Authorization: `Bearer ${token}` } });
+            const data = await r.json();
+            allPlayers = Array.isArray(data) ? data : (data.players || []);
+            renderPlayers(allPlayers);
+        } catch (e) {
+            document.getElementById('players-table').innerHTML = `<tr><td colspan="7"><div class="empty-state">Failed to load.</div></td></tr>`;
         }
+    }
 
-        async function initializeMatch() {
-            const iframe = document.getElementById('mcc-iframe');
-            if (iframe.src !== 'about:blank') return;
-            
-            try {
-                const r = await fetch(`/api/matches/initialize/${inst_id}`, { method: 'POST' });
-                const d = await r.json();
-                if (d.match_id) {
-                    iframe.src = `../match/match_control.html?match_id=${d.match_id}&v=2.0`;
-                }
-            } catch (e) { console.error("MCC Init Failed", e); }
+    function renderPlayers(list) {
+        const tbody = document.getElementById('players-table');
+        if (!list.length) {
+            tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><i data-lucide="user"></i>No prospects registered yet.<br><br><button class="btn btn-primary" onclick="window.location.href='../players/add_player.html'"><i data-lucide="plus"></i> Add First Prospect</button></div></td></tr>`;
+            return;
         }
-
-        async function loadPlayers() {
-            const grid = document.getElementById('player-grid');
-            const token = localStorage.getItem('access_token');
-            try {
-                const r = await fetch(`/api/academy/players/${inst_id}`, { headers: {'Authorization': `Bearer ${token}`} });
-                const players = await r.json();
-                grid.innerHTML = players.map(p => `
-                    <div class="card" style="text-align: center; padding: 2rem;">
-                        <img src="${p.photo_url || '../../assets/img/default-player.png'}" style="width: 100px; height: 100px; border-radius: 50%; border: 2px solid var(--accent-primary); margin-bottom: 1.5rem; object-fit: cover;">
-                        <div style="font-weight: 800; font-size: 1rem;">${p.name}</div>
-                        <div style="color: var(--text-secondary); font-size: 0.7rem; font-weight: 800; margin-top: 0.5rem;">${p.player_code}</div>
+        tbody.innerHTML = list.map(p => `
+            <tr>
+                <td style="font-family:monospace;color:var(--text-secondary);font-size:0.8rem;">${p.player_code}</td>
+                <td><strong>${p.name}</strong></td>
+                <td><span class="badge-pos">${p.position || '—'}</span></td>
+                <td style="color:var(--text-secondary);">${p.age || '—'}</td>
+                <td style="color:var(--text-secondary);">${p.nationality || '—'}</td>
+                <td>
+                    <div class="score-bar">
+                        <div class="bar"><div class="fill" style="width:${Math.min((p.talent_score||0)*10,100)}%"></div></div>
+                        <span style="font-size:0.85rem;font-weight:800;">${(p.talent_score||0).toFixed(1)}</span>
                     </div>
-                `).join('');
-            } catch (e) {}
+                </td>
+                <td>${p.is_elite_prospect ? '<span class="badge-elite">Elite</span>' : '—'}</td>
+                <td style="text-align:right;white-space:nowrap;">
+                    <button class="btn btn-outline" style="padding: 4px 8px; font-size: 0.75rem; margin-right: 5px; cursor: pointer; border-color: rgba(255,255,255,0.15);" onclick="editPlayer(${p.id})"><i data-lucide="pen"></i></button>
+                    <button class="btn btn-outline" style="padding: 4px 8px; font-size: 0.75rem; border-color: var(--danger); color: var(--danger); cursor: pointer;" onclick="deletePlayer(${p.id}, '${p.name}')"><i data-lucide="trash"></i></button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    function filterPlayers() {
+        const q = document.getElementById('player-search').value.toLowerCase();
+        renderPlayers(allPlayers.filter(p => p.name.toLowerCase().includes(q) || (p.player_code||'').toLowerCase().includes(q)));
+    }
+
+    function editPlayer(id) {
+        window.location.href = `../players/add_player.html?id=${id}`;
+    }
+
+    async function deletePlayer(id, name) {
+        if (!confirm(`Are you sure you want to release prospect ${name} from the academy roster?`)) return;
+        try {
+            const r = await fetch(`/api/players/${id}`, {
+                method: 'DELETE',
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if (r.ok) {
+                toast("Prospect released from academy roster successfully.");
+                allPlayers = [];  // Clear local list cache
+                loadPlayers();    // Real-time sync reload list!
+                loadOverview();   // Update overview KPI counts too!
+            } else {
+                const err = await r.json();
+                toast("Failed to release prospect: " + (err.detail || "Unknown error"), 'error');
+            }
+        } catch (e) {
+            toast("Network error occurred.", 'error');
         }
+    }
 
-        function logout() { localStorage.clear(); window.location.href = '/login.html'; }
+    async function loadMatches() {
+        const tbody = document.getElementById('matches-table');
+        try {
+            const r = await fetch(`/api/ferwafa/matches?institution_id=${inst_id}`, { headers: { Authorization: `Bearer ${token}` } });
+            const data = await r.json();
+            const matches = Array.isArray(data) ? data : [];
+            if (!matches.length) {
+                tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><i data-lucide="circle-dot"></i>No matches recorded yet.</div></td></tr>`;
+                return;
+            }
+            tbody.innerHTML = matches.map(m => `
+                <tr>
+                    <td style="color:var(--text-secondary);">${m.match_date ? new Date(m.match_date).toLocaleDateString() : '—'}</td>
+                    <td>${m.competition_type || 'Friendly'}</td>
+                    <td><strong>${m.opponent_name || 'Unknown'}</strong></td>
+                    <td style="font-weight:800;">
+                        ${m.goals_home !== null && m.goals_away !== null ? `${m.goals_home} – ${m.goals_away}` : '—'}
+                    </td>
+                    <td><span style="color:${m.is_finalized ? 'var(--success)' : 'var(--warning)'};">${m.is_finalized ? 'Finalized' : 'Pending'}</span></td>
+                </tr>
+            `).join('');
+        } catch (e) {
+            tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state">Failed to load matches.</div></td></tr>`;
+        }
+    }
 
-        showTab('overview');
-    </script>
+    async function loadSettings() {
+        const el = document.getElementById('settings-info');
+        try {
+            const r = await fetch(`/api/ferwafa/entities`, { headers: { Authorization: `Bearer ${token}` } });
+            const all = await r.json();
+            const inst = all.find(i => String(i.id) === String(inst_id));
+            if (!inst) { el.innerHTML = '<p style="color:var(--text-secondary);">Could not load profile.</p>'; return; }
+            el.innerHTML = `
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+                    ${[['Name', inst.name], ['Code', inst.code], ['Type', inst.type?.toUpperCase()], ['Province', inst.province || '—'], ['District', inst.district || '—'], ['Contact', inst.contact || '—'], ['Stadium', inst.stadium_name || '—'], ['Status', inst.status]].map(([l, v]) => `
+                        <div>
+                            <div style="font-size:0.7rem;font-weight:800;color:var(--text-secondary);margin-bottom:0.4rem;">${l}</div>
+                            <div style="font-weight:700;">${v || '—'}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        } catch (e) { el.innerHTML = '<p style="color:var(--text-secondary);">Failed to load settings.</p>'; }
+    }
+
+    loadOverview();
+</script>
+    <script>lucide.createIcons();</script>
 </body>
 </html>

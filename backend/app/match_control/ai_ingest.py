@@ -41,6 +41,8 @@ class MatchConnectionManager:
             session = db.query(MatchSession).filter(MatchSession.match_id == match_id).first()
             if session:
                 session.ai_connected = connected
+                if not connected:
+                    session.status = "INACTIVE"
                 session.last_heartbeat = datetime.utcnow()
                 db.commit()
         except Exception: pass
@@ -58,13 +60,21 @@ class MatchConnectionManager:
             # 1. VERIFY SIGNATURE
             sig = data.get("signature")
             payload = data.get("payload")
-            if not sig or not payload: return
+            if not sig or not payload:
+                raise ValueError("Signature or payload missing")
 
-            # Use stored api_key_hash for verification (requires raw key from machine)
-            # NOTE: In production, the machine sends raw key in 'key' param during handshake.
-            # Here we assume the machine uses the raw key it received during setup to sign.
-            # For simplicity in this implementation, we skip HMAC if not configured, 
-            # but ideally, we verify against the provided key.
+            if not match.api_key:
+                raise ValueError("Match has no registered API Key for signing verification")
+
+            msg_string = json.dumps(payload, sort_keys=True)
+            expected_sig = hmac.new(
+                match.api_key.encode(),
+                msg_string.encode(),
+                hashlib.sha256
+            ).hexdigest()
+
+            if not hmac.compare_digest(sig, expected_sig):
+                raise ValueError("HMAC signature verification failed")
             
             # 2. PROCESS PAYLOAD
             msg_type = payload.get("type")

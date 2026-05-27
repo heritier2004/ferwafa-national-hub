@@ -2,9 +2,33 @@ $serviceName = "postgresql-x64-18"
 $pgDir = "C:\Program Files\PostgreSQL\18"
 $binPath = "`"$pgDir\bin\postgres.exe`" -D `"$pgDir\data`""
 $pgCtl = "`"$pgDir\bin\pg_ctl.exe`""
-$pgData = "`"$pgDir\data`""
+$pgData = "$pgDir\data"
+$pidFile = "$pgData\postmaster.pid"
 
 Write-Host "Attempting to manage PostgreSQL service..."
+
+# Robust Cleanup of Stale PID file
+if (Test-Path $pidFile) {
+    Write-Host "Found existing postmaster.pid file. Verifying if process is still active..."
+    try {
+        $stalePid = (Get-Content $pidFile -TotalCount 1).Trim()
+        if ($stalePid -match '^\d+$') {
+            $proc = Get-Process -Id [int]$stalePid -ErrorAction SilentlyContinue
+            if (!$proc -or $proc.Name -ne "postgres") {
+                Write-Host "Process with PID $stalePid is not a running postgres instance. Removing stale postmaster.pid..."
+                Remove-Item $pidFile -Force -ErrorAction SilentlyContinue
+            } else {
+                Write-Host "Active postgres process (PID $stalePid) is already running."
+            }
+        } else {
+            Write-Host "Invalid PID format in postmaster.pid. Cleaning up..."
+            Remove-Item $pidFile -Force -ErrorAction SilentlyContinue
+        }
+    } catch {
+        Write-Host "Could not read/verify postmaster.pid. Cleaning up..."
+        Remove-Item $pidFile -Force -ErrorAction SilentlyContinue
+    }
+}
 
 # Check if service exists
 if (!(Get-Service $serviceName -ErrorAction SilentlyContinue)) {
@@ -36,7 +60,6 @@ try {
             Write-Host "PostgreSQL started manually via pg_ctl."
         } else {
             Write-Host "Error: Failed to start PostgreSQL manually. Check logs in $pgData\log"
-            # exit 1 # Don't exit here so we can see what happens in the caller
         }
     }
 }

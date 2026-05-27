@@ -183,9 +183,9 @@ async function syncGlobalInfrastructure() {
                     document.body.innerHTML = `
                         <div style="height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#05070a; color:#fff; font-family:sans-serif; text-align:center; padding:2rem;">
                             <div style="font-size:4rem; margin-bottom:1rem;">🛠️</div>
-                            <h1 style="color:#6366f1;">NATIONAL MAINTENANCE PROTOCOL</h1>
+                            <h1 style="color:#16A34A;">NATIONAL MAINTENANCE PROTOCOL</h1>
                             <p style="color:#aaa; max-width:500px;">The infrastructure is currently undergoing technical upgrades. <br>Access is restricted to Authorized Administrators only.</p>
-                            <button onclick="window.location.href='login.html'" style="margin-top:2rem; background:#6366f1; border:none; color:white; padding:12px 24px; border-radius:8px; cursor:pointer;">ADMIN LOGIN</button>
+                            <button onclick="window.location.href='login.html'" style="margin-top:2rem; background:#16A34A; border:none; color:white; padding:12px 24px; border-radius:8px; cursor:pointer;">ADMIN LOGIN</button>
                         </div>
                     `;
                 }

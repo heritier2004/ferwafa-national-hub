@@ -6,13 +6,13 @@
     <title>Add New Player | Football Intelligence Platform</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
         :root {
-            --bg-primary: #020617;
-            --bg-secondary: #0f172a;
-            --accent-primary: #6366f1;
-            --accent-glow: rgba(99, 102, 241, 0.4);
+            --bg-primary: #111827;
+            --bg-secondary: #111827;
+            --accent-primary: #16A34A;
+            --accent-glow: rgba(22, 163, 74, 0.4);
             --text-primary: #f8fafc;
             --text-dim: #94a3b8;
             --border: rgba(255, 255, 255, 0.08);
@@ -26,7 +26,7 @@
         body {
             background-color: var(--bg-primary);
             background-image: 
-                radial-gradient(circle at 15% 50%, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 15% 50%, rgba(22, 163, 74, 0.08) 0%, transparent 50%),
                 radial-gradient(circle at 85% 30%, rgba(16, 185, 129, 0.05) 0%, transparent 50%);
             color: var(--text-primary);
             font-family: 'Outfit', sans-serif;
@@ -155,7 +155,7 @@
             outline: none;
             border-color: var(--accent-primary);
             background: rgba(0,0,0,0.6);
-            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+            box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.1);
         }
 
         select.input-field {
@@ -189,7 +189,7 @@
 
         .photo-upload-zone:hover {
             border-color: var(--accent-primary);
-            background: rgba(99, 102, 241, 0.05);
+            background: rgba(22, 163, 74, 0.05);
         }
 
         #photo-preview {
@@ -257,12 +257,14 @@
             .save-container { position: static; margin-top: 2rem; }
         }
     </style>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="/assets/js/api.js"></script>
 </head>
 <body>
 
     <!-- 1. HEADER -->
     <nav class="top-nav">
-        <a href="javascript:history.back()" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Back to Hub</a>
+        <a href="javascript:history.back()" class="back-btn"><i data-lucide="arrow"></i> Back to Hub</a>
         <div class="header-title" style="text-align: right;">
             <h1>Player Registry</h1>
             <p><span style="color: var(--success);">● SECURE</span> &bull; ATHLETE ENROLLMENT</p>
@@ -276,7 +278,7 @@
                 
                 <!-- 2. BASIC INFORMATION -->
                 <div class="form-section">
-                    <div class="section-tag"><i class="fa-solid fa-id-card"></i> 01. Basic Information</div>
+                    <div class="section-tag"><i data-lucide="id-card"></i> 01. Basic Information</div>
                     <div class="grid-2">
                         <div class="input-group">
                             <label>First Name</label>
@@ -303,7 +305,7 @@
 
                 <!-- 3. FOOTBALL INFORMATION -->
                 <div class="form-section">
-                    <div class="section-tag"><i class="fa-solid fa-futbol"></i> 02. Tactical Profile</div>
+                    <div class="section-tag"><i data-lucide="circle-dot"></i> 02. Tactical Profile</div>
                     <div class="grid-3">
                         <div class="input-group full">
                             <label>Primary Position</label>
@@ -350,7 +352,7 @@
 
                 <!-- 4. PHYSICAL & MEDICAL -->
                 <div class="form-section">
-                    <div class="section-tag"><i class="fa-solid fa-heart-pulse"></i> 03. Physical & Medical</div>
+                    <div class="section-tag"><i data-lucide="heart"></i> 03. Physical & Medical</div>
                     <div class="grid-2">
                         <div class="input-group">
                             <label>Height (cm)</label>
@@ -390,11 +392,11 @@
         <div class="save-container">
             <!-- 5. PHOTO UPLOAD -->
             <div class="form-section" style="padding: 1.5rem; text-align: center; height: 320px; display: flex; flex-direction: column;">
-                <div class="section-tag" style="justify-content: center; margin-bottom: 1rem;"><i class="fa-solid fa-camera"></i> 04. Biometrics</div>
+                <div class="section-tag" style="justify-content: center; margin-bottom: 1rem;"><i data-lucide="camera"></i> 04. Biometrics</div>
                 <div class="photo-upload-zone" id="dropzone">
                     <img id="photo-preview" src="" alt="Preview">
                     <div id="upload-prompt">
-                        <div class="upload-icon"><i class="fa-solid fa-fingerprint"></i></div>
+                        <div class="upload-icon"><i data-lucide="fingerprint"></i></div>
                         <p style="font-weight: 800; font-size: 0.9rem; color: var(--text-primary);">UPLOAD HEADSHOT</p>
                         <p style="font-size: 0.7rem; color: var(--text-dim); margin-top: 5px;">Required for AI Tracking (JPG/PNG)</p>
                     </div>
@@ -404,66 +406,160 @@
 
             <!-- 6. SAVE BUTTON -->
             <button type="submit" form="player-form" class="btn-save" id="save-btn">
-                <i class="fa-solid fa-check-double"></i> Authorize & Enroll
+                <i data-lucide="check"></i> Authorize & Enroll
             </button>
             <div style="text-align: center; margin-top: 1rem; font-size: 0.7rem; color: var(--text-dim); font-weight: 700; text-transform: uppercase;">
-                <i class="fa-solid fa-shield-halved"></i> Secured by FERWAFA Infrastructure
+                <i data-lucide="shield-half"></i> Secured by FERWAFA Infrastructure
             </div>
         </div>
     </div>
 
     <script>
-        // Photo Upload Logic
+        const token = localStorage.getItem('access_token');
+        if (!token) window.location.href = '/login.html';
+        const role = localStorage.getItem('role');
+        const userInstitutionId = parseInt(localStorage.getItem('institution_id')) || 0;
+
+        // Detect Edit Mode Context
+        const urlParams = new URLSearchParams(window.location.search);
+        const playerId = urlParams.get('id');
+        let editMode = false;
+        let uploadedPhotoUrl = "";
+
+        // Photo Upload Elements
         const dropzone = document.getElementById('dropzone');
         const photoInput = document.getElementById('photoInput');
         const photoPreview = document.getElementById('photo-preview');
         const uploadPrompt = document.getElementById('upload-prompt');
+        const saveBtn = document.getElementById('save-btn');
 
         dropzone.onclick = () => photoInput.click();
 
-        photoInput.onchange = (e) => {
+        // Real-Time Upload to Backend Pipeline
+        photoInput.onchange = async (e) => {
             const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    photoPreview.src = e.target.result;
-                    photoPreview.style.display = 'block';
-                    uploadPrompt.style.display = 'none';
-                };
-                reader.readAsDataURL(file);
+            if (!file) return;
+
+            // Show local preview immediately as quick feedback
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                photoPreview.src = e.target.result;
+                photoPreview.style.display = 'block';
+                uploadPrompt.style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+
+            // Upload file to production backend API
+            const formData = new FormData();
+            formData.append("file", file);
+
+            try {
+                saveBtn.disabled = true;
+                const prevBtnText = saveBtn.innerHTML;
+                saveBtn.innerHTML = '<i data-lucide="spinner"></i> UPLOADING HEADSHOT...';
+
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    body: formData
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    uploadedPhotoUrl = data.url;
+                } else {
+                    alert("Biometric Headshot upload failed. Please try again.");
+                }
+            } catch (err) {
+                alert("Network error: Upload server unreachable.");
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = editMode ? '<i data-lucide="check"></i> Save Profile' : '<i data-lucide="check"></i> Authorize & Enroll';
             }
         };
 
-        // Form Submit Logic
+        // Initialize Page & Prepopulate if in Edit Mode
+        async function initializeForm() {
+            if (!playerId) return;
+
+            editMode = true;
+            document.querySelector('.header-title h1').innerText = "Edit Player Profile";
+            document.querySelector('.header-title p').innerHTML = '<span style="color: var(--warning);">● EDIT MODE</span> &bull; TACTICAL SYSTEM';
+            saveBtn.innerHTML = '<i data-lucide="check"></i> Save Profile';
+
+            try {
+                const response = await fetch(`/api/players/${playerId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    const player = await response.json();
+                    
+                    // Prepopulate Fields
+                    const names = (player.name || '').split(' ');
+                    document.getElementById('firstName').value = names[0] || '';
+                    document.getElementById('lastName').value = names.slice(1).join(' ') || '';
+                    document.getElementById('dob').value = player.date_of_birth || '';
+                    document.getElementById('nationality').value = player.nationality || 'Rwandan';
+                    document.getElementById('phone').value = player.phone_number || '';
+                    document.getElementById('primaryPos').value = player.position || '';
+                    document.getElementById('secondaryPos').value = player.secondary_position || 'NONE';
+                    document.getElementById('prefFoot').value = player.preferred_foot || 'Right';
+                    document.getElementById('jerseyNumber').value = player.jersey_number || '';
+                    document.getElementById('height').value = player.height || '';
+                    document.getElementById('weight').value = player.weight || '';
+                    document.getElementById('fitnessStatus').value = player.fitness_status || 'Fit';
+                    document.getElementById('injuryStatus').value = player.injury_status || 'None';
+                    document.getElementById('medicalNotes').value = player.medical_conditions || '';
+
+                    if (player.photo_url) {
+                        photoPreview.src = player.photo_url;
+                        photoPreview.style.display = 'block';
+                        uploadPrompt.style.display = 'none';
+                        uploadedPhotoUrl = player.photo_url;
+                    }
+                } else {
+                    alert("Failed to load player details.");
+                }
+            } catch (err) {
+                alert("Network error fetching player details.");
+            }
+        }
+
+        initializeForm();
+
+        // Form Submit Action (Dynamic Add/Edit Integration)
         document.getElementById('player-form').onsubmit = async (e) => {
             e.preventDefault();
-            const saveBtn = document.getElementById('save-btn');
             const originalText = saveBtn.innerHTML;
             
             saveBtn.disabled = true;
-            saveBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> ENROLLING...';
+            saveBtn.innerHTML = editMode ? '<i data-lucide="circle"></i> SAVING...' : '<i data-lucide="circle"></i> ENROLLING...';
 
             const payload = {
                 name: `${document.getElementById('firstName').value} ${document.getElementById('lastName').value}`,
-                date_of_birth: document.getElementById('dob').value,
+                date_of_birth: document.getElementById('dob').value || null,
                 nationality: document.getElementById('nationality').value,
-                phone_number: document.getElementById('phone').value,
+                phone_number: document.getElementById('phone').value || null,
                 position: document.getElementById('primaryPos').value,
-                secondary_position: document.getElementById('secondaryPos').value,
+                secondary_position: document.getElementById('secondaryPos').value || 'NONE',
                 jersey_number: parseInt(document.getElementById('jerseyNumber').value) || 0,
-                preferred_foot: document.getElementById('prefFoot').value,
+                preferred_foot: document.getElementById('prefFoot').value || 'Right',
                 height: parseFloat(document.getElementById('height').value) || 0,
                 weight: parseFloat(document.getElementById('weight').value) || 0,
                 fitness_status: document.getElementById('fitnessStatus').value,
                 injury_status: document.getElementById('injuryStatus').value,
-                medical_notes: document.getElementById('medicalNotes').value
+                medical_conditions: document.getElementById('medicalNotes').value || null,
+                photo_url: uploadedPhotoUrl || null,
+                institution_id: userInstitutionId
             };
 
-            const token = localStorage.getItem('access_token');
-
             try {
-                const response = await fetch('/api/club/player/create', {
-                    method: 'POST',
+                const endpoint = editMode ? `/api/players/${playerId}` : `/api/players/`;
+                const method = editMode ? 'PUT' : 'POST';
+
+                const response = await fetch(endpoint, {
+                    method: method,
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
@@ -472,12 +568,11 @@
                 });
 
                 if (response.ok) {
-                    const data = await response.json();
-                    alert("PLAYER ENROLLED SUCCESSFULLY\nPLAYER ID: " + data.player_code);
-                    history.back(); // Return to dashboard
+                    alert(editMode ? "PLAYER PROFILE SAVED SUCCESSFULLY!" : "PLAYER ENROLLED SUCCESSFULLY!");
+                    history.back(); // Seamless return to dashboard with real-time reload
                 } else {
                     const err = await response.json();
-                    alert("ENROLLMENT FAILED: " + (err.detail || "Unknown error"));
+                    alert("OPERATION FAILED: " + (err.detail || "Unknown error"));
                 }
             } catch (err) {
                 alert("NETWORK ERROR: SERVER UNREACHABLE");
@@ -486,6 +581,35 @@
                 saveBtn.innerHTML = originalText;
             }
         };
+
+        // Arrow key navigation between inputs
+        document.addEventListener('keydown', function(e) {
+            if (e.target.classList.contains('input-field')) {
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    focusNext(e.target);
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    focusPrev(e.target);
+                }
+            }
+        });
+        function focusNext(current) {
+            const fields = Array.from(document.querySelectorAll('.input-field')).filter(el => !el.disabled && el.offsetParent !== null);
+            const idx = fields.indexOf(current);
+            if (idx > -1 && idx < fields.length - 1) {
+                fields[idx + 1].focus();
+            }
+        }
+        function focusPrev(current) {
+            const fields = Array.from(document.querySelectorAll('.input-field')).filter(el => !el.disabled && el.offsetParent !== null);
+            const idx = fields.indexOf(current);
+            if (idx > 0) {
+                fields[idx - 1].focus();
+            }
+        }
+
     </script>
+    <script>lucide.createIcons();</script>
 </body>
 </html>

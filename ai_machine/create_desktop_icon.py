@@ -9,8 +9,8 @@ def create_shortcut():
     # We want to launch with the virtual environment's python
     if current_os == "Windows":
         python_exe = os.path.join(app_dir, ".venv", "Scripts", "python.exe")
-        script_path = os.path.join(app_dir, "main.py")
-        ico_path = os.path.join(app_dir, "assets", "icon.ico") # Placeholder for icon
+        script_path = r"C:\\Users\\User\\Desktop\\START_FULL_SYSTEM.bat"  # Launch full system batch
+        ico_path = r"C:\\Users\\User\\.gemini\\antigravity\\brain\\7fa30e8a-9788-47c0-aff0-2713827bf3cc\\ferwafa_ai_icon_new_1779090901318.png"  # New generated premium icon
         
         try:
             import winshell

@@ -21,17 +21,20 @@ except ImportError:
     OCR_AVAILABLE = False
 
 
-class VideoProcessor:
+class AIVideoProcessingEngine(threading.Thread):
     """
     Manages the full AI processing pipeline with automated database sync:
     YOLO (Boxes) → ByteTrack (IDs) → OCR (Identity Binding) → Database Mapping
+    Runs in a dedicated background thread to prevent UI blocking.
     """
 
-    def __init__(self, config, connection, squad_list=None, venue_metadata=None):
+    def __init__(self, config, connection, squad_list=None, venue_metadata=None, loop=None):
+        super().__init__(daemon=True)
         self.config = config
         self.connection = connection
         self.squad_list = squad_list or []
         self.venue_metadata = venue_metadata or {}
+        self.loop = loop
 
         self.is_running = False
         self.is_paused = False
@@ -94,7 +97,7 @@ class VideoProcessor:
         self._logs.append(line)
         if self._log_cb: self._log_cb(line)
 
-    async def run(self):
+    def run(self):
         self.is_running = True
         self.start_time = time.time()
         
@@ -105,7 +108,7 @@ class VideoProcessor:
         cap = cv2.VideoCapture(self.config.video_source)
         if not cap.isOpened():
             self.log(f"❌ Camera Source Failed: {self.config.video_source_raw}")
-            await self._run_simulation()
+            self._run_simulation()
             return
 
         fps = cap.get(cv2.CAP_PROP_FPS) or 25.0
@@ -113,31 +116,35 @@ class VideoProcessor:
 
         while self.is_running:
             if self.is_paused:
-                await asyncio.sleep(0.1); continue
+                time.sleep(0.1); continue
 
             ret, frame = cap.read()
             if not ret:
-                await asyncio.sleep(0.5); continue
+                time.sleep(0.5); continue
 
             # Core AI Pipeline
             frame_data = self._process_frame(frame)
             self.frames_processed += 1
 
             # Telemetry Refresh (Every 2 frames for higher speed data)
-            if self.frames_processed % 2 == 0:
-                await self.connection.send_tracking_update(
-                    players=frame_data['players'],
-                    ball=frame_data.get('ball'),
-                    stats=self.event_extractor.get_stats()
+            if self.frames_processed % 2 == 0 and self.loop:
+                asyncio.run_coroutine_threadsafe(
+                    self.connection.send_tracking_update(
+                        players=frame_data['players'],
+                        ball=frame_data.get('ball'),
+                        stats=self.event_extractor.get_stats()
+                    ),
+                    self.loop
                 )
 
             # Event Extraction (with auto-sync identities)
             events = self.event_extractor.process_frame(frame_data, self.match_minute())
             for evt in events:
                 # Add confidence score and db binding from the processor state
-                await self.connection.send_event(evt)
+                if self.loop:
+                    asyncio.run_coroutine_threadsafe(self.connection.send_event(evt), self.loop)
 
-            await asyncio.sleep(frame_delay * 0.7) # Dynamic speedup
+            time.sleep(frame_delay * 0.7) # Dynamic speedup
 
         cap.release()
 
@@ -247,8 +254,8 @@ class VideoProcessor:
             except Exception as e:
                 print(f"[OCR_ERROR] {e}")
 
-    async def _run_simulation(self):
+    def _run_simulation(self):
         """Simulation mode (unchanged logic, for offline testing)."""
         self.log("🎮 Simulation active (no camera found)")
         while self.is_running:
-            await asyncio.sleep(1) # placeholders
+            time.sleep(1) # placeholders

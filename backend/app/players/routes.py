@@ -17,10 +17,22 @@ class PlayerCreate(BaseModel):
     name: str
     position: str
     institution_id: int
-    photo_url: str
+    photo_url: Optional[str] = None
     age: Optional[int] = None
     jersey_number: Optional[int] = None
     nationality: str = "Rwandan"
+    secondary_position: Optional[str] = None
+    preferred_foot: Optional[str] = None
+    height: Optional[float] = None
+    weight: Optional[float] = None
+    fitness_status: Optional[str] = "Fit"
+    injury_status: Optional[str] = "None"
+    medical_conditions: Optional[str] = None
+    phone_number: Optional[str] = None
+    date_of_birth: Optional[str] = None
+    guardian_name: Optional[str] = None
+    guardian_contact: Optional[str] = None
+    blood_group: Optional[str] = None
 
 class PlayerUpdate(BaseModel):
     name: Optional[str] = None
@@ -29,14 +41,45 @@ class PlayerUpdate(BaseModel):
     age: Optional[int] = None
     jersey_number: Optional[int] = None
     nationality: Optional[str] = None
+    secondary_position: Optional[str] = None
+    preferred_foot: Optional[str] = None
+    height: Optional[float] = None
+    weight: Optional[float] = None
+    fitness_status: Optional[str] = None
+    injury_status: Optional[str] = None
+    medical_conditions: Optional[str] = None
+    phone_number: Optional[str] = None
+    date_of_birth: Optional[str] = None
+    guardian_name: Optional[str] = None
+    guardian_contact: Optional[str] = None
+    blood_group: Optional[str] = None
 
 @router.get("/")
 def list_players(institution_id: int = None, db: Session = Depends(get_db)):
     return PlayerService.get_all_players(db, institution_id)
 
+@router.get("/{player_id}")
+def get_player(player_id: int, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
+    from backend.app.database.models import Player
+    db_player = db.query(Player).filter(Player.id == player_id, Player.is_deleted == False).first()
+    if not db_player:
+        raise HTTPException(status_code=404, detail="Player not found")
+        
+    # Enforce basic security
+    if current_user.get("role") not in ["SUPER_ADMIN", "FERWAFA"]:
+        if current_user.get("institution_id") != db_player.institution_id:
+            raise HTTPException(status_code=403, detail="Not authorized to view this player's details.")
+            
+    return db_player
+
 @router.post("/")
 def add_player(player: PlayerCreate, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
-    # 1. Enforce photo for School/Academy
+    # 1. Security: A user of role CLUB/SCHOOL/ACADEMY must only register players for their own institution.
+    if current_user.get("role") not in ["SUPER_ADMIN", "FERWAFA"]:
+        if current_user.get("institution_id") != player.institution_id:
+            raise HTTPException(status_code=403, detail="Not authorized to register players for this institution.")
+
+    # 2. Enforce photo for School/Academy
     from backend.app.database.models import Institution
     inst = db.query(Institution).filter(Institution.id == player.institution_id).first()
     if not inst:
@@ -45,29 +88,63 @@ def add_player(player: PlayerCreate, db: Session = Depends(get_db), current_user
     if inst.type in ["school", "academy"] and not player.photo_url:
         raise HTTPException(status_code=400, detail="Photo is REQUIRED for School and Academy registrations.")
 
-    # 2. Inherit Location from Institution
+    # 3. Inherit Location from Institution
     location_data = {
         "location_id": inst.code,
         "region": inst.province,
         "district": inst.district
     }
 
+    from datetime import datetime
+    player_data = player.dict()
+    dob_str = player_data.get("date_of_birth")
+    if dob_str:
+        try:
+            player_data["date_of_birth"] = datetime.strptime(dob_str, "%Y-%m-%d").date()
+        except ValueError:
+            player_data["date_of_birth"] = None
+
     code = PlayerService.generate_player_code(db, player.institution_id)
     return PlayerService.create_player(db, {
-        **player.dict(), 
+        **player_data, 
         "player_code": code,
         **location_data
     }, actor_id=current_user["id"])
 
 @router.put("/{player_id}")
 def update_player(player_id: int, player: PlayerUpdate, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
-    updated_player = PlayerService.update_player(db, player_id, player.dict(exclude_unset=True), actor_id=current_user["id"])
-    if not updated_player:
+    from backend.app.database.models import Player
+    db_player = db.query(Player).filter(Player.id == player_id).first()
+    if not db_player:
         raise HTTPException(status_code=404, detail="Player not found")
+        
+    if current_user.get("role") not in ["SUPER_ADMIN", "FERWAFA"]:
+        if current_user.get("institution_id") != db_player.institution_id:
+            raise HTTPException(status_code=403, detail="Not authorized to edit this player's profile.")
+
+    from datetime import datetime
+    player_data = player.dict(exclude_unset=True)
+    dob_str = player_data.get("date_of_birth")
+    if dob_str:
+        try:
+            player_data["date_of_birth"] = datetime.strptime(dob_str, "%Y-%m-%d").date()
+        except ValueError:
+            player_data["date_of_birth"] = None
+
+    updated_player = PlayerService.update_player(db, player_id, player_data, actor_id=current_user["id"])
     return updated_player
 
 @router.delete("/{player_id}")
 def delete_player(player_id: int, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
+    from backend.app.database.models import Player
+    db_player = db.query(Player).filter(Player.id == player_id).first()
+    if not db_player:
+        raise HTTPException(status_code=404, detail="Player not found")
+        
+    if current_user.get("role") not in ["SUPER_ADMIN", "FERWAFA"]:
+        if current_user.get("institution_id") != db_player.institution_id:
+            raise HTTPException(status_code=403, detail="Not authorized to release this player.")
+
     success = PlayerService.delete_player(db, player_id, actor_id=current_user["id"])
     if not success:
         raise HTTPException(status_code=404, detail="Player not found")

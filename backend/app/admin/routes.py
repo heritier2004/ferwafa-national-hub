@@ -99,9 +99,21 @@ def master_create_user(
 def delete_user(user_id: int, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
     try:
         CrudMixin.soft_delete(User, db, user_id, actor_id=current_user["id"])
-        return {"message": "Person successfully soft‑deleted"}
+        return {"message": "Person successfully soft-deleted"}
     except ValueError as ve:
         raise HTTPException(status_code=404, detail=str(ve))
+
+@router.put("/users/{user_id}/deactivate")
+def deactivate_user(user_id: int, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
+    """Revoke system access without deleting the user record"""
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    if user.role == "SUPER_ADMIN":
+        raise HTTPException(status_code=403, detail="Cannot deactivate a SUPER_ADMIN account")
+    user.is_active = False
+    db.commit()
+    return {"message": f"Access revoked for {user.full_name or user.email}."}
 
 @router.put("/users/{user_id}")
 def master_update_user(
@@ -149,6 +161,29 @@ def update_setting(key: str, value: str, db: Session = Depends(get_db), current_
         CrudMixin.update(SystemSetting, db, setting.id, {"value": value}, actor_id=current_user["id"])
     
     return {"message": f"Global property '{key}' updated successfully"}
+
+@router.post("/system/settings")
+def upsert_setting_by_key(
+    payload: dict,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user)
+):
+    """Create or update a global system setting by key"""
+    key = payload.get("key")
+    value = payload.get("value", "")
+    description = payload.get("description", "")
+    if not key:
+        raise HTTPException(status_code=400, detail="'key' is required")
+    setting = db.query(SystemSetting).filter(SystemSetting.key == key).first()
+    if setting:
+        setting.value = value
+        if description:
+            setting.description = description
+    else:
+        setting = SystemSetting(key=key, value=value, description=description)
+        db.add(setting)
+    db.commit()
+    return {"message": f"Setting '{key}' saved."}
 
 @router.post("/system/maintenance/toggle")
 def toggle_maintenance(db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):

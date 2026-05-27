@@ -7,9 +7,9 @@ from backend.app.database.models import Player
 from backend.app.auth.dependencies import get_current_user, RoleChecker
 
 router = APIRouter(
-    prefix="/scouting", 
+    prefix="/scouting",
     tags=["scouting"],
-    dependencies=[Depends(RoleChecker(["SCOUT", "FERWAFA"]))]
+    dependencies=[Depends(RoleChecker(["SCOUT", "FERWAFA", "CLUB"]))]
 )
 
 @router.get("/recommendations")

@@ -1,0 +1,70 @@
+/* Superadmin Dashboard Styles */
+
+:root {
+  /* Color palette */
+  --bg-primary: #0F172A;        /* Background */
+  --bg-secondary: #111827;      /* Secondary background */
+  --card-bg: #1E293B;           /* Card background */
+  --text-primary: #E2E8F0;     /* Primary text */
+  --text-secondary: #94A3B8;   /* Secondary text */
+  --accent-green: #16A34A;      /* Football green */
+  --accent-gold: #CA8A04;       /* Authority gold */
+  --border-radius: 12px;
+  --box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  --transition: all 0.2s ease;
+}
+
+/* Global reset */
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background: var(--bg-primary); color: var(--text-primary); font-family: 'Inter', 'Manrope', sans-serif; }
+
+/* Sidebar */
+.superadmin-sidebar {
+  position: fixed; top:0; left:0; height:100vh; width:260px; background: var(--bg-secondary);
+  display:flex; flex-direction:column; overflow-y:auto; border-right:1px solid rgba(255,255,255,0.08);
+}
+.superadmin-sidebar .logo { padding:1.5rem 1rem; text-align:center; color: var(--accent-gold); }
+.superadmin-sidebar .sidebar-menu { list-style:none; }
+.superadmin-sidebar .sidebar-menu li { margin:0; }
+.superadmin-sidebar .sidebar-menu li a {
+  display:flex; align-items:center; padding:0.75rem 1rem; color: var(--text-secondary);
+  text-decoration:none; transition: var(--transition);
+}
+.superadmin-sidebar .sidebar-menu li a .icon { width:24px; height:24px; margin-right:0.75rem; fill: currentColor; }
+.superadmin-sidebar .sidebar-menu li a:hover { background: rgba(255,255,255,0.05); color: var(--text-primary); }
+.superadmin-sidebar .sidebar-menu li.active a { background: var(--accent-gold); color: var(--bg-primary); }
+
+/* Main content */
+.superadmin-main { margin-left:260px; padding:2rem; min-height:100vh; }
+
+/* Cards */
+.top-cards { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px,1fr)); gap:1.5rem; margin-bottom:2rem; }
+.top-cards .card {
+  background: var(--card-bg); border-radius: var(--border-radius); box-shadow: var(--box-shadow);
+  padding:1.5rem; text-align:center; color: var(--text-primary); transition: var(--transition);
+}
+.top-cards .card .value { display:block; font-size:1.8rem; font-weight:900; color: var(--accent-green); margin-bottom:0.5rem; }
+.top-cards .card .label { font-size:0.9rem; color: var(--text-secondary); }
+.top-cards .card:hover { transform: translateY(-3px); background: #1F2A3C; }
+
+/* Live status grid */
+.live-status .status-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(180px,1fr)); gap:1rem; }
+.status-item { background: var(--card-bg); border-radius: var(--border-radius); padding:0.75rem 1rem; display:flex; justify-content:space-between; align-items:center; }
+.status-label { font-size:0.85rem; color: var(--text-secondary); }
+.status-indicator { width:12px; height:12px; border-radius:50%; background: #555; }
+.status-indicator.online { background: #10b981; } /* green */
+.status-indicator.offline { background: #ef4444; } /* red */
+
+/* Activity feed */
+.activity-feed ul { list-style:none; max-height:300px; overflow-y:auto; padding-right:0.5rem; }
+.activity-feed li { background: var(--card-bg); margin-bottom:0.5rem; padding:0.75rem 1rem; border-radius: var(--border-radius); font-size:0.85rem; color: var(--text-secondary); }
+
+/* Responsive */
+@media (max-width:992px) {
+  .superadmin-sidebar { width:200px; }
+  .superadmin-main { margin-left:200px; }
+}
+@media (max-width:768px) {
+  .superadmin-sidebar { position:relative; width:100%; height:auto; border-right:none; }
+  .superadmin-main { margin-left:0; }
+}

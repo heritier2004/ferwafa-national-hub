@@ -77,8 +77,17 @@ def create_entity(req: InstitutionCreate, db: Session = Depends(get_db), current
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+@router.get("/entities")
+def list_entities(type: Optional[str] = None, db: Session = Depends(get_db)):
+    """List all institutions with optional type filter (club, academy, school)"""
+    q = db.query(Institution).filter(Institution.is_deleted == False)
+    if type:
+        q = q.filter(Institution.type == type.lower())
+    return q.order_by(Institution.id.desc()).all()
+
 @router.get("/entities/all")
 def get_entities(db: Session = Depends(get_db)):
+    """Alias for /entities — returns all institutions"""
     return db.query(Institution).filter(Institution.is_deleted == False).order_by(Institution.id.desc()).all()
 
 @router.post("/entities/{inst_id}/purge", dependencies=[Depends(RoleChecker(["FERWAFA"]))])
@@ -125,6 +134,123 @@ def toggle_institution_status(inst_id: int, db: Session = Depends(get_db), curre
     
     status_label = "ACTIVE" if new_status else "PAUSED"
     return {"message": f"Institution {inst.name} is now {status_label}.", "is_active": new_status}
+
+@router.delete("/entities/{inst_id}", dependencies=[Depends(RoleChecker(["FERWAFA", "SUPER_ADMIN"]))])
+def safe_delete_entity(inst_id: int, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
+    inst = db.query(Institution).filter(Institution.id == inst_id).first()
+    if not inst: raise HTTPException(status_code=404, detail="Institution not found")
+    
+    inst.is_deleted = True
+    inst.status = "DELETED"
+    inst.is_active = False
+    
+    # Cascade soft delete to users associated with this institution to prevent future logins
+    users = db.query(User).filter(User.institution_id == inst_id).all()
+    for u in users:
+        u.is_active = False
+        u.is_deleted = True
+        
+    db.commit()
+    
+    return {"message": f"Institution '{inst.name}' has been safely deleted."}
+
+@router.get("/entities/pending", dependencies=[Depends(RoleChecker(["FERWAFA"]))])
+def get_pending_entities(db: Session = Depends(get_db)):
+    institutions = db.query(Institution).filter(Institution.status == "PENDING").order_by(Institution.id.desc()).all()
+    results = []
+    for inst in institutions:
+        # Fetch the user associated with this institution to review admin info
+        user = db.query(User).filter(User.institution_id == inst.id).first()
+        inst_data = {
+            "id": inst.id,
+            "name": inst.name,
+            "type": inst.type,
+            "code": inst.code,
+            "contact": inst.contact,
+            "province": inst.province,
+            "district": inst.district,
+            "sector": inst.sector,
+            "cell": inst.cell,
+            "stadium_name": inst.stadium_name,
+            "logo_url": inst.logo_url,
+            "status": inst.status,
+            "admin_email": user.email if user else None,
+            "admin_name": user.full_name if user else None
+        }
+        results.append(inst_data)
+    return results
+
+@router.get("/entities/{inst_id}", dependencies=[Depends(RoleChecker(["FERWAFA"]))])
+def get_entity_details(inst_id: int, db: Session = Depends(get_db)):
+    """Fetch all details of a single institution, including admin user info for review."""
+    inst = db.query(Institution).filter(Institution.id == inst_id).first()
+    if not inst: raise HTTPException(status_code=404, detail="Institution not found")
+    
+    user = db.query(User).filter(User.institution_id == inst.id).first()
+    
+    return {
+        "id": inst.id,
+        "name": inst.name,
+        "type": inst.type,
+        "code": inst.code,
+        "contact": inst.contact,
+        "province": inst.province,
+        "district": inst.district,
+        "sector": inst.sector,
+        "cell": inst.cell,
+        "stadium_name": inst.stadium_name,
+        "logo_url": inst.logo_url,
+        "status": inst.status,
+        "is_active": inst.is_active,
+        "admin_email": user.email if user else None,
+        "admin_name": user.full_name if user else None
+    }
+
+class ApprovalRequest(BaseModel):
+    status: str # APPROVED, REJECTED, REQUEST_INFO
+
+@router.put("/entities/{inst_id}/status", dependencies=[Depends(RoleChecker(["FERWAFA"]))])
+def update_institution_status(inst_id: int, req: ApprovalRequest, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
+    inst = db.query(Institution).filter(Institution.id == inst_id).first()
+    if not inst: raise HTTPException(status_code=404, detail="Institution not found")
+    
+    if req.status not in ["APPROVED", "REJECTED", "REQUEST_INFO"]:
+        raise HTTPException(status_code=400, detail="Invalid status")
+        
+    try:
+        inst.status = req.status
+        user = db.query(User).filter(User.institution_id == inst_id).first()
+        
+        raw_key = None
+        if req.status == "APPROVED":
+            inst.is_active = True
+            if user:
+                user.is_active = True
+                
+            # Generate API key for Match Control
+            from backend.app.database.models import APIKey
+            import uuid
+            raw_key = uuid.uuid4().hex
+            new_key = APIKey(
+                key_hash=get_password_hash(raw_key),
+                service_name=f"{inst.type.upper()}_MATCH_NODE",
+                owner_email=user.email if user else "unknown"
+            )
+            db.add(new_key)
+            
+        elif req.status == "REJECTED":
+            inst.is_active = False
+            if user:
+                user.is_active = False
+                
+        db.commit()
+        if req.status == "APPROVED" and raw_key:
+            return {"message": f"Institution {inst.name} APPROVED. System access granted.", "raw_api_key": raw_key}
+            
+        return {"message": f"Institution {inst.name} marked as {req.status}."}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Database error during status update: {str(e)}")
 
 # 🏃 PLAYER REGISTRY MANAGEMENT (CLUB HUD)
 @router.post("/players", dependencies=[Depends(RoleChecker(["FERWAFA", "CLUB", "SCHOOL", "ACADEMY"]))])

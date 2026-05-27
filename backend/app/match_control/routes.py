@@ -10,7 +10,7 @@ from backend.app.config.database import get_db
 from backend.app.database.models import (
     Match, Institution, Player, MatchEvent,
     MatchSquad, MatchSession, SystemActivity, DisciplinaryRecord,
-    PlayerStat, MatchAnalytics
+    PlayerStat, MatchAnalytics, APIKey
 )
 from pydantic import BaseModel
 from typing import List, Optional
@@ -149,6 +149,20 @@ def create_match(req: CreateMatchRequest, db: Session = Depends(get_db), current
         raise HTTPException(status_code=400, detail="Invalid date format. Use ISO 8601.")
 
     with transactional(db):
+        import hashlib
+        hashed_key = hashlib.sha256(api_key.encode()).hexdigest()
+        
+        # 1. Create API Key record
+        api_key_record = APIKey(
+            key_hash=hashed_key,
+            service_name=f"AI_MACHINE_NODE_{institution.code}_{match_token}",
+            owner_email=current_user.get("email") or f"manager@{institution.code.lower()}.rw",
+            is_active=True
+        )
+        db.add(api_key_record)
+        db.flush()
+
+        # 2. Create Match
         match_payload = {
             "home_team_id": inst_id,
             "stadium": req.venue,
@@ -161,9 +175,14 @@ def create_match(req: CreateMatchRequest, db: Session = Depends(get_db), current
         }
         new_match = CrudMixin.create(Match, db, match_payload, actor_id=current_user["id"])
         
+        # 3. Create MatchSession
         session_payload = {
             "match_id": new_match.id,
-            "match_token": match_token
+            "match_token": match_token,
+            "api_key_id": api_key_record.id,
+            "device_type": "AI_MACHINE_NODE",
+            "status": "INACTIVE",
+            "ai_connected": False
         }
         CrudMixin.create(MatchSession, db, session_payload, actor_id=current_user["id"])
 
@@ -355,7 +374,7 @@ def set_kits(match_id: int, req: KitRequest, db: Session = Depends(get_db), curr
 
 
 @router.post("/{match_id}/event/manual")
-async def manual_event(match_id: int, req: ManualEventRequest, db: Session = Depends(get_db)):
+async def manual_event(match_id: int, req: ManualEventRequest, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
     """Record a manual event (goal, foul, card, substitution) and sync with National Databases."""
     match = db.query(Match).filter(Match.id == match_id).first()
     if not match:
@@ -416,13 +435,13 @@ async def manual_event(match_id: int, req: ManualEventRequest, db: Session = Dep
 
 
 @router.post("/{match_id}/event")
-async def log_event_simple(match_id: int, req: ManualEventRequest, db: Session = Depends(get_db)):
+async def log_event_simple(match_id: int, req: ManualEventRequest, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
     """Simple event alias — same as /event/manual. Used by the Match Control Center UI."""
-    return await manual_event(match_id, req, db)
+    return await manual_event(match_id, req, db, current_user)
 
 
 @router.delete("/{match_id}/correct/{event_id}")
-async def var_correction(match_id: int, event_id: int, db: Session = Depends(get_db)):
+async def var_correction(match_id: int, event_id: int, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
     """VAR-style correction: remove an incorrect event."""
     event = db.query(MatchEvent).filter(
         MatchEvent.id == event_id,
@@ -555,7 +574,7 @@ def export_match_csv(match_id: int, db: Session = Depends(get_db)):
 
 
 @router.post("/{match_id}/status")
-async def update_status(match_id: int, req: StatusRequest, db: Session = Depends(get_db)):
+async def update_status(match_id: int, req: StatusRequest, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
     """Update match status: LIVE, PAUSED, COMPLETED."""
     match = db.query(Match).filter(Match.id == match_id).first()
     if not match:

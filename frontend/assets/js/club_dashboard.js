@@ -30,6 +30,19 @@ const ClubDashboard = {
             window.location.href = '/login.html';
         }
         document.getElementById('user-name').innerText = localStorage.getItem('full_name') || 'CLUB USER';
+        
+        const logoUrl = localStorage.getItem('logo_url');
+        const avatarEl = document.getElementById('user-avatar');
+        if (avatarEl) {
+            if (logoUrl && logoUrl !== 'null' && logoUrl !== 'undefined' && logoUrl.trim() !== '') {
+                avatarEl.innerHTML = `<img src="${logoUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+                avatarEl.style.background = 'transparent';
+                avatarEl.style.color = 'transparent';
+            } else {
+                avatarEl.innerHTML = `<i data-lucide="shield" style="width:20px;height:20px;color:var(--text-secondary);"></i>`;
+                lucide.createIcons();
+            }
+        }
     },
 
     bindEvents() {
@@ -149,6 +162,36 @@ const ClubDashboard = {
         document.getElementById('modal-player-goals').innerText = player.goals || 0;
         document.getElementById('modal-player-assists').innerText = player.assists || 0;
         
+        const editBtn = document.getElementById('modal-edit-btn');
+        const deleteBtn = document.getElementById('modal-delete-btn');
+        if (editBtn) {
+            editBtn.onclick = () => {
+                window.location.href = `../players/add_player.html?id=${player.id}`;
+            };
+        }
+        if (deleteBtn) {
+            deleteBtn.onclick = async () => {
+                if (confirm(`Are you sure you want to release ${player.name} from the squad?`)) {
+                    try {
+                        const res = await fetch(`/api/players/${player.id}`, {
+                            method: 'DELETE',
+                            headers: { 'Authorization': `Bearer ${this.state.token}` }
+                        });
+                        if (res.ok) {
+                            alert("Player released successfully!");
+                            this.closePlayerModal();
+                            this.loadInitialData(); // Real-time sync list!
+                        } else {
+                            const err = await res.json();
+                            alert("Failed to release player: " + (err.detail || "Unknown error"));
+                        }
+                    } catch (e) {
+                        alert("Network error");
+                    }
+                }
+            };
+        }
+
         document.getElementById('player-modal').style.display = 'flex';
     },
 
@@ -222,7 +265,7 @@ const ClubDashboard = {
                     <div style="width: 30px; font-weight: 900; color: ${isSelected ? 'var(--accent-primary)' : 'var(--text-secondary)'};">${p.jersey_number || '??'}</div>
                     <div style="flex: 1; font-weight: 700;">${p.name}</div>
                     <div style="font-size: 0.7rem; color: var(--text-secondary); font-weight: 800; text-transform: uppercase;">${p.position}</div>
-                    <div style="width: 20px;">${isSelected ? '<i class="fa-solid fa-circle-check" style="color:var(--success)"></i>' : '<i class="fa-regular fa-circle"></i>'}</div>
+                    <div style="width: 20px;">${isSelected ? '<i data-lucide="circle" style="color:var(--success)"></i>' : '<i data-lucide="circle"></i>'}</div>
                 </div>
             `;
         }).join('');
@@ -231,7 +274,7 @@ const ClubDashboard = {
         preview.innerHTML = this.state.players.filter(p => this.state.selectedSquad.includes(p.id)).map(p => `
             <div style="background: var(--bg-tertiary); padding: 8px 16px; border-radius: 10px; font-size: 0.75rem; font-weight: 800; border: 1px solid var(--border); display: flex; align-items: center; gap: 8px;">
                 <span style="color: var(--accent-primary)">#${p.jersey_number}</span> ${p.name.split(' ')[0]}
-                <i class="fa-solid fa-xmark" style="cursor:pointer; color:var(--danger);" onclick="ClubDashboard.toggleMccPlayer(${p.id})"></i>
+                <i data-lucide="x" style="cursor:pointer; color:var(--danger);" onclick="ClubDashboard.toggleMccPlayer(${p.id})"></i>
             </div>
         `).join('');
 
@@ -265,7 +308,7 @@ const ClubDashboard = {
                 ${squadPlayers.map(p => {
                     const isXi = this.state.startingXI.includes(p.id);
                     return `
-                        <div style="padding: 1rem; background: ${isXi ? 'rgba(99, 102, 241, 0.1)' : '#000'}; border: 1px solid ${isXi ? 'var(--accent-primary)' : 'var(--border)'}; border-radius: 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="ClubDashboard.toggleXiPlayer(${p.id})">
+                        <div style="padding: 1rem; background: ${isXi ? 'rgba(22, 163, 74, 0.1)' : '#000'}; border: 1px solid ${isXi ? 'var(--accent-primary)' : 'var(--border)'}; border-radius: 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="ClubDashboard.toggleXiPlayer(${p.id})">
                             <div style="font-weight: 700; font-size: 0.9rem;">#${p.jersey_number} ${p.name}</div>
                             <div style="font-size: 0.6rem; font-weight: 800; text-transform: uppercase; color: var(--text-secondary);">${p.position}</div>
                         </div>
@@ -546,7 +589,7 @@ const ClubDashboard = {
                 for (let i = 1; i < this.state.playerTrails[f.id].length; i++) {
                     d += ` L ${this.state.playerTrails[f.id][i].x} ${this.state.playerTrails[f.id][i].y}`;
                 }
-                const color = f.team_side === 'home' ? '#6366f1' : '#ef4444';
+                const color = f.team_side === 'home' ? '#16A34A' : '#ef4444';
                 trailsLayer.innerHTML += `<path d="${d}" stroke="${color}" stroke-width="2" fill="none" opacity="0.3" />`;
             }
 
@@ -555,7 +598,7 @@ const ClubDashboard = {
                 ball.setAttribute('cx', x);
                 ball.setAttribute('cy', y);
             } else {
-                const color = f.team_side === 'home' ? '#6366f1' : '#ef4444';
+                const color = f.team_side === 'home' ? '#16A34A' : '#ef4444';
                 layer.innerHTML += `
                     <g transform="translate(${x},${y})">
                         <circle r="12" fill="${color}" stroke="white" stroke-width="1.5" />

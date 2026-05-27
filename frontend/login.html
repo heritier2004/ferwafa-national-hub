@@ -6,10 +6,11 @@
     <title>National Football Intelligence | Command Portal</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+    
     <style>
         :root {
-            --bg: #020617;
-            --primary: #6366f1;
+            --bg: #111827;
+            --primary: #16A34A;
             --text-main: #f8fafc;
             --text-dim: #94a3b8;
             --border: rgba(255, 255, 255, 0.08);
@@ -23,9 +24,10 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 100vh;
-            overflow: hidden;
-            background-image: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
+            min-height: 100vh;
+            overflow-y: auto;
+            background-image: radial-gradient(circle at center, #111827 0%, #111827 100%);
+            padding: 2rem 0;
         }
 
         .login-card {
@@ -45,54 +47,317 @@
         .group { margin-bottom: 2rem; }
         .group label { display: block; font-size: 0.7rem; color: var(--text-dim); margin-bottom: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; }
         .field { width: 100%; padding: 1.25rem; background: #000; border: 1px solid var(--border); border-radius: 12px; color: #FFF; font-family: inherit; font-size: 1rem; transition: 0.2s; }
-        .field:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1); }
+        .field:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1); }
 
         .btn { 
             width: 100%; padding: 1.25rem; border-radius: 12px; border: none; 
             background: linear-gradient(135deg, var(--primary), #4f46e5); color: #FFF; font-weight: 900; 
             text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; 
             transition: all 0.3s; font-size: 0.85rem;
-            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.2);
+            box-shadow: 0 10px 30px rgba(22, 163, 74, 0.2);
         }
-        .btn:hover { transform: translateY(-3px); box-shadow: 0 15px 40px rgba(99, 102, 241, 0.4); }
+        .btn:hover { transform: translateY(-3px); box-shadow: 0 15px 40px rgba(22, 163, 74, 0.4); }
 
         .error { color: #EF4444; font-size: 0.8rem; text-align: center; margin-top: 1.5rem; display: none; font-weight: 700; }
 
         .footer { text-align: center; margin-top: 3rem; font-size: 0.65rem; color: var(--text-dim); letter-spacing: 0.15em; text-transform: uppercase; font-weight: 700; }
     </style>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="/assets/js/api.js"></script>
 </head>
 <body>
 
-    <div class="login-card">
-        <div class="header">
-            <h1>Command <span>Portal</span></h1>
-            <p>Authorization Required</p>
+    <div class="login-card" style="position: relative; overflow: visible;">
+        
+        <!-- LOGIN VIEW -->
+        <div id="login-view" style="transition: transform 0.3s ease-in-out;">
+            <div class="header">
+                <h1>Command <span>Portal</span></h1>
+                <p>Authorization Required</p>
+            </div>
+
+            <form id="login-form">
+                <div class="group">
+                    <label>Identity Email</label>
+                    <input type="email" id="email" class="field" placeholder="name@ferwafa.rw" required>
+                </div>
+                <div class="group" style="position: relative;">
+                    <label>Access Password</label>
+                    <input type="password" id="password" class="field" placeholder="••••••••" required style="padding-right: 40px;">
+                    <i data-lucide="eye" style="position: absolute; right: 15px; top: 42px; color: var(--text-dim); cursor: pointer;" onclick="const p = document.getElementById('password'); if(p.type === 'password') { p.type = 'text'; this.classList.remove('fa-eye'); this.classList.add('fa-eye-slash'); } else { p.type = 'password'; this.classList.remove('fa-eye-slash'); this.classList.add('fa-eye'); }"></i>
+                </div>
+                <button type="submit" class="btn">Authorize Access</button>
+                <div id="login-error" class="error">INVALID CREDENTIALS</div>
+            </form>
+            
+            <div style="text-align: center; margin-top: 1.5rem;">
+                <a href="#" id="show-register" style="color: var(--primary); font-size: 0.75rem; text-decoration: none; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em;">Register Institution</a>
+            </div>
+
+            <div class="footer">
+                Secure National Intelligence Gateway
+            </div>
         </div>
 
-        <form id="login-form">
-            <div class="group">
-                <label>Identity Email</label>
-                <input type="email" id="email" class="field" placeholder="name@ferwafa.rw" required>
+        <!-- REGISTER VIEW -->
+        <div id="register-view" style="position: relative; display: none; width: 100%; transition: opacity 0.3s ease-in-out;">
+            <div class="header" style="margin-bottom: 2rem;">
+                <h1 style="font-size: 1.5rem;">Institution <span>Registry</span></h1>
+                <p id="step-indicator">Step 1 of 3: Basic Info</p>
             </div>
-            <div class="group">
-                <label>Access Password</label>
-                <input type="password" id="password" class="field" placeholder="••••••••" required>
-            </div>
-            <button type="submit" class="btn">Authorize Access</button>
-            <div id="error" class="error">INVALID CREDENTIALS</div>
-        </form>
 
-        <div class="footer">
-            Secure National Intelligence Gateway
+            <form id="register-form">
+                
+                <!-- STEP 1 -->
+                <div id="step-1">
+                    <div class="group">
+                        <label>Institution Type</label>
+                        <select id="reg-type" class="field" required>
+                            <option value="club">Football Club</option>
+                            <option value="academy">Football Academy</option>
+                            <option value="school">School</option>
+                        </select>
+                    </div>
+                    <div class="group">
+                        <label>Institution Name</label>
+                        <input type="text" id="reg-name" class="field" required>
+                    </div>
+                    <div class="group">
+                        <label>Official Email</label>
+                        <input type="email" id="reg-email" class="field" required>
+                    </div>
+                    <div class="group">
+                        <label>Password</label>
+                        <input type="password" id="reg-password" class="field" required minlength="6">
+                    </div>
+                    <div class="group">
+                        <label>Contact Number</label>
+                        <input type="text" id="reg-contact" class="field" required>
+                    </div>
+                    <button type="button" class="btn" onclick="nextStep(2)">Next Step</button>
+                </div>
+
+                <!-- STEP 2 -->
+                <div id="step-2" style="display: none;">
+                    <div class="group">
+                        <label>Province</label>
+                        <select id="reg-province" class="field" required onchange="updateDistricts()">
+                            <option value="">Select Province...</option>
+                            <option value="Kigali City">Kigali City</option>
+                            <option value="Northern">Northern</option>
+                            <option value="Southern">Southern</option>
+                            <option value="Eastern">Eastern</option>
+                            <option value="Western">Western</option>
+                        </select>
+                    </div>
+                    <div class="group">
+                        <label>District</label>
+                        <select id="reg-district" class="field" required>
+                            <option value="">Select District...</option>
+                        </select>
+                    </div>
+                    
+                    <div id="academy-school-fields" style="display: none;">
+                        <div class="group">
+                            <label>Sector</label>
+                            <input type="text" id="reg-sector" class="field">
+                        </div>
+                        <div class="group">
+                            <label>Village</label>
+                            <input type="text" id="reg-village" class="field">
+                        </div>
+                    </div>
+                    
+                    <div id="club-fields">
+                        <div class="group">
+                            <label>Hosting Stadium</label>
+                            <input type="text" id="reg-stadium" class="field">
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 10px;">
+                        <button type="button" class="btn" style="background: transparent; border: 1px solid var(--border); box-shadow: none;" onclick="prevStep(1)">Back</button>
+                        <button type="button" class="btn" onclick="nextStep(3)">Next Step</button>
+                    </div>
+                </div>
+
+                <!-- STEP 3 -->
+                <div id="step-3" style="display: none;">
+                    <div class="group">
+                        <label>Institution Logo</label>
+                        <input type="file" id="reg-logo" class="field" accept="image/png, image/jpeg, image/jpg">
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px;">
+                        <button type="button" class="btn" style="background: transparent; border: 1px solid var(--border); box-shadow: none;" onclick="prevStep(2)">Back</button>
+                        <button type="submit" class="btn">Submit Application</button>
+                    </div>
+                </div>
+                
+                <div id="reg-error" class="error"></div>
+                <div id="reg-success" style="color: var(--primary); font-size: 0.8rem; text-align: center; margin-top: 1.5rem; display: none; font-weight: 700;"></div>
+            </form>
+            
+            <div style="text-align: center; margin-top: 1.5rem;">
+                <a href="#" id="show-login" style="color: var(--text-dim); font-size: 0.75rem; text-decoration: none; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em;">Back to Login</a>
+            </div>
         </div>
     </div>
 
     <script>
+        // --- View Toggling ---
+        const loginView = document.getElementById('login-view');
+        const registerView = document.getElementById('register-view');
+        
+        document.getElementById('show-register').onclick = (e) => {
+            e.preventDefault();
+            loginView.style.display = 'none';
+            registerView.style.display = 'block';
+        };
+        
+        document.getElementById('show-login').onclick = (e) => {
+            e.preventDefault();
+            loginView.style.display = 'block';
+            registerView.style.display = 'none';
+        };
+
+        // --- Step Logic ---
+        function nextStep(step) {
+            // Validation before moving
+            if(step === 2) {
+                const name = document.getElementById('reg-name').value;
+                const email = document.getElementById('reg-email').value;
+                const pass = document.getElementById('reg-password').value;
+                const contact = document.getElementById('reg-contact').value;
+                
+                if(!name || !email || !pass || !contact) {
+                    showRegError("All basic information fields are required.");
+                    return;
+                }
+                
+                // Show/Hide specific fields based on type
+                const type = document.getElementById('reg-type').value;
+                if(type === 'club') {
+                    document.getElementById('club-fields').style.display = 'block';
+                    document.getElementById('academy-school-fields').style.display = 'none';
+                } else {
+                    document.getElementById('club-fields').style.display = 'none';
+                    document.getElementById('academy-school-fields').style.display = 'block';
+                }
+                hideRegError();
+            }
+            
+            if(step === 3) {
+                const prov = document.getElementById('reg-province').value;
+                const dist = document.getElementById('reg-district').value;
+                if(!prov || !dist) {
+                    showRegError("Province and District are required.");
+                    return;
+                }
+                hideRegError();
+            }
+
+            document.getElementById('step-1').style.display = step === 1 ? 'block' : 'none';
+            document.getElementById('step-2').style.display = step === 2 ? 'block' : 'none';
+            document.getElementById('step-3').style.display = step === 3 ? 'block' : 'none';
+            document.getElementById('step-indicator').innerText = `Step ${step} of 3`;
+        }
+
+function prevStep(step) {
+    // Simple navigation without validation when moving back
+    document.getElementById('step-1').style.display = step === 1 ? 'block' : 'none';
+    document.getElementById('step-2').style.display = step === 2 ? 'block' : 'none';
+    document.getElementById('step-3').style.display = step === 3 ? 'block' : 'none';
+    document.getElementById('step-indicator').innerText = `Step ${step} of 3`;
+    hideRegError();
+}
+
+        function showRegError(msg) {
+            const err = document.getElementById('reg-error');
+            err.innerText = msg;
+            err.style.display = 'block';
+        }
+        function hideRegError() {
+            document.getElementById('reg-error').style.display = 'none';
+        }
+
+        // --- District Dropdown Logic ---
+        const districts = {
+            "Kigali City": ["Gasabo", "Kicukiro", "Nyarugenge"],
+            "Northern": ["Burera", "Gakenke", "Gicumbi", "Musanze", "Rulindo"],
+            "Southern": ["Gisagara", "Huye", "Kamonyi", "Muhanga", "Nyamagabe", "Nyanza", "Nyaruguru", "Ruhango"],
+            "Eastern": ["Bugesera", "Gatsibo", "Kayonza", "Kirehe", "Ngoma", "Nyagatare", "Rwamagana"],
+            "Western": ["Karongi", "Ngororero", "Nyabihu", "Nyamasheke", "Rubavu", "Rusizi", "Rutsiro"]
+        };
+
+        function updateDistricts() {
+            const prov = document.getElementById('reg-province').value;
+            const distSelect = document.getElementById('reg-district');
+            distSelect.innerHTML = '<option value="">Select District...</option>';
+            
+            if(districts[prov]) {
+                districts[prov].forEach(d => {
+                    const opt = document.createElement('option');
+                    opt.value = d;
+                    opt.innerText = d;
+                    distSelect.appendChild(opt);
+                });
+            }
+        }
+
+        // --- Registration Submit ---
+        document.getElementById('register-form').onsubmit = async (e) => {
+            e.preventDefault();
+            hideRegError();
+            document.getElementById('reg-success').style.display = 'none';
+            
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.innerText = "PROCESSING...";
+            
+            const formData = new FormData();
+            formData.append('type', document.getElementById('reg-type').value);
+            formData.append('name', document.getElementById('reg-name').value);
+            formData.append('email', document.getElementById('reg-email').value);
+            formData.append('password', document.getElementById('reg-password').value);
+            formData.append('contact', document.getElementById('reg-contact').value);
+            formData.append('province', document.getElementById('reg-province').value);
+            formData.append('district', document.getElementById('reg-district').value);
+            formData.append('sector', document.getElementById('reg-sector').value);
+            formData.append('village', document.getElementById('reg-village').value);
+            formData.append('hosting_stadium', document.getElementById('reg-stadium').value);
+            
+            const logoFile = document.getElementById('reg-logo').files[0];
+            if(logoFile) formData.append('logo', logoFile);
+
+            try {
+                const response = await fetch('/api/auth/register_institution', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    document.getElementById('reg-success').innerText = data.message;
+                    document.getElementById('reg-success').style.display = 'block';
+                    document.getElementById('step-3').style.display = 'none';
+                    document.getElementById('step-indicator').style.display = 'none';
+                } else {
+                    showRegError(data.detail || "Registration failed");
+                }
+            } catch (err) {
+                showRegError("Connection failed");
+            } finally {
+                btn.innerText = "Submit Application";
+            }
+        };
+
+        // --- Login Logic ---
         document.getElementById('login-form').onsubmit = async (e) => {
             e.preventDefault();
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            const error = document.getElementById('error');
+            const error = document.getElementById('login-error');
             error.style.display = 'none';
 
             const formData = new FormData();
@@ -105,8 +370,9 @@
                     body: formData
                 });
 
+                const data = await response.json();
+
                 if (response.ok) {
-                    const data = await response.json();
                     localStorage.setItem('access_token', data.access_token);
                     localStorage.setItem('role', data.role);
                     localStorage.setItem('full_name', data.full_name);
@@ -124,12 +390,33 @@
                     else if (data.role === 'SCOUT') window.location.href = '/pages/dashboards/scout.html';
                 } else {
                     error.style.display = 'block';
+                    error.innerText = data.detail || "INVALID CREDENTIALS";
                 }
             } catch (err) {
                 error.style.display = 'block';
                 error.innerText = "CONNECTION FAILED";
             }
         };
+
+        // --- Form Navigation Logic ---
+        document.addEventListener('keydown', function(e) {
+            if (e.target.closest('#register-form') && (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT')) {
+                if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    const form = document.getElementById('register-form');
+                    const fields = Array.from(form.querySelectorAll('input:not([type="hidden"]), select')).filter(f => f.offsetParent !== null);
+                    const index = fields.indexOf(e.target);
+                    if (index > -1) {
+                        if (e.key === 'ArrowDown' && index < fields.length - 1) {
+                            fields[index + 1].focus();
+                        } else if (e.key === 'ArrowUp' && index > 0) {
+                            fields[index - 1].focus();
+                        }
+                    }
+                }
+            }
+        });
     </script>
+    <script>lucide.createIcons();</script>
 </body>
 </html>

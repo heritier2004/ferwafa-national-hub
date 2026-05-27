@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Superadmin Operations Center</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Manrope:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../../assets/css/superadmin.css" />
+    <script defer src="../../assets/js/superadmin.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="/assets/js/api.js"></script>
+</head>
+<body>
+    <!-- Sidebar -->
+    <nav class="superadmin-sidebar">
+        <div class="logo">
+            <h2>SUPERADMIN</h2>
+        </div>
+        <ul class="sidebar-menu">
+            <li class="active"><a href="dashboard.html"><svg viewBox="0 0 24 24" class="icon"><!-- System Overview SVG --><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8v-10h-8v10zm0-18v6h8V3h-8z" fill="currentColor"/></svg><span>System Overview</span></a></li>
+            <li><a href="ai_monitoring.html"><svg viewBox="0 0 24 24" class="icon"><!-- AI Monitoring SVG --><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" fill="currentColor"/></svg><span>AI Machine Monitoring</span></a></li>
+            <li><a href="live_streams.html"><svg viewBox="0 0 24 24" class="icon"><!-- Live Streams SVG --><path d="M4 6h16v12H4V6zm2 2v8h12V8H6z" fill="currentColor"/></svg><span>Live Streams</span></a></li>
+            <li><a href="connected_devices.html"><svg viewBox="0 0 24 24" class="icon"><!-- Connected Devices SVG --><path d="M12 1a9 9 0 010 18 9 9 0 010-18zm0 2a7 7 0 100 14 7 7 0 000-14z" fill="currentColor"/></svg><span>Connected Devices</span></a></li>
+            <li><a href="match_processing.html"><svg viewBox="0 0 24 24" class="icon"><!-- Match Processing SVG --><path d="M5 3h14v2H5V3zm0 4h14v2H5V7zm0 4h14v2H5v-2zm0 4h14v2H5v-2z" fill="currentColor"/></svg><span>Match Processing</span></a></li>
+            <li><a href="api_management.html"><svg viewBox="0 0 24 24" class="icon"><!-- API Management SVG --><path d="M4 4h16v16H4V4zm2 2v12h12V6H6z" fill="currentColor"/></svg><span>API Management</span></a></li>
+            <li><a href="match_tokens.html"><svg viewBox="0 0 24 24" class="icon"><!-- Match Tokens SVG --><path d="M12 2l4 4H8l4-4zM6 10h12v2H6v-2zm0 4h12v2H6v-2z" fill="currentColor"/></svg><span>Match Tokens</span></a></li>
+            <li><a href="real_time_services.html"><svg viewBox="0 0 24 24" class="icon"><!-- Real‑Time Services SVG --><path d="M3 12h18v2H3v-2z" fill="currentColor"/></svg><span>Real‑Time Services</span></a></li>
+            <li><a href="database_monitoring.html"><svg viewBox="0 0 24 24" class="icon"><!-- Database Monitoring SVG --><path d="M5 3h14v2H5V3zm0 4h14v2H5V7zm0 4h14v2H5v-2zm0 4h14v2H5v-2z" fill="currentColor"/></svg><span>Database Monitoring</span></a></li>
+            <li><a href="storage_media.html"><svg viewBox="0 0 24 24" class="icon"><!-- Storage & Media SVG --><path d="M4 6h16v12H4V6zm2 2v8h12V8H6z" fill="currentColor"/></svg><span>Storage & Media</span></a></li>
+            <li><a href="auth_access.html"><svg viewBox="0 0 24 24" class="icon"><!-- Auth & Access SVG --><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" fill="currentColor"/></svg><span>Authentication & Access</span></a></li>
+            <li><a href="notifications.html"><svg viewBox="0 0 24 24" class="icon"><!-- Notifications SVG --><path d="M12 22a2 2 0 002-2H10a2 2 0 002 2zm6-6V11c0-3.07-1.64-5.64-5-6.32V4a1 1 0 10-2 0v.68c-3.36.68-5 3.25-5 6.32v5l-2 2v1h16v-1l-2-2z" fill="currentColor"/></svg><span>Notifications System</span></a></li>
+            <li><a href="logs_activity.html"><svg viewBox="0 0 24 24" class="icon"><!-- Logs & Activity SVG --><path d="M4 4h16v2H4V4zm0 4h16v2H4V8zm0 4h10v2H4v-2zm12 0h4v2h-4v-2z" fill="currentColor"/></svg><span>Logs & Activity</span></a></li>
+            <li><a href="security_monitoring.html"><svg viewBox="0 0 24 24" class="icon"><!-- Security Monitoring SVG --><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z" fill="currentColor"/></svg><span>Security Monitoring</span></a></li>
+            <li><a href="infrastructure_settings.html"><svg viewBox="0 0 24 24" class="icon"><!-- Infrastructure Settings SVG --><path d="M12 8a4 4 0 110 8 4 4 0 010-8zm0-5c-1.1 0-2 .9-2 2v1.18A7.02 7.02 0 005 12c0 3.86 2.69 7.1 6.25 7.81V21c0 1.1.9 2 2 2s2-.9 2-2v-1.19A7.02 7.02 0 0019 12c0-3.86-2.69-7.1-6.25-7.81V5c0-1.1-.9-2-2-2z" fill="currentColor"/></svg><span>Infrastructure Settings</span></a></li>
+            <li><a href="backup_recovery.html"><svg viewBox="0 0 24 24" class="icon"><!-- Backup & Recovery SVG --><path d="M17 3H7c-1.1 0-2 .9-2 2v14l4-4h8c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z" fill="currentColor"/></svg><span>Backup & Recovery</span></a></li>
+            <li><a href="performance_analytics.html"><svg viewBox="0 0 24 24" class="icon"><!-- Performance Analytics SVG --><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm4 0h2v-2H7v2zm4 0h2v-2h-2v2zm4 0h2v-2h-2v2zm-8-8h2V7H7v2zm4 0h2V7h-2v2zm4 0h2V7h-2v2z" fill="currentColor"/></svg><span>Performance Analytics</span></a></li>
+            <li><a href="system_configuration.html"><svg viewBox="0 0 24 24" class="icon"><!-- System Configuration SVG --><path d="M19 3H5c-1.1 0-2 .9-2 2v14l4-4h12c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z" fill="currentColor"/></svg><span>System Configuration</span></a></li>
+        </ul>
+    </nav>
+    <!-- Main Content -->
+    <main class="superadmin-main">
+        <section class="top-cards">
+            <div class="card" id="card-active-users"><span class="value" data-key="activeUsers">--</span><span class="label">Active Users</span></div>
+            <div class="card" id="card-live-matches"><span class="value" data-key="liveMatches">--</span><span class="label">Live Matches</span></div>
+            <div class="card" id="card-ai-processes"><span class="value" data-key="aiProcesses">--</span><span class="label">AI Processes Running</span></div>
+            <div class="card" id="card-cameras"><span class="value" data-key="cameras">--</span><span class="label">Connected Cameras</span></div>
+            <div class="card" id="card-streams"><span class="value" data-key="streams">--</span><span class="label">Active Streams</span></div>
+            <div class="card" id="card-api-requests"><span class="value" data-key="apiRequests">--</span><span class="label">API Requests</span></div>
+            <div class="card" id="card-db-health"><span class="value" data-key="dbHealth">--</span><span class="label">Database Health</span></div>
+            <div class="card" id="card-system-health"><span class="value" data-key="systemHealth">--</span><span class="label">System Health</span></div>
+        </section>
+        <section class="live-status">
+            <h3>Live System Status</h3>
+            <div class="status-grid">
+                <div class="status-item" id="status-ai"><span class="status-label">AI Engine</span><span class="status-indicator"></span></div>
+                <div class="status-item" id="status-gpu"><span class="status-label">GPU Usage</span><span class="status-indicator"></span></div>
+                <div class="status-item" id="status-stream-sync"><span class="status-label">Stream Sync</span><span class="status-indicator"></span></div>
+                <div class="status-item" id="status-server"><span class="status-label">Server Health</span><span class="status-indicator"></span></div>
+                <div class="status-item" id="status-queue"><span class="status-label">Processing Queue</span><span class="status-indicator"></span></div>
+                <div class="status-item" id="status-services"><span class="status-label">Realtime Services</span><span class="status-indicator"></span></div>
+            </div>
+        </section>
+        <section class="activity-feed">
+            <h3>Live Activity Feed</h3>
+            <ul id="activity-list">
+                <!-- Activity items will be prepended here -->
+            </ul>
+        </section>
+    </main>
+    <script>lucide.createIcons();</script>
+</body>
+</html>

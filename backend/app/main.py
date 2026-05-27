@@ -144,8 +144,15 @@ _CASCADE_MIGRATIONS = [
     "ALTER TABLE attendance DROP CONSTRAINT IF EXISTS attendance_player_id_fkey, ADD CONSTRAINT attendance_player_id_fkey FOREIGN KEY (player_id) REFERENCES players(id) ON DELETE CASCADE",
 ]
 
+_SESSION_MIGRATIONS = [
+    "ALTER TABLE match_sessions ADD COLUMN IF NOT EXISTS stream_id VARCHAR UNIQUE",
+    "ALTER TABLE match_sessions ADD COLUMN IF NOT EXISTS api_key_id INTEGER",
+    "ALTER TABLE match_sessions ADD COLUMN IF NOT EXISTS device_type VARCHAR DEFAULT 'UNKNOWN'",
+    "ALTER TABLE match_sessions ADD COLUMN IF NOT EXISTS status VARCHAR DEFAULT 'INACTIVE'"
+]
+
 with engine.connect() as conn:
-    for sql in _MATCH_MIGRATIONS + _GLOBAL_MIGRATIONS + _EVENT_MIGRATIONS + _COMPETITION_MIGRATIONS + _CASCADE_MIGRATIONS:
+    for sql in _MATCH_MIGRATIONS + _GLOBAL_MIGRATIONS + _EVENT_MIGRATIONS + _COMPETITION_MIGRATIONS + _CASCADE_MIGRATIONS + _SESSION_MIGRATIONS:
         try:
             conn.execute(text(sql))
         except Exception as e:
@@ -210,12 +217,18 @@ async def startup_event():
                 code="AMAV-2026",
                 stadium_name="Kigali Pelé Stadium",
                 province="Kigali City",
-                division="Premier League"
+                division="Premier League",
+                status="APPROVED"
             )
             db_seed.add(club_inst)
             db_seed.commit()
             db_seed.refresh(club_inst)
             print(f"[SEED] Created Club Institution: {club_inst.name}")
+        else:
+            if club_inst.status != "APPROVED":
+                club_inst.status = "APPROVED"
+                db_seed.commit()
+                print(f"[SEED] Updated Club Institution status to APPROVED")
 
         club_user = db_seed.query(User).filter(User.email == "club@ferwafa.rw").first()
         if not club_user:
@@ -363,40 +376,66 @@ async def ai_machine_ingest(websocket: WebSocket, token: str, key: str):
     AI Pitch Machine connects here with its match token + API key.
     """
     from backend.app.match_control.ai_ingest import manager
+    from backend.app.database.models import APIKey, MatchSession
     import hashlib
 
     db = SessionLocal()
     try:
-        # 1. AUTHENTICATE
+        # 1. AUTHENTICATE API KEY
         hashed_key = hashlib.sha256(key.encode()).hexdigest()
-        match = db.query(Match).filter(
-            Match.match_token == token,
-            Match.api_key_hash == hashed_key
-        ).first()
+        api_key_record = db.query(APIKey).filter(APIKey.key_hash == hashed_key, APIKey.is_active == True).first()
+        if not api_key_record:
+            await websocket.accept()
+            await websocket.send_json({"type": "auth_error", "message": "Invalid API Key"})
+            await websocket.close(code=4001)
+            return
 
+        # 2. VALIDATE MATCH TOKEN
+        match = db.query(Match).filter(Match.match_token == token).first()
         if not match:
             await websocket.accept()
-            await websocket.send_json({"type": "auth_error", "message": "Invalid Credentials"})
+            await websocket.send_json({"type": "auth_error", "message": "Invalid Match Token"})
             await websocket.close(code=4001)
             return
 
         match_id = match.id
         
-        # 2. CONNECT
+        # 3. CREATE STREAM SESSION BINDING
+        stream_id = str(uuid.uuid4())
+        session = db.query(MatchSession).filter(MatchSession.match_id == match_id).first()
+        if not session:
+            session = MatchSession(match_id=match_id, match_token=token)
+            db.add(session)
+        
+        session.stream_id = stream_id
+        session.api_key_id = api_key_record.id
+        session.device_type = "AI_MACHINE_NODE"
+        session.status = "ACTIVE"
+        session.ai_connected = True
+        session.last_heartbeat = datetime.utcnow()
+        db.commit()
+
+        # 4. CONNECT TO LIVE EVENT BUS
         if not await manager.connect_ai_machine(websocket, match_id):
             await websocket.close(code=4002)
             return
 
-        # 3. BROADCAST STATUS
+        # 5. BROADCAST STATUS
         await manager.broadcast_match_event(match_id, {
             "type": "ai_connected",
-            "message": "AI Intelligence Hub Online"
+            "message": "AI Intelligence Hub Online",
+            "stream_id": stream_id
         })
 
-        # 4. LISTEN & PROCESS
+        # 6. LISTEN & PROCESS IN BACKGROUND
         while True:
             data = await websocket.receive_json()
-            await manager.handle_secure_message(match_id, data)
+            try:
+                await manager.handle_secure_message(match_id, data)
+            except ValueError as ve:
+                await websocket.send_json({"type": "auth_error", "message": str(ve)})
+                await websocket.close(code=4003)
+                break
 
     except WebSocketDisconnect:
         manager.disconnect_ai_machine(match_id)

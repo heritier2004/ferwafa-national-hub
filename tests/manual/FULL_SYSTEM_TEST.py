@@ -7,7 +7,7 @@ import json
 import sys
 import time
 
-BASE = "http://localhost:8001"
+BASE = "http://127.0.0.1:8001"
 PASS = 0
 FAIL = 0
 FIXES = []
@@ -32,7 +32,7 @@ def section(title):
 # ============================================================
 section("1. SERVER HEALTH")
 try:
-    r = requests.get(f"{BASE}/api/match/all", timeout=5)
+    r = requests.get(f"{BASE}/", timeout=5)
     test("Backend is reachable", r.status_code == 200)
 except:
     print("  [FATAL] Cannot reach backend at localhost:8001. Is it running?")
@@ -74,6 +74,7 @@ test("Admin login returns 200", r.status_code == 200, f"Got {r.status_code}")
 if r.status_code == 200:
     ad = r.json()
     test("Role is SUPER_ADMIN", ad.get("role") == "SUPER_ADMIN")
+    ADMIN_HEADERS = {"Authorization": f"Bearer {ad.get('access_token')}"}
 
 # ============================================================
 # 5. FERWAFA ENDPOINTS
@@ -92,8 +93,14 @@ if r.status_code == 200:
 # 6. MATCH CREATION (THE CORE TEST)
 # ============================================================
 section("6. MATCH - CREATE NEW SESSION")
+import base64
+payload_part = TOKEN.split('.')[1]
+payload_part += "=" * ((4 - len(payload_part) % 4) % 4)
+payload = json.loads(base64.b64decode(payload_part).decode('utf-8'))
+INSTITUTION_ID = payload.get("institution_id")
+
 match_payload = {
-    "institution_id": 1,
+    "institution_id": INSTITUTION_ID,
     "match_date": "2026-05-01T16:00:00",
     "venue": "Amahoro National Stadium",
     "competition_type": "Friendly",
@@ -125,7 +132,7 @@ else:
 # ============================================================
 if MATCH_ID:
     section("7. MATCH - LOAD SESSION")
-    r = requests.get(f"{BASE}/api/match/{MATCH_ID}")
+    r = requests.get(f"{BASE}/api/match/{MATCH_ID}", headers=HEADERS)
     test("GET /api/match/{id} returns 200", r.status_code == 200, f"Got {r.status_code}: {r.text[:300]}")
     if r.status_code == 200:
         m = r.json()
@@ -139,7 +146,7 @@ if MATCH_ID:
 # 8. MATCH LIST (ALL)
 # ============================================================
     section("8. MATCH - LIST ALL")
-    r = requests.get(f"{BASE}/api/match/all")
+    r = requests.get(f"{BASE}/api/match/all", headers=HEADERS)
     test("GET /api/match/all returns 200", r.status_code == 200, f"Got {r.status_code}")
     if r.status_code == 200:
         matches = r.json()
@@ -150,8 +157,8 @@ if MATCH_ID:
 # 9. PLAYERS / SQUAD
 # ============================================================
     section("9. SQUAD - LOAD PLAYERS")
-    r = requests.get(f"{BASE}/api/match/institution/1/players", headers=HEADERS)
-    test("GET /api/match/institution/1/players returns 200", r.status_code == 200, f"Got {r.status_code}: {r.text[:200]}")
+    r = requests.get(f"{BASE}/api/match/institution/{INSTITUTION_ID}/players", headers=HEADERS)
+    test("GET /api/match/institution/{id}/players returns 200", r.status_code == 200, f"Got {r.status_code}: {r.text[:200]}")
     if r.status_code == 200:
         players = r.json()
         test("Players list is not empty", len(players) > 0, f"Got {len(players)}")
@@ -196,7 +203,7 @@ if MATCH_ID:
     test("POST manual yellow card", r.status_code == 200, f"Got {r.status_code}: {r.text[:200]}")
 
     # Load events
-    r = requests.get(f"{BASE}/api/match/{MATCH_ID}/events")
+    r = requests.get(f"{BASE}/api/match/{MATCH_ID}/events", headers=HEADERS)
     test("GET /api/match/{id}/events returns 200", r.status_code == 200, f"Got {r.status_code}: {r.text[:200]}")
     if r.status_code == 200:
         evts = r.json()
@@ -207,43 +214,42 @@ if MATCH_ID:
 # 11. SCORE VERIFICATION
 # ============================================================
     section("11. SCORE - VERIFY AFTER GOAL")
-    r = requests.get(f"{BASE}/api/match/{MATCH_ID}")
+    r = requests.get(f"{BASE}/api/match/{MATCH_ID}", headers=HEADERS)
     if r.status_code == 200:
         m = r.json()
         test("Home score updated to 1", m.get("score_home") == 1, f"Got score_home={m.get('score_home')}")
         test("Away score still 0", m.get("score_away") == 0, f"Got score_away={m.get('score_away')}")
-
 # ============================================================
 # 12. SCHOOL ENDPOINTS
 # ============================================================
 section("12. SCHOOL ENDPOINTS")
-r = requests.get(f"{BASE}/api/school/stats/1")
+r = requests.get(f"{BASE}/api/school/stats/1", headers=HEADERS)
 test("GET /api/school/stats/1", r.status_code == 200, f"Got {r.status_code}: {r.text[:200]}")
 
-r = requests.get(f"{BASE}/api/school/players/1")
+r = requests.get(f"{BASE}/api/school/players/1", headers=HEADERS)
 test("GET /api/school/players/1", r.status_code == 200, f"Got {r.status_code}: {r.text[:200]}")
 
 # ============================================================
 # 13. SCOUTING ENDPOINTS
 # ============================================================
 section("13. SCOUTING ENDPOINTS")
-r = requests.get(f"{BASE}/api/scouting/top-talents")
+r = requests.get(f"{BASE}/api/scouting/top-talents", headers=HEADERS)
 test("GET /api/scouting/top-talents", r.status_code == 200, f"Got {r.status_code}: {r.text[:200]}")
 
 # ============================================================
 # 14. ADMIN ENDPOINTS
 # ============================================================
 section("14. ADMIN ENDPOINTS")
-r = requests.get(f"{BASE}/api/admin/system/settings")
+r = requests.get(f"{BASE}/api/admin/system/settings", headers=ADMIN_HEADERS)
 test("GET /api/admin/system/settings", r.status_code == 200, f"Got {r.status_code}: {r.text[:200]}")
 
-r = requests.get(f"{BASE}/api/admin/users")
+r = requests.get(f"{BASE}/api/admin/users", headers=ADMIN_HEADERS)
 test("GET /api/admin/users", r.status_code == 200, f"Got {r.status_code}: {r.text[:200]}")
 if r.status_code == 200:
     users = r.json()
     print(f"    -> Total users: {len(users)}")
 
-r = requests.get(f"{BASE}/api/admin/errors")
+r = requests.get(f"{BASE}/api/admin/errors", headers=ADMIN_HEADERS)
 test("GET /api/admin/errors", r.status_code == 200, f"Got {r.status_code}: {r.text[:200]}")
 
 # ============================================================
@@ -251,7 +257,7 @@ test("GET /api/admin/errors", r.status_code == 200, f"Got {r.status_code}: {r.te
 # ============================================================
 if MATCH_ID:
     section("15. CSV EXPORT")
-    r = requests.get(f"{BASE}/api/match/{MATCH_ID}/export/csv")
+    r = requests.get(f"{BASE}/api/match/{MATCH_ID}/export/csv", headers=HEADERS)
     test("GET /api/match/{id}/export/csv", r.status_code == 200, f"Got {r.status_code}: {r.text[:200]}")
 
 # ============================================================
@@ -259,7 +265,7 @@ if MATCH_ID:
 # ============================================================
 if MATCH_ID:
     section("16. AI MACHINE - CREDENTIAL VALIDATION")
-    r = requests.post(f"{BASE}/api/match/validate-ai", json={"api_key": API_KEY, "match_token": MATCH_TOKEN})
+    r = requests.post(f"{BASE}/api/match/validate-ai", json={"api_key": API_KEY, "match_token": MATCH_TOKEN}, headers=HEADERS)
     test("POST /api/match/validate-ai", r.status_code == 200, f"Got {r.status_code}: {r.text[:200]}")
 
 # ============================================================

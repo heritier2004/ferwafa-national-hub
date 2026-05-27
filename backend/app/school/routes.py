@@ -13,7 +13,7 @@ from backend.app.auth.dependencies import get_current_user, RoleChecker
 router = APIRouter(
     prefix="/api/school", 
     tags=["school"],
-    dependencies=[Depends(RoleChecker(["SCHOOL", "FERWAFA"]))]
+    dependencies=[Depends(RoleChecker(["SCHOOL", "FERWAFA", "CLUB"]))]
 )
 
 class AttendanceLog(BaseModel):

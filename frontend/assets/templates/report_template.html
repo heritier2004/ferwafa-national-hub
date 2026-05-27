@@ -153,6 +153,8 @@
             font-weight: bold;
         }
     </style>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="/assets/js/api.js"></script>
 </head>
 <body>
     <button class="btn btn-print" onclick="window.print()">Print Official Report</button>
@@ -228,5 +230,6 @@
             document.getElementById('doc-id').textContent = 'NMR-2026-' + Math.random().toString(36).substr(2, 9).toUpperCase();
         });
     </script>
+    <script>lucide.createIcons();</script>
 </body>
 </html>

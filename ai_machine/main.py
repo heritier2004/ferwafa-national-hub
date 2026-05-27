@@ -9,6 +9,7 @@ import asyncio
 import sys
 import os
 import uvicorn
+import subprocess
 from pathlib import Path
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
@@ -18,13 +19,12 @@ from datetime import datetime
 
 from ai_machine.config import Config
 from ai_machine.connection import AIConnection
-from ai_machine.processor import VideoProcessor
+from ai_machine.processor import AIVideoProcessingEngine
 
 # ── App State ──────────────────────────────────────────────────────
 config = Config()
 connection: AIConnection = None
-processor: VideoProcessor = None
-_processing_task = None
+processor: AIVideoProcessingEngine = None
 test_mode = False
 test_frames = 0
 test_events = 0
@@ -175,7 +175,7 @@ async def save_config(data: dict):
 # ── Control Endpoints ──────────────────────────────────────────────
 @app.post("/control/start")
 async def start_analysis():
-    global connection, processor, _processing_task
+    global connection, processor
 
     if not config.is_configured():
         return JSONResponse({"success": False, "error": "Not configured — run setup wizard first"}, status_code=400)
@@ -244,36 +244,57 @@ async def start_analysis():
     await connection.start()
 
     # 3. Start processing with full squad and location awareness
-    processor = VideoProcessor(config, connection, squad_list, venue_metadata)
-    _processing_task = asyncio.create_task(processor.run())
-    return {"success": True, "message": "Analysis started with automated database sync"}
+    processor = AIVideoProcessingEngine(config, connection, squad_list, venue_metadata, loop=asyncio.get_running_loop())
+    processor.start() # Start the background OS thread
+    return {"success": True, "message": "Analysis started with automated database sync in background"}
 
 
 @app.post("/control/pause")
 async def pause_analysis():
     if processor and processor.is_running:
         if processor.is_paused:
-            processor.resume()
+            processor.is_paused = False
             return {"success": True, "message": "Resumed"}
         else:
-            processor.pause()
+            processor.is_paused = True
             return {"success": True, "message": "Paused"}
     return {"success": False, "error": "Not running"}
 
 
 @app.post("/control/stop")
 async def stop_analysis():
-    global _processing_task, test_mode, test_frames, test_events
+    global test_mode, test_frames, test_events
     test_mode = False
     test_frames = 0
     test_events = 0
     if processor:
-        processor.stop()
+        processor.is_running = False
     if connection:
-        await connection.disconnect()
-    if _processing_task and not _processing_task.done():
-        _processing_task.cancel()
+        if hasattr(connection, 'stop'):
+            await connection.stop()
+        elif hasattr(connection, 'disconnect'):
+            await connection.disconnect()
     return {"success": True, "message": "Analysis stopped"}
+
+
+@app.post("/control/connect-phone")
+async def connect_phone_usb():
+    try:
+        # Run adb forward command to pull video from phone IP Webcam server via USB
+        result = subprocess.run(
+            ["adb", "forward", "tcp:8080", "tcp:8080"],
+            capture_output=True,
+            text=True,
+            check=False
+        )
+        if result.returncode == 0:
+            return {"success": True, "message": "Phone USB Bridge Established. Source set to IP Webcam."}
+        else:
+            return {"success": False, "error": f"ADB failed: {result.stderr.strip()}. Ensure USB Debugging is on."}
+    except FileNotFoundError:
+         return {"success": False, "error": "ADB is not installed or not in PATH. Please install Android Platform Tools."}
+    except Exception as e:
+         return {"success": False, "error": str(e)}
 
 
 @app.post("/control/test")

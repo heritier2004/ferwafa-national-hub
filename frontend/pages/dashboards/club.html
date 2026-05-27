@@ -10,11 +10,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     
     <!-- ICONS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     
     <!-- STYLES -->
     <link rel="stylesheet" href="../../assets/css/club_dashboard.css?v=2.0">
     <link rel="stylesheet" href="../../assets/css/mcc.css?v=2.0">
+    
+    <!-- PDF GENERATION ENGINE -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="/assets/js/api.js"></script>
 </head>
 <body>
     <div class="app-container">
@@ -27,66 +32,66 @@
             
             <nav class="nav-menu">
                 <div class="nav-item active" data-module="overview">
-                    <i class="fa-solid fa-gauge-high"></i>
+                    <i data-lucide="gauge"></i>
                     <span>Dashboard Overview</span>
                 </div>
                 <div class="nav-item" data-module="players">
-                    <i class="fa-solid fa-users"></i>
+                    <i data-lucide="user"></i>
                     <span>Players</span>
                 </div>
                 <div class="nav-item" data-module="teams">
-                    <i class="fa-solid fa-shield-halved"></i>
+                    <i data-lucide="shield-half"></i>
                     <span>Teams</span>
                 </div>
                 <div class="nav-item" data-module="coaches">
-                    <i class="fa-solid fa-user-tie"></i>
+                    <i data-lucide="user"></i>
                     <span>Coaches</span>
                 </div>
                 <div class="nav-item" data-module="training">
-                    <i class="fa-solid fa-person-running"></i>
+                    <i data-lucide="person"></i>
                     <span>Training</span>
                 </div>
-                <div class="nav-item" onclick="window.location.href='../match/match_control.html'" style="border-left-color: var(--accent-primary); background: rgba(99, 102, 241, 0.05);">
-                    <i class="fa-solid fa-gamepad"></i>
-                    <span>Match Control Center <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 0.6rem; margin-left: 5px;"></i></span>
+                <div class="nav-item" onclick="window.location.href='../match/match_control.html'" style="border-left-color: var(--accent-primary); background: rgba(22, 163, 74, 0.05);">
+                    <i data-lucide="gamepad"></i>
+                    <span>Match Control Center <i data-lucide="arrow" style="font-size: 0.6rem; margin-left: 5px;"></i></span>
                 </div>
                 <div class="nav-item" data-module="competitions">
-                    <i class="fa-solid fa-trophy"></i>
+                    <i data-lucide="trophy"></i>
                     <span>Competitions</span>
                 </div>
                 <div class="nav-item" data-module="analytics">
-                    <i class="fa-solid fa-chart-line"></i>
+                    <i data-lucide="line-chart"></i>
                     <span>Analytics</span>
                 </div>
                 <div class="nav-item" data-module="scouting">
-                    <i class="fa-solid fa-binoculars"></i>
+                    <i data-lucide="binoculars"></i>
                     <span>Scouting</span>
                 </div>
                 <div class="nav-item" data-module="medical">
-                    <i class="fa-solid fa-heart-pulse"></i>
+                    <i data-lucide="heart"></i>
                     <span>Medical & Fitness</span>
                 </div>
                 <div class="nav-item" data-module="transfers">
-                    <i class="fa-solid fa-right-left"></i>
+                    <i data-lucide="right"></i>
                     <span>Transfers</span>
                 </div>
                 <div class="nav-item" data-module="reports">
-                    <i class="fa-solid fa-file-contract"></i>
+                    <i data-lucide="file-text"></i>
                     <span>Reports</span>
                 </div>
                 <div class="nav-item" data-module="documents">
-                    <i class="fa-solid fa-folder-open"></i>
+                    <i data-lucide="folder"></i>
                     <span>Documents</span>
                 </div>
                 <div class="nav-item" data-module="settings">
-                    <i class="fa-solid fa-gear"></i>
+                    <i data-lucide="settings"></i>
                     <span>Settings</span>
                 </div>
             </nav>
             
             <div class="sidebar-footer">
                 <button class="btn btn-outline" style="width: 100%; border-color: var(--danger); color: var(--danger);" onclick="ClubDashboard.logout()">
-                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <i data-lucide="log-out"></i>
                     <span>Logout</span>
                 </button>
             </div>
@@ -100,7 +105,7 @@
                 
                 <div class="header-actions">
                     <div id="sys-status" style="font-size: 0.75rem; color: var(--success);">
-                        <i class="fa-solid fa-circle"></i> AI CONNECTED
+                        <i data-lucide="circle"></i> AI CONNECTED
                     </div>
                     <div class="user-profile">
                         <div class="user-avatar" id="user-avatar">C</div>
@@ -128,9 +133,9 @@
                             <div style="background: #000; border-radius: 12px; padding: 2rem; border: 1px solid rgba(255,255,255,0.05);">
                                 <div style="font-size: 0.7rem; color: #94a3b8; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase;">Total Players</div>
                                 <div style="font-size: 2.5rem; font-weight: 900; margin-top: 1rem; color: white;" id="total-players-count">0</div>
-                                <div style="font-size: 0.8rem; color: #10b981; margin-top: 0.5rem; font-weight: 600;"><i class="fa-solid fa-arrow-up"></i> +2 this month</div>
+                                <div style="font-size: 0.8rem; color: #10b981; margin-top: 0.5rem; font-weight: 600;"><i data-lucide="arrow"></i> +2 this month</div>
                             </div>
-                            <div style="background: #000; border-radius: 12px; padding: 2rem; border: 1px solid rgba(255,255,255,0.05); border-left: 4px solid #6366f1;">
+                            <div style="background: #000; border-radius: 12px; padding: 2rem; border: 1px solid rgba(255,255,255,0.05); border-left: 4px solid #16A34A;">
                                 <div style="font-size: 0.7rem; color: #94a3b8; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase;">Active Squad</div>
                                 <div style="font-size: 2.5rem; font-weight: 900; margin-top: 1rem; color: white;">24</div>
                                 <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 0.5rem; font-weight: 600;">Full Capacity</div>
@@ -138,20 +143,20 @@
                             <div style="background: #000; border-radius: 12px; padding: 2rem; border: 1px solid rgba(255,255,255,0.05);">
                                 <div style="font-size: 0.7rem; color: #94a3b8; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase;">Team Performance</div>
                                 <div style="font-size: 2.5rem; font-weight: 900; margin-top: 1rem; color: white;">8.7</div>
-                                <div style="font-size: 0.8rem; color: #10b981; margin-top: 0.5rem; font-weight: 600;"><i class="fa-solid fa-arrow-up"></i> +0.3 vs Last Match</div>
+                                <div style="font-size: 0.8rem; color: #10b981; margin-top: 0.5rem; font-weight: 600;"><i data-lucide="arrow"></i> +0.3 vs Last Match</div>
                             </div>
                             <div style="background: #000; border-radius: 12px; padding: 2rem; border: 1px solid rgba(255,255,255,0.05);">
                                 <div style="font-size: 0.7rem; color: #94a3b8; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase;">Injury Status</div>
                                 <div style="font-size: 2.5rem; font-weight: 900; margin-top: 1rem; color: white;">2</div>
-                                <div style="font-size: 0.8rem; color: #ef4444; margin-top: 0.5rem; font-weight: 600;"><i class="fa-solid fa-circle-exclamation"></i> Critical: 1</div>
+                                <div style="font-size: 0.8rem; color: #ef4444; margin-top: 0.5rem; font-weight: 600;"><i data-lucide="circle"></i> Critical: 1</div>
                             </div>
                         </div>
 
                         <!-- RECENT & INSIGHTS -->
                         <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
-                            <div style="background: #0f172a; border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 3rem;">
+                            <div style="background: #111827; border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 3rem;">
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 1rem;">
-                                    <div style="font-size: 0.85rem; font-weight: 800; color: #6366f1; text-transform: uppercase; letter-spacing: 0.15em;">Recent Results</div>
+                                    <div style="font-size: 0.85rem; font-weight: 800; color: #16A34A; text-transform: uppercase; letter-spacing: 0.15em;">Recent Results</div>
                                     <button style="background: transparent; border: 1px solid rgba(255,255,255,0.2); color: white; padding: 8px 16px; border-radius: 8px; font-weight: 800; text-transform: uppercase; cursor: pointer; font-size: 0.7rem;">VIEW ALL</button>
                                 </div>
                                 <table style="width: 100%; border-collapse: collapse; color: white; font-size: 0.9rem;">
@@ -169,16 +174,30 @@
                                 </table>
                             </div>
 
-                            <div style="background: #0f172a; border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 3rem;">
-                                <div style="font-size: 0.85rem; font-weight: 800; color: #6366f1; text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 1rem;">AI Match Insights</div>
-                                <div style="display: flex; flex-direction: column; gap: 1.5rem;">
-                                    <div style="background: rgba(99, 102, 241, 0.05); padding: 1.5rem; border-radius: 8px; border-left: 3px solid #6366f1;">
-                                        <div style="font-weight: 800; font-size: 0.7rem; color: white; letter-spacing: 0.1em; margin-bottom: 0.5rem; text-transform: uppercase;">Attacking Intensity</div>
-                                        <p style="font-size: 0.8rem; color: #94a3b8; line-height: 1.5;">Team maintains 68% pressure in the final third. Transition speed is elite.</p>
+                            <div style="background: #111827; border: 1px solid rgba(22, 163, 74, 0.3); border-radius: 16px; padding: 3rem; position: relative; overflow: hidden; box-shadow: 0 0 20px rgba(22, 163, 74, 0.1);">
+                                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, transparent, var(--primary), transparent); animation: scan 2s linear infinite;"></div>
+                                <style>@keyframes scan { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } } @keyframes pulse-ring { 0% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.7); } 70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(22, 163, 74, 0); } 100% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(22, 163, 74, 0); } }</style>
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 1rem;">
+                                    <div style="font-size: 0.85rem; font-weight: 900; color: #16A34A; text-transform: uppercase; letter-spacing: 0.15em; display: flex; align-items: center; gap: 10px;">
+                                        <div style="width: 12px; height: 12px; border-radius: 50%; background: #16A34A; animation: pulse-ring 2s infinite;"></div>
+                                        Live AI Tactical Assistant
                                     </div>
-                                    <div style="background: rgba(16, 185, 129, 0.05); padding: 1.5rem; border-radius: 8px; border-left: 3px solid #10b981;">
-                                        <div style="font-weight: 800; font-size: 0.7rem; color: white; letter-spacing: 0.1em; margin-bottom: 0.5rem; text-transform: uppercase;">Defensive Shape</div>
-                                        <p style="font-size: 0.8rem; color: #94a3b8; line-height: 1.5;">High line efficiency at 92%. Offside trap synchronization is optimal.</p>
+                                    <span style="font-size: 0.65rem; background: rgba(22, 163, 74, 0.2); color: #16A34A; padding: 4px 8px; border-radius: 4px; font-weight: 800;">NEURAL SYNC ACTIVE</span>
+                                </div>
+                                <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                                    <div style="background: rgba(22, 163, 74, 0.05); padding: 1.5rem; border-radius: 8px; border-left: 3px solid #16A34A; transition: transform 0.3s;" onmouseover="this.style.transform='translateX(10px)'" onmouseout="this.style.transform='translateX(0)'">
+                                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+                                            <div style="font-weight: 800; font-size: 0.7rem; color: white; letter-spacing: 0.1em; text-transform: uppercase;"><i data-lucide="arrow-right" style="color:#16A34A; margin-right:5px;"></i> Tactical Shift</div>
+                                            <span style="font-size: 0.6rem; color: #10b981; font-weight: 900;">94% CONFIDENCE</span>
+                                        </div>
+                                        <p style="font-size: 0.8rem; color: #94a3b8; line-height: 1.5;">The opponent's left back is fatigued. Recommend shifting attack focus to the right flank. <strong style="color: white;">Exploit the right wing.</strong></p>
+                                    </div>
+                                    <div style="background: rgba(245, 158, 11, 0.05); padding: 1.5rem; border-radius: 8px; border-left: 3px solid #f59e0b; transition: transform 0.3s;" onmouseover="this.style.transform='translateX(10px)'" onmouseout="this.style.transform='translateX(0)'">
+                                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+                                            <div style="font-weight: 800; font-size: 0.7rem; color: white; letter-spacing: 0.1em; text-transform: uppercase;"><i data-lucide="shield-half" style="color:#f59e0b; margin-right:5px;"></i> Defensive Alert</div>
+                                            <span style="font-size: 0.6rem; color: #f59e0b; font-weight: 900;">URGENT</span>
+                                        </div>
+                                        <p style="font-size: 0.8rem; color: #94a3b8; line-height: 1.5;">Defensive line is dropping too deep, allowing space in zone 14. <strong style="color: white;">Shift defense line up by 10m.</strong></p>
                                     </div>
                                 </div>
                             </div>
@@ -191,7 +210,7 @@
                 <section id="mod-players" class="module">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
                         <h2 style="font-size: 1.5rem; font-weight: 800;">PLAYER REGISTRY</h2>
-                        <button class="btn btn-primary" onclick="window.location.href='../players/add_player.html'"><i class="fa-solid fa-plus"></i> REGISTER PLAYER</button>
+                        <button class="btn btn-primary" onclick="window.location.href='../players/add_player.html'"><i data-lucide="plus"></i> REGISTER PLAYER</button>
                     </div>
                     <div class="grid-stats" id="players-grid">
                         <!-- Populated by JS -->
@@ -209,14 +228,14 @@
                                 <div style="color: #94a3b8; font-size: 0.9rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; margin-top: 0.5rem;">Competition: <span style="color: white;">National Premier League</span> &bull; <span style="color: #10b981;">● PRE-MATCH</span></div>
                             </div>
                             <div style="display: flex; gap: 1rem;">
-                                <button style="background: transparent; border: 1px solid rgba(255,255,255,0.2); color: white; padding: 12px 24px; border-radius: 8px; font-weight: 800; text-transform: uppercase; cursor: pointer;"><i class="fa-brands fa-windows"></i> Windows AI Machine</button>
-                                <button style="background: transparent; border: 1px solid rgba(255,255,255,0.2); color: white; padding: 12px 24px; border-radius: 8px; font-weight: 800; text-transform: uppercase; cursor: pointer;"><i class="fa-brands fa-linux"></i> Linux AI Machine</button>
+                                <button style="background: transparent; border: 1px solid rgba(255,255,255,0.2); color: white; padding: 12px 24px; border-radius: 8px; font-weight: 800; text-transform: uppercase; cursor: pointer;"><i data-lucide="windows"></i> Windows AI Machine</button>
+                                <button style="background: transparent; border: 1px solid rgba(255,255,255,0.2); color: white; padding: 12px 24px; border-radius: 8px; font-weight: 800; text-transform: uppercase; cursor: pointer;"><i data-lucide="linux"></i> Linux AI Machine</button>
                             </div>
                         </div>
 
                         <!-- 2. MATCH SETUP -->
-                        <div style="background: #0f172a; border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 3rem; margin-bottom: 3rem;">
-                            <div style="font-size: 0.85rem; font-weight: 800; color: #6366f1; text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 1rem;">2. Match Setup</div>
+                        <div style="background: #111827; border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 3rem; margin-bottom: 3rem;">
+                            <div style="font-size: 0.85rem; font-weight: 800; color: #16A34A; text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 1rem;">2. Match Setup</div>
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
                                 <div style="margin-bottom: 0.5rem;"><label style="display: block; font-size: 0.7rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem;">Our Team</label><input type="text" style="width: 100%; background: #000; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 1rem; color: white;" value="Home Institution" readonly></div>
                                 <div style="margin-bottom: 0.5rem;"><label style="display: block; font-size: 0.7rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem;">Opponent Team</label><input type="text" style="width: 100%; background: #000; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 1rem; color: white;" placeholder="Search Opponent..."></div>
@@ -228,8 +247,8 @@
                         </div>
 
                         <!-- 3. OUR TEAM SQUAD -->
-                        <div style="background: #0f172a; border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 3rem; margin-bottom: 3rem;">
-                            <div style="font-size: 0.85rem; font-weight: 800; color: #6366f1; text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 1rem;">3. Our Team Squad</div>
+                        <div style="background: #111827; border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 3rem; margin-bottom: 3rem;">
+                            <div style="font-size: 0.85rem; font-weight: 800; color: #16A34A; text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 1rem;">3. Our Team Squad</div>
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
                                 <!-- 18-Man Squad -->
                                 <div>
@@ -283,12 +302,12 @@
                         </div>
 
                         <!-- 4. KIT COLORS -->
-                        <div style="background: #0f172a; border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 3rem; margin-bottom: 3rem;">
-                            <div style="font-size: 0.85rem; font-weight: 800; color: #6366f1; text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 1rem;">4. Kit Colors</div>
+                        <div style="background: #111827; border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 3rem; margin-bottom: 3rem;">
+                            <div style="font-size: 0.85rem; font-weight: 800; color: #16A34A; text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 1rem;">4. Kit Colors</div>
                             <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2rem;">
                                 <div>
                                     <label style="display: block; font-size: 0.7rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem;">Jersey Color</label>
-                                    <input type="color" style="width: 100%; background: #000; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 5px; height: 60px; cursor: pointer;" value="#6366f1">
+                                    <input type="color" style="width: 100%; background: #000; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 5px; height: 60px; cursor: pointer;" value="#16A34A">
                                 </div>
                                 <div>
                                     <label style="display: block; font-size: 0.7rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem;">Short Color</label>
@@ -296,16 +315,16 @@
                                 </div>
                                 <div>
                                     <label style="display: block; font-size: 0.7rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem;">Sock Color</label>
-                                    <input type="color" style="width: 100%; background: #000; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 5px; height: 60px; cursor: pointer;" value="#6366f1">
+                                    <input type="color" style="width: 100%; background: #000; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 5px; height: 60px; cursor: pointer;" value="#16A34A">
                                 </div>
                             </div>
                         </div>
 
                         <!-- 5. SAVE & GENERATE CREDENTIALS -->
-                        <div style="background: #0f172a; border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 3rem; margin-bottom: 3rem; text-align: center;">
-                            <div style="font-size: 0.85rem; font-weight: 800; color: #6366f1; text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 1rem; text-align: left;">5. Save & Generate Credentials</div>
+                        <div style="background: #111827; border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 3rem; margin-bottom: 3rem; text-align: center;">
+                            <div style="font-size: 0.85rem; font-weight: 800; color: #16A34A; text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 1rem; text-align: left;">5. Save & Generate Credentials</div>
                             
-                            <button style="background: #6366f1; color: white; padding: 1.5rem; font-size: 1.2rem; width: 100%; margin-bottom: 2rem; border-radius: 8px; font-weight: 800; text-transform: uppercase; border: none; cursor: pointer;" onclick="document.getElementById('club-creds').style.display='grid'">
+                            <button style="background: #16A34A; color: white; padding: 1.5rem; font-size: 1.2rem; width: 100%; margin-bottom: 2rem; border-radius: 8px; font-weight: 800; text-transform: uppercase; border: none; cursor: pointer;" onclick="document.getElementById('club-creds').style.display='grid'">
                                 [ SAVE MATCH SETUP ]
                             </button>
                             
@@ -329,12 +348,12 @@
                         </div>
 
                         <!-- 6. LIVE MATCH CONTROL -->
-                        <div style="background: #0f172a; border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 3rem; margin-bottom: 3rem;">
-                            <div style="font-size: 0.85rem; font-weight: 800; color: #6366f1; text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 1rem;">6. Live Match Control</div>
+                        <div style="background: #111827; border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 3rem; margin-bottom: 3rem;">
+                            <div style="font-size: 0.85rem; font-weight: 800; color: #16A34A; text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 1rem;">6. Live Match Control</div>
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
                                 <div style="font-size: 4rem; font-weight: 900; letter-spacing: 15px;">0 - 0</div>
                                 <div style="text-align: center;">
-                                    <div style="font-size: 2.5rem; font-weight: 900; color: #06b6d4;">00:00</div>
+                                    <div style="font-size: 2.5rem; font-weight: 900; color: #CA8A04;">00:00</div>
                                 </div>
                                 <div style="display: flex; gap: 1rem;">
                                     <button style="background: transparent; border: 1px solid #f59e0b; color: #f59e0b; padding: 12px 24px; border-radius: 8px; font-weight: 800; text-transform: uppercase; cursor: pointer;">Pause Match</button>
@@ -362,8 +381,8 @@
                         </div>
 
                         <!-- 7. MATCH STATISTICS -->
-                        <div style="background: #0f172a; border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 3rem;">
-                            <div style="font-size: 0.85rem; font-weight: 800; color: #6366f1; text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 1rem;">7. Match Statistics</div>
+                        <div style="background: #111827; border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 3rem;">
+                            <div style="font-size: 0.85rem; font-weight: 800; color: #16A34A; text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 1rem;">7. Match Statistics</div>
                             <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 1.5rem;">
                                 <div style="background: #000; border-radius: 12px; padding: 1.5rem; text-align: center; border: 1px solid rgba(255,255,255,0.05);">
                                     <div style="font-size: 0.7rem; color: #94a3b8; font-weight: 800; letter-spacing: 0.05em;">POSSESSION</div>
@@ -395,7 +414,7 @@
                 <section id="mod-teams" class="module">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
                         <h2 style="font-size: 1.5rem; font-weight: 900; text-transform: uppercase;">Team Formations & Squads</h2>
-                        <button class="btn btn-primary"><i class="fa-solid fa-plus"></i> CREATE SQUAD</button>
+                        <button class="btn btn-primary"><i data-lucide="plus"></i> CREATE SQUAD</button>
                     </div>
                     <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem;">
                         <div class="card" style="border-top: 4px solid var(--accent-primary);">
@@ -447,7 +466,7 @@
                 <section id="mod-coaches" class="module">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
                         <h2 style="font-size: 1.5rem; font-weight: 800;">TECHNICAL STAFF</h2>
-                        <button class="btn btn-primary"><i class="fa-solid fa-plus"></i> ADD STAFF MEMBER</button>
+                        <button class="btn btn-primary"><i data-lucide="plus"></i> ADD STAFF MEMBER</button>
                     </div>
                     <div class="analytics-grid">
                         <div class="card stat-card" style="border-top: 4px solid var(--accent-primary);">
@@ -470,34 +489,83 @@
 
                 <!-- MODULE: COMPETITIONS -->
                 <section id="mod-competitions" class="module">
-                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
-                        <div class="card">
-                            <h3>League Standings</h3>
-                            <table class="data-table" style="margin-top: 1rem;">
-                                <thead><tr><th>Pos</th><th>Club</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GD</th><th>Pts</th></tr></thead>
-                                <tbody>
-                                    <tr style="background: rgba(99, 102, 241, 0.05);"><td>1</td><td><b>Our Club</b></td><td>24</td><td>18</td><td>4</td><td>2</td><td>+32</td><td><b>58</b></td></tr>
-                                    <tr><td>2</td><td>Rayon Sports</td><td>24</td><td>17</td><td>3</td><td>4</td><td>+28</td><td>54</td></tr>
-                                    <tr><td>3</td><td>APR FC</td><td>24</td><td>16</td><td>5</td><td>3</td><td>+24</td><td>53</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="card">
-                            <h3>Upcoming Fixtures</h3>
-                            <div style="margin-top: 1rem; display: flex; flex-direction: column; gap: 10px;">
-                                <div class="medical-status" style="border-left: 3px solid var(--accent-primary);">
-                                    <div style="flex: 1;">
-                                        <div style="font-weight: 700; font-size: 0.8rem;">vs Rayon Sports</div>
-                                        <div style="font-size: 0.65rem; color: var(--text-secondary);">May 14, 2026 - 15:00</div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                        <h2 style="font-size: 1.5rem; font-weight: 900; text-transform: uppercase;">Competitions Matrix</h2>
+                        <button class="btn btn-outline"><i data-lucide="calendar"></i> FULL CALENDAR</button>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 2rem;">
+                        <div class="card" style="position: relative; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); background: linear-gradient(145deg, var(--bg-secondary) 0%, rgba(15,23,42,0.8) 100%);">
+                            <h3 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px;"><i data-lucide="trophy" style="color: #f59e0b;"></i> League Standings</h3>
+                            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                <!-- 1st Place -->
+                                <div style="display: grid; grid-template-columns: 30px 1fr 100px 40px; align-items: center; padding: 12px; background: rgba(22, 163, 74, 0.1); border-radius: 8px; border-left: 3px solid var(--accent-primary);">
+                                    <span style="font-weight: 900; color: var(--accent-primary);">1</span>
+                                    <span style="font-weight: 800;">Our Club</span>
+                                    <div style="display: flex; gap: 4px;">
+                                        <div style="width: 15px; height: 15px; border-radius: 50%; background: var(--success); display: flex; align-items: center; justify-content: center; font-size: 0.5rem; font-weight: 900;">W</div>
+                                        <div style="width: 15px; height: 15px; border-radius: 50%; background: var(--success); display: flex; align-items: center; justify-content: center; font-size: 0.5rem; font-weight: 900;">W</div>
+                                        <div style="width: 15px; height: 15px; border-radius: 50%; background: var(--success); display: flex; align-items: center; justify-content: center; font-size: 0.5rem; font-weight: 900;">W</div>
+                                        <div style="width: 15px; height: 15px; border-radius: 50%; background: var(--warning); color: black; display: flex; align-items: center; justify-content: center; font-size: 0.5rem; font-weight: 900;">D</div>
+                                        <div style="width: 15px; height: 15px; border-radius: 50%; background: var(--success); display: flex; align-items: center; justify-content: center; font-size: 0.5rem; font-weight: 900;">W</div>
                                     </div>
-                                    <span class="badge badge-success">HOME</span>
+                                    <span style="font-weight: 900; text-align: right;">58</span>
                                 </div>
-                                <div class="medical-status" style="border-left: 3px solid var(--text-secondary);">
-                                    <div style="flex: 1;">
-                                        <div style="font-weight: 700; font-size: 0.8rem;">vs Kiyovu Sports</div>
-                                        <div style="font-size: 0.65rem; color: var(--text-secondary);">May 21, 2026 - 18:00</div>
+                                <!-- 2nd Place -->
+                                <div style="display: grid; grid-template-columns: 30px 1fr 100px 40px; align-items: center; padding: 12px; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                                    <span style="font-weight: 700; color: var(--text-secondary);">2</span>
+                                    <span style="font-weight: 600; color: var(--text-secondary);">Rayon Sports</span>
+                                    <div style="display: flex; gap: 4px; opacity: 0.7;">
+                                        <div style="width: 15px; height: 15px; border-radius: 50%; background: var(--success); display: flex; align-items: center; justify-content: center; font-size: 0.5rem; font-weight: 900;">W</div>
+                                        <div style="width: 15px; height: 15px; border-radius: 50%; background: var(--danger); display: flex; align-items: center; justify-content: center; font-size: 0.5rem; font-weight: 900;">L</div>
+                                        <div style="width: 15px; height: 15px; border-radius: 50%; background: var(--success); display: flex; align-items: center; justify-content: center; font-size: 0.5rem; font-weight: 900;">W</div>
+                                        <div style="width: 15px; height: 15px; border-radius: 50%; background: var(--success); display: flex; align-items: center; justify-content: center; font-size: 0.5rem; font-weight: 900;">W</div>
+                                        <div style="width: 15px; height: 15px; border-radius: 50%; background: var(--warning); color: black; display: flex; align-items: center; justify-content: center; font-size: 0.5rem; font-weight: 900;">D</div>
                                     </div>
-                                    <span class="badge badge-danger">AWAY</span>
+                                    <span style="font-weight: 900; text-align: right; color: var(--text-secondary);">54</span>
+                                </div>
+                                <!-- 3rd Place -->
+                                <div style="display: grid; grid-template-columns: 30px 1fr 100px 40px; align-items: center; padding: 12px; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                                    <span style="font-weight: 700; color: var(--text-secondary);">3</span>
+                                    <span style="font-weight: 600; color: var(--text-secondary);">APR FC</span>
+                                    <div style="display: flex; gap: 4px; opacity: 0.7;">
+                                        <div style="width: 15px; height: 15px; border-radius: 50%; background: var(--warning); color: black; display: flex; align-items: center; justify-content: center; font-size: 0.5rem; font-weight: 900;">D</div>
+                                        <div style="width: 15px; height: 15px; border-radius: 50%; background: var(--success); display: flex; align-items: center; justify-content: center; font-size: 0.5rem; font-weight: 900;">W</div>
+                                        <div style="width: 15px; height: 15px; border-radius: 50%; background: var(--danger); display: flex; align-items: center; justify-content: center; font-size: 0.5rem; font-weight: 900;">L</div>
+                                        <div style="width: 15px; height: 15px; border-radius: 50%; background: var(--success); display: flex; align-items: center; justify-content: center; font-size: 0.5rem; font-weight: 900;">W</div>
+                                        <div style="width: 15px; height: 15px; border-radius: 50%; background: var(--success); display: flex; align-items: center; justify-content: center; font-size: 0.5rem; font-weight: 900;">W</div>
+                                    </div>
+                                    <span style="font-weight: 900; text-align: right; color: var(--text-secondary);">53</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card" style="border: 1px solid rgba(255,255,255,0.05); background: var(--bg-secondary);">
+                            <h3 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px;"><i data-lucide="clock" style="color: var(--accent-primary);"></i> Upcoming Fixtures</h3>
+                            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                                <!-- Fixture 1 -->
+                                <div style="background: rgba(0,0,0,0.3); border-radius: 12px; padding: 1.25rem; border: 1px solid rgba(255,255,255,0.05);">
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                                        <span class="badge badge-success" style="font-size: 0.6rem;">HOME</span>
+                                        <span style="font-size: 0.7rem; color: var(--accent-primary); font-weight: 800; letter-spacing: 0.1em;">IN 3 DAYS</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <div style="font-weight: 900; font-size: 1.1rem;">vs Rayon Sports</div>
+                                        <div style="text-align: right;">
+                                            <div style="font-size: 0.7rem; color: var(--text-secondary); font-weight: 600; text-transform: uppercase;">May 14 &bull; 15:00</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Fixture 2 -->
+                                <div style="background: rgba(0,0,0,0.3); border-radius: 12px; padding: 1.25rem; border: 1px solid rgba(255,255,255,0.05);">
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                                        <span class="badge badge-danger" style="font-size: 0.6rem;">AWAY</span>
+                                        <span style="font-size: 0.7rem; color: var(--text-secondary); font-weight: 800; letter-spacing: 0.1em;">IN 10 DAYS</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <div style="font-weight: 900; font-size: 1.1rem; color: var(--text-secondary);">vs Kiyovu Sports</div>
+                                        <div style="text-align: right;">
+                                            <div style="font-size: 0.7rem; color: var(--text-secondary); font-weight: 600; text-transform: uppercase;">May 21 &bull; 18:00</div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -523,38 +591,38 @@
                     
                     <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
                         <h3 style="font-size: 1.2rem; font-weight: 900; text-transform: uppercase;">Live Training Metrics</h3>
-                        <button class="btn btn-primary btn-sm"><i class="fa-solid fa-plus"></i> NEW SESSION</button>
+                        <button class="btn btn-primary btn-sm"><i data-lucide="plus"></i> NEW SESSION</button>
                     </div>
                     
                     <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem;">
                         <div class="card" style="display: flex; align-items: center; gap: 1.5rem; background: rgba(16,185,129,0.05); border: 1px solid rgba(16,185,129,0.2);">
                             <div style="width: 60px; height: 60px; border-radius: 50%; background: var(--bg-primary); display: flex; align-items: center; justify-content: center; border: 2px solid var(--success);">
-                                <i class="fa-solid fa-user" style="font-size: 1.5rem; color: var(--text-secondary);"></i>
+                                <i data-lucide="user" style="font-size: 1.5rem; color: var(--text-secondary);"></i>
                             </div>
                             <div style="flex: 1;">
                                 <div style="font-weight: 900; font-size: 1.1rem;">S. Hakizimana</div>
                                 <div style="font-size: 0.75rem; color: var(--success); font-weight: 700; letter-spacing: 0.1em; margin-bottom: 5px;">ACTIVE &bull; PRESENT</div>
                                 <div style="display: flex; gap: 1rem; font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">
-                                    <span><i class="fa-solid fa-fire"></i> 720 AU</span>
-                                    <span><i class="fa-solid fa-heart-pulse"></i> 142 BPM</span>
+                                    <span><i data-lucide="fire"></i> 720 AU</span>
+                                    <span><i data-lucide="heart"></i> 142 BPM</span>
                                 </div>
                             </div>
-                            <button class="btn btn-outline" style="padding: 10px; border-radius: 50%;"><i class="fa-solid fa-arrow-right"></i></button>
+                            <button class="btn btn-outline" style="padding: 10px; border-radius: 50%;"><i data-lucide="arrow-right"></i></button>
                         </div>
                         
                         <div class="card" style="display: flex; align-items: center; gap: 1.5rem; background: rgba(16,185,129,0.05); border: 1px solid rgba(16,185,129,0.2);">
                             <div style="width: 60px; height: 60px; border-radius: 50%; background: var(--bg-primary); display: flex; align-items: center; justify-content: center; border: 2px solid var(--success);">
-                                <i class="fa-solid fa-user" style="font-size: 1.5rem; color: var(--text-secondary);"></i>
+                                <i data-lucide="user" style="font-size: 1.5rem; color: var(--text-secondary);"></i>
                             </div>
                             <div style="flex: 1;">
                                 <div style="font-weight: 900; font-size: 1.1rem;">J. Tuyisenge</div>
                                 <div style="font-size: 0.75rem; color: var(--success); font-weight: 700; letter-spacing: 0.1em; margin-bottom: 5px;">ACTIVE &bull; PRESENT</div>
                                 <div style="display: flex; gap: 1rem; font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">
-                                    <span><i class="fa-solid fa-fire"></i> 680 AU</span>
-                                    <span><i class="fa-solid fa-heart-pulse"></i> 138 BPM</span>
+                                    <span><i data-lucide="fire"></i> 680 AU</span>
+                                    <span><i data-lucide="heart"></i> 138 BPM</span>
                                 </div>
                             </div>
-                            <button class="btn btn-outline" style="padding: 10px; border-radius: 50%;"><i class="fa-solid fa-arrow-right"></i></button>
+                            <button class="btn btn-outline" style="padding: 10px; border-radius: 50%;"><i data-lucide="arrow-right"></i></button>
                         </div>
                     </div>
                 </section>
@@ -567,10 +635,10 @@
                             <div style="height: 200px; background: rgba(0,0,0,0.2); margin-top: 1rem; border-radius: 8px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.05);">
                                 <!-- Professional SVG replacing FontAwesome/Emoji -->
                                 <svg width="100" height="100" viewBox="0 0 100 100" fill="none" stroke="var(--accent-primary)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                                    <circle cx="20" cy="50" r="8" fill="rgba(99, 102, 241, 0.2)"/>
-                                    <circle cx="80" cy="20" r="8" fill="rgba(99, 102, 241, 0.2)"/>
-                                    <circle cx="80" cy="80" r="8" fill="rgba(99, 102, 241, 0.2)"/>
-                                    <circle cx="50" cy="50" r="12" fill="rgba(99, 102, 241, 0.4)"/>
+                                    <circle cx="20" cy="50" r="8" fill="rgba(22, 163, 74, 0.2)"/>
+                                    <circle cx="80" cy="20" r="8" fill="rgba(22, 163, 74, 0.2)"/>
+                                    <circle cx="80" cy="80" r="8" fill="rgba(22, 163, 74, 0.2)"/>
+                                    <circle cx="50" cy="50" r="12" fill="rgba(22, 163, 74, 0.4)"/>
                                     <path d="M28 50 L38 50" stroke-dasharray="4 4"/>
                                     <path d="M58 42 L73 26" stroke-width="5"/>
                                     <path d="M58 58 L73 74"/>
@@ -606,53 +674,120 @@
 
                 <!-- MODULE: SCOUTING -->
                 <section id="mod-scouting" class="module">
-                    <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 2rem;">
-                        <div class="card">
-                            <h3 style="margin-bottom: 1.5rem;">AI Recommendations</h3>
-                            <div class="scouting-card card" style="margin-bottom: 1rem;">
-                                <div style="display: flex; justify-content: space-between;">
-                                    <span style="font-weight: 700;">Player X (ST)</span>
-                                    <span class="badge badge-success">92% MATCH</span>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                        <h2 style="font-size: 1.5rem; font-weight: 900; text-transform: uppercase;">Scouting & Recruitment</h2>
+                        <button class="btn btn-outline"><i data-lucide="search"></i> GLOBAL SEARCH</button>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 2rem;">
+                        <div class="card" style="border-top: 4px solid var(--accent-primary);">
+                            <h3 style="margin-bottom: 1.5rem;">AI Tactical Recommendation</h3>
+                            <div style="text-align: center; margin-bottom: 1.5rem;">
+                                <div style="display: inline-block; width: 120px; height: 120px; background: rgba(22, 163, 74, 0.1); border-radius: 50%; border: 2px solid var(--accent-primary); display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
+                                    <svg viewBox="0 0 100 100" width="80" height="80">
+                                        <!-- Radar Chart SVG -->
+                                        <polygon points="50,10 85,35 70,80 30,80 15,35" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+                                        <polygon points="50,30 70,45 60,70 40,70 30,45" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+                                        <polygon points="50,20 80,45 60,75 30,65 25,40" fill="rgba(22, 163, 74, 0.4)" stroke="var(--accent-primary)" stroke-width="2"/>
+                                    </svg>
                                 </div>
-                                <p style="font-size: 0.75rem; color: var(--text-secondary);">High pressing efficiency, fits 4-3-3 tactical profile perfectly.</p>
-                                <button class="btn btn-outline btn-sm">VIEW SCOUT REPORT</button>
+                                <h4 style="font-size: 1.2rem; font-weight: 900;">D. Niyonzima</h4>
+                                <div style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;">Striker &bull; 92% Tactical Fit</div>
                             </div>
+                            <p style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 1.5rem; text-align: center;">High pressing efficiency in the final third. Elite transition speed perfectly matches our 4-3-3 possession philosophy.</p>
+                            <button class="btn btn-primary" style="width: 100%;"><i data-lucide="file-text"></i> VIEW DOSSIER</button>
                         </div>
                         <div class="card">
                             <h3 style="margin-bottom: 1.5rem;">Global Talent Monitor</h3>
-                            <table class="data-table">
-                                <thead><tr><th>Target</th><th>Age</th><th>Club</th><th>Status</th><th>AI Rating</th></tr></thead>
-                                <tbody>
-                                    <tr><td>K. Musoni</td><td>18</td><td>Academy A</td><td><span class="badge badge-success">WATCHING</span></td><td>8.2</td></tr>
-                                    <tr><td>D. Niyomugabo</td><td>19</td><td>Club B</td><td><span class="badge badge-danger">MONITORING</span></td><td>7.9</td></tr>
-                                </tbody>
-                            </table>
+                            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                                <div style="display: grid; grid-template-columns: 1fr 80px 100px 100px; align-items: center; padding: 12px 16px; background: rgba(0,0,0,0.3); border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                                    <div style="display: flex; flex-direction: column;">
+                                        <span style="font-weight: 800;">K. Musoni</span>
+                                        <span style="font-size: 0.7rem; color: var(--text-secondary);">Academy A &bull; 18y</span>
+                                    </div>
+                                    <span style="font-weight: 900; color: var(--success);">8.2</span>
+                                    <span class="badge badge-success" style="justify-self: center;">WATCHING</span>
+                                    <button class="btn btn-outline" style="padding: 4px 8px; font-size: 0.65rem;">REPORT</button>
+                                </div>
+                                <div style="display: grid; grid-template-columns: 1fr 80px 100px 100px; align-items: center; padding: 12px 16px; background: rgba(0,0,0,0.3); border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                                    <div style="display: flex; flex-direction: column;">
+                                        <span style="font-weight: 800;">D. Niyomugabo</span>
+                                        <span style="font-size: 0.7rem; color: var(--text-secondary);">Club B &bull; 19y</span>
+                                    </div>
+                                    <span style="font-weight: 900; color: var(--warning);">7.9</span>
+                                    <span class="badge badge-danger" style="justify-self: center;">MONITOR</span>
+                                    <button class="btn btn-outline" style="padding: 4px 8px; font-size: 0.65rem;">REPORT</button>
+                                </div>
+                                <div style="display: grid; grid-template-columns: 1fr 80px 100px 100px; align-items: center; padding: 12px 16px; background: rgba(0,0,0,0.3); border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); opacity: 0.5;">
+                                    <div style="display: flex; flex-direction: column;">
+                                        <span style="font-weight: 800;">P. Hakizimana</span>
+                                        <span style="font-size: 0.7rem; color: var(--text-secondary);">Club C &bull; 21y</span>
+                                    </div>
+                                    <span style="font-weight: 900; color: var(--text-secondary);">6.5</span>
+                                    <span class="badge" style="background: rgba(255,255,255,0.1); color: var(--text-secondary); justify-self: center;">REJECTED</span>
+                                    <button class="btn btn-outline" style="padding: 4px 8px; font-size: 0.65rem;" disabled>REPORT</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </section>
 
                 <!-- MODULE: MEDICAL -->
                 <section id="mod-medical" class="module">
-                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
-                        <div class="card">
-                            <h3 style="margin-bottom: 1.5rem;">Injury Tracking</h3>
-                            <table class="data-table">
-                                <thead><tr><th>Athlete</th><th>Injury Type</th><th>Expected Return</th><th>Status</th></tr></thead>
-                                <tbody>
-                                    <tr><td>E. Sugira</td><td>Hamstring Strain</td><td>May 24, 2026</td><td><span class="badge badge-danger">RECOVERY</span></td></tr>
-                                    <tr><td>T. Manzi</td><td>Ankle Sprain</td><td>May 15, 2026</td><td><span class="badge badge-warning">TRAINING SOLO</span></td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="card">
-                            <h3 style="margin-bottom: 1.5rem;">Workload Analysis</h3>
-                            <div class="medical-status">
-                                <i class="fa-solid fa-triangle-exclamation" style="color: var(--danger);"></i>
-                                <div style="font-size: 0.8rem;">3 Players at Fatigue Risk</div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                        <h2 style="font-size: 1.5rem; font-weight: 900; text-transform: uppercase;">Biometrics & Recovery Bay</h2>
+                        <button class="btn btn-primary"><i data-lucide="notes"></i> LOG INJURY</button>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 2fr 1.5fr; gap: 2rem;">
+                        <div class="card" style="border-top: 4px solid var(--danger);">
+                            <h3 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px;"><i data-lucide="heart" style="color: var(--danger);"></i> Active Rehabilitation</h3>
+                            <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                                <!-- Injury 1 -->
+                                <div>
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                        <div style="font-weight: 800; font-size: 1.1rem;">E. Sugira <span style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">&bull; Hamstring Strain</span></div>
+                                        <div class="badge badge-danger">RECOVERY: 40%</div>
+                                    </div>
+                                    <div style="height: 8px; background: rgba(0,0,0,0.5); border-radius: 4px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05);">
+                                        <div style="height: 100%; width: 40%; background: linear-gradient(90deg, var(--danger), #f59e0b);"></div>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; margin-top: 6px; font-size: 0.7rem; color: var(--text-secondary); font-weight: 700;">
+                                        <span>Injured: Apr 10</span>
+                                        <span>Expected Return: May 24</span>
+                                    </div>
+                                </div>
+                                <!-- Injury 2 -->
+                                <div>
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                        <div style="font-weight: 800; font-size: 1.1rem;">T. Manzi <span style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">&bull; Ankle Sprain</span></div>
+                                        <div class="badge badge-warning">RECOVERY: 85%</div>
+                                    </div>
+                                    <div style="height: 8px; background: rgba(0,0,0,0.5); border-radius: 4px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05);">
+                                        <div style="height: 100%; width: 85%; background: linear-gradient(90deg, #f59e0b, var(--success));"></div>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; margin-top: 6px; font-size: 0.7rem; color: var(--text-secondary); font-weight: 700;">
+                                        <span>Injured: Apr 28</span>
+                                        <span>Expected Return: May 15</span>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="medical-status" style="margin-top: 10px;">
-                                <i class="fa-solid fa-check-circle" style="color: var(--success);"></i>
-                                <div style="font-size: 0.8rem;">Optimal Load for 18 Players</div>
+                        </div>
+                        <div class="card" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05);">
+                            <h3 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px;"><i data-lucide="line-chart" style="color: var(--accent-primary);"></i> Squad Workload</h3>
+                            <div style="display: flex; flex-direction: column; gap: 1rem; height: 100%; justify-content: center; padding-bottom: 2rem;">
+                                <div style="display: flex; align-items: center; gap: 15px; padding: 15px; background: rgba(239, 68, 68, 0.1); border-radius: 8px; border-left: 4px solid var(--danger);">
+                                    <i data-lucide="triangle" style="font-size: 1.5rem; color: var(--danger);"></i>
+                                    <div>
+                                        <div style="font-weight: 800; font-size: 1.1rem; color: var(--danger);">3 Players at Risk</div>
+                                        <div style="font-size: 0.75rem; color: var(--text-secondary);">Red zone fatigue levels detected</div>
+                                    </div>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 15px; padding: 15px; background: rgba(16, 185, 129, 0.1); border-radius: 8px; border-left: 4px solid var(--success);">
+                                    <i data-lucide="check" style="font-size: 1.5rem; color: var(--success);"></i>
+                                    <div>
+                                        <div style="font-weight: 800; font-size: 1.1rem; color: var(--success);">18 Players Optimal</div>
+                                        <div style="font-size: 0.75rem; color: var(--text-secondary);">Peak match readiness</div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -660,16 +795,38 @@
 
                 <!-- MODULE: TRANSFERS -->
                 <section id="mod-transfers" class="module">
-                    <div class="card">
-                        <h3 style="margin-bottom: 1.5rem;">Transfer Market Intelligence</h3>
-                        <div class="grid-stats">
-                            <div class="card stat-card" style="background: rgba(0,0,0,0.2);">
-                                <span class="stat-label">Budget Remaining</span>
-                                <span class="stat-value">$1.2M</span>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                        <h2 style="font-size: 1.5rem; font-weight: 900; text-transform: uppercase;">Financial Command Center</h2>
+                        <button class="btn btn-primary"><i data-lucide="file-text"></i> ALLOCATE FUNDS</button>
+                    </div>
+                    <div class="card" style="background: linear-gradient(145deg, #111827 0%, #111827 100%); border: 1px solid rgba(22, 163, 74, 0.2);">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 3rem;">
+                            <!-- Budget Visualization -->
+                            <div>
+                                <div style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem;">Total Transfer Budget Remaining</div>
+                                <div style="font-size: 3rem; font-weight: 900; color: var(--success); text-shadow: 0 0 20px rgba(16, 185, 129, 0.4); margin-bottom: 1.5rem; font-variant-numeric: tabular-nums;">$1,200,000</div>
+                                
+                                <div style="display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 700; margin-bottom: 8px;">
+                                    <span>Budget Spent ($1.8M)</span>
+                                    <span>Total: $3.0M</span>
+                                </div>
+                                <div style="height: 12px; background: rgba(0,0,0,0.5); border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05);">
+                                    <div style="height: 100%; width: 60%; background: linear-gradient(90deg, var(--accent-primary), var(--success)); box-shadow: 0 0 10px var(--accent-primary);"></div>
+                                </div>
                             </div>
-                            <div class="card stat-card" style="background: rgba(0,0,0,0.2);">
-                                <span class="stat-label">Contract Renewals</span>
-                                <span class="stat-value">4 Due</span>
+                            
+                            <!-- Contract Renewals -->
+                            <div style="border-left: 1px solid rgba(255,255,255,0.05); padding-left: 3rem; display: flex; flex-direction: column; justify-content: center;">
+                                <div style="display: flex; align-items: center; gap: 20px;">
+                                    <div style="width: 80px; height: 80px; border-radius: 50%; border: 4px solid #f59e0b; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 900; color: #f59e0b; box-shadow: 0 0 20px rgba(245, 158, 11, 0.2);">
+                                        4
+                                    </div>
+                                    <div>
+                                        <div style="font-size: 1.2rem; font-weight: 900;">Critical Renewals</div>
+                                        <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 4px;">Contracts expiring in < 6 months</div>
+                                        <button class="btn btn-outline btn-sm" style="margin-top: 10px; border-color: #f59e0b; color: #f59e0b;">REVIEW CONTRACTS</button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -680,9 +837,9 @@
                     <div class="card">
                         <h3 style="margin-bottom: 1.5rem;">Football Intelligence Reports</h3>
                         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
-                            <button class="btn btn-outline" style="height: 100px; flex-direction: column;"><i class="fa-solid fa-file-pdf"></i> MATCH REPORT (PDF)</button>
-                            <button class="btn btn-outline" style="height: 100px; flex-direction: column;"><i class="fa-solid fa-file-csv"></i> PLAYER STATS (CSV)</button>
-                            <button class="btn btn-outline" style="height: 100px; flex-direction: column;"><i class="fa-solid fa-file-chart-pie"></i> SEASON SUMMARY</button>
+                            <button class="btn btn-outline" style="height: 100px; flex-direction: column;" onclick="generatePDFReport()"><i data-lucide="file"></i> MATCH REPORT (PDF)</button>
+                            <button class="btn btn-outline" style="height: 100px; flex-direction: column;"><i data-lucide="file"></i> PLAYER STATS (CSV)</button>
+                            <button class="btn btn-outline" style="height: 100px; flex-direction: column;"><i data-lucide="file"></i> SEASON SUMMARY</button>
                         </div>
                     </div>
                 </section>
@@ -692,26 +849,26 @@
                     <div class="card">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
                             <h3>Club Legal & Tactical Vault</h3>
-                            <button class="btn btn-primary"><i class="fa-solid fa-upload"></i> UPLOAD DOCUMENT</button>
+                            <button class="btn btn-primary"><i data-lucide="upload"></i> UPLOAD DOCUMENT</button>
                         </div>
                         <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem;">
                             <div class="card stat-card" style="text-align: center; cursor: pointer;">
-                                <i class="fa-solid fa-folder-closed" style="font-size: 2.5rem; color: var(--accent-primary); margin-bottom: 1rem;"></i>
+                                <i data-lucide="folder" style="font-size: 2.5rem; color: var(--accent-primary); margin-bottom: 1rem;"></i>
                                 <div style="font-weight: 700; font-size: 0.8rem;">PLAYER CONTRACTS</div>
                                 <div style="font-size: 0.6rem; color: var(--text-secondary);">24 Files</div>
                             </div>
                             <div class="card stat-card" style="text-align: center; cursor: pointer;">
-                                <i class="fa-solid fa-folder-closed" style="font-size: 2.5rem; color: var(--accent-primary); margin-bottom: 1rem;"></i>
+                                <i data-lucide="folder" style="font-size: 2.5rem; color: var(--accent-primary); margin-bottom: 1rem;"></i>
                                 <div style="font-weight: 700; font-size: 0.8rem;">TACTICAL GUIDES</div>
                                 <div style="font-size: 0.6rem; color: var(--text-secondary);">12 Files</div>
                             </div>
                             <div class="card stat-card" style="text-align: center; cursor: pointer;">
-                                <i class="fa-solid fa-folder-closed" style="font-size: 2.5rem; color: var(--accent-primary); margin-bottom: 1rem;"></i>
+                                <i data-lucide="folder" style="font-size: 2.5rem; color: var(--accent-primary); margin-bottom: 1rem;"></i>
                                 <div style="font-weight: 700; font-size: 0.8rem;">MATCH ANALYSIS</div>
                                 <div style="font-size: 0.6rem; color: var(--text-secondary);">148 Files</div>
                             </div>
                             <div class="card stat-card" style="text-align: center; cursor: pointer;">
-                                <i class="fa-solid fa-folder-closed" style="font-size: 2.5rem; color: var(--accent-primary); margin-bottom: 1rem;"></i>
+                                <i data-lucide="folder" style="font-size: 2.5rem; color: var(--accent-primary); margin-bottom: 1rem;"></i>
                                 <div style="font-weight: 700; font-size: 0.8rem;">MEDICAL RECORDS</div>
                                 <div style="font-size: 0.6rem; color: var(--text-secondary);">56 Files</div>
                             </div>
@@ -744,13 +901,13 @@
     <!-- PLAYER PROFILE MODAL -->
     <div id="player-modal" class="modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
         <div class="card" style="width: 90%; max-width: 1000px; max-height: 90vh; overflow-y: auto; position: relative;">
-            <button onclick="ClubDashboard.closePlayerModal()" style="position: absolute; top: 20px; right: 20px; background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer;"><i class="fa-solid fa-xmark"></i></button>
+            <button onclick="ClubDashboard.closePlayerModal()" style="position: absolute; top: 20px; right: 20px; background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer;"><i data-lucide="x"></i></button>
             
             <div style="display: grid; grid-template-columns: 300px 1fr; gap: 2.5rem;">
                 <!-- Left: Quick Info -->
                 <div>
                     <div style="width: 100%; aspect-ratio: 1; background: var(--bg-primary); border-radius: 12px; margin-bottom: 1.5rem; overflow: hidden; display: flex; align-items: center; justify-content: center;">
-                        <i class="fa-solid fa-user" style="font-size: 5rem; color: var(--border);"></i>
+                        <i data-lucide="user" style="font-size: 5rem; color: var(--border);"></i>
                     </div>
                     <h2 id="modal-player-name" style="font-size: 1.5rem; font-weight: 900;">PLAYER NAME</h2>
                     <div id="modal-player-pos" class="stat-label" style="font-size: 1rem; margin-bottom: 1.5rem;">POSITION | #00</div>
@@ -769,6 +926,11 @@
                     <div class="card" style="margin-top: 1.5rem; padding: 1rem;">
                         <span class="stat-label">MEDICAL STATUS</span>
                         <div id="modal-player-medical" class="badge badge-success" style="display: block; margin-top: 0.5rem; text-align: center;">FIT TO PLAY</div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; margin-top: 1.5rem;">
+                        <button id="modal-edit-btn" class="btn btn-primary" style="flex: 1;"><i data-lucide="edit"></i> Edit Profile</button>
+                        <button id="modal-delete-btn" class="btn btn-outline" style="border-color: var(--danger); color: var(--danger); flex: 1;"><i data-lucide="trash"></i> Release</button>
                     </div>
                 </div>
                 
@@ -844,5 +1006,91 @@
     </div>
 
     <script src="../../assets/js/club_dashboard.js?v=2.0"></script>
+
+    <!-- HIDDEN PDF TEMPLATE -->
+    <div id="pdf-report-template" style="display: none;">
+        <div style="font-family: Arial, sans-serif; color: #111827; padding: 40px; background: white; width: 800px;">
+            <!-- Header -->
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #16A34A; padding-bottom: 20px; margin-bottom: 30px;">
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <img id="pdf-club-logo" src="" alt="Club Logo" style="width: 80px; height: 80px; object-fit: contain;">
+                    <div>
+                        <h1 id="pdf-club-name" style="margin: 0; font-size: 28px; font-weight: 900; text-transform: uppercase;">Club Name</h1>
+                        <div style="color: #64748b; font-size: 14px; font-weight: bold; margin-top: 5px;">OFFICIAL TACTICAL REPORT</div>
+                    </div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-size: 12px; color: #64748b; font-weight: bold;">GENERATED ON</div>
+                    <div id="pdf-date" style="font-size: 16px; font-weight: bold;">YYYY-MM-DD</div>
+                </div>
+            </div>
+
+            <!-- Body -->
+            <h2 style="font-size: 20px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; margin-bottom: 20px;">Match Overview</h2>
+            <div style="display: flex; gap: 20px; margin-bottom: 30px;">
+                <div style="flex: 1; background: #f8fafc; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                    <div style="font-size: 12px; color: #64748b; font-weight: bold; margin-bottom: 5px;">TEAM RATING</div>
+                    <div style="font-size: 24px; font-weight: 900; color: #16A34A;">8.7 / 10</div>
+                </div>
+                <div style="flex: 1; background: #f8fafc; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                    <div style="font-size: 12px; color: #64748b; font-weight: bold; margin-bottom: 5px;">POSSESSION</div>
+                    <div style="font-size: 24px; font-weight: 900; color: #10b981;">62%</div>
+                </div>
+                <div style="flex: 1; background: #f8fafc; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                    <div style="font-size: 12px; color: #64748b; font-weight: bold; margin-bottom: 5px;">EXPECTED GOALS (xG)</div>
+                    <div style="font-size: 24px; font-weight: 900; color: #f59e0b;">2.4</div>
+                </div>
+            </div>
+
+            <h2 style="font-size: 20px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; margin-bottom: 20px;">Tactical AI Summary</h2>
+            <p style="font-size: 14px; line-height: 1.6; color: #334155;">
+                The team successfully maintained a high pressing line, recovering the ball in the final third 14 times. 
+                Passing network density was optimal in the midfield, directly contributing to the 62% possession metric. 
+                Transition speed from defense to attack averaged 4.2 seconds.
+            </p>
+
+            <!-- Footer -->
+            <div style="margin-top: 60px; text-align: center; font-size: 10px; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 20px;">
+                CONFIDENTIAL - GENERATED BY THE FOOTBALL INTELLIGENCE PLATFORM
+            </div>
+        </div>
+    </div>
+
+    <!-- PDF GENERATION SCRIPT -->
+    <script>
+        function generatePDFReport() {
+            // 1. Prepare data
+            const clubName = localStorage.getItem('institution_name') || 'Football Club';
+            let logoUrl = localStorage.getItem('logo_url');
+            if (!logoUrl || logoUrl === 'null') {
+                // Fallback to FERWAFA logo
+                logoUrl = "https://upload.wikimedia.org/wikipedia/en/thumb/7/75/Rwanda_FA.svg/1200px-Rwanda_FA.svg.png";
+            }
+
+            // 2. Inject data into template
+            document.getElementById('pdf-club-name').innerText = clubName;
+            document.getElementById('pdf-club-logo').src = logoUrl;
+            document.getElementById('pdf-date').innerText = new Date().toISOString().split('T')[0];
+
+            // 3. Make template visible for rendering
+            const template = document.getElementById('pdf-report-template');
+            template.style.display = 'block';
+
+            // 4. Generate PDF
+            const opt = {
+                margin:       0,
+                filename:     `Match_Report_${clubName.replace(/\\s+/g, '_')}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true },
+                jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(template.children[0]).save().then(() => {
+                // 5. Hide template again
+                template.style.display = 'none';
+            });
+        }
+    </script>
+    <script>lucide.createIcons();</script>
 </body>
 </html>

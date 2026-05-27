@@ -54,6 +54,7 @@ class Institution(Base):
     # --- National Ranking ---
     national_ranking = Column(Integer, nullable=True)
     is_active = Column(Boolean, default=True)
+    status = Column(String, default="PENDING") # PENDING, APPROVED, REJECTED, REQUEST_INFO
     contact = Column(String) # Phone or email contact for the institution
     version = Column(Integer, default=1, nullable=False)
     is_deleted = Column(Boolean, default=False)
@@ -513,12 +514,20 @@ class MatchSession(Base):
     match_id = Column(Integer, ForeignKey("matches.id"), unique=True)
     match_token = Column(String, unique=True, index=True)
     ai_connected = Column(Boolean, default=False)
+    
+    # --- New Stream Binding Fields ---
+    stream_id = Column(String, unique=True, index=True, nullable=True)
+    api_key_id = Column(Integer, ForeignKey("api_keys.id"), nullable=True)
+    device_type = Column(String, default="UNKNOWN")
+    status = Column(String, default="INACTIVE") # INACTIVE, ACTIVE, ERROR
+    
     last_heartbeat = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     version = Column(Integer, default=1, nullable=False)
     is_deleted = Column(Boolean, default=False)
     
     match = relationship("Match", back_populates="session")
+    api_key = relationship("APIKey")
 
 # =====================================================
 # SUPERADMIN INFRASTRUCTURE MODELS

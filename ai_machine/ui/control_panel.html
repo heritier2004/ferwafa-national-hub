@@ -5,23 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Pitch Machine — Ultimate Neural Hub</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         :root {
-            --bg: #000000;
-            --panel: #0F172A;
-            --primary: #2563EB;
-            --text-main: #FFFFFF;
+            --bg: #0F172A;
+            --panel: #1E293B;
+            --primary: #16A34A;
+            --text-main: #E2E8F0;
             --text-dim: #94A3B8;
-            --border: #1E293B;
-            --green: #2563EB; /* Replaced green with Blue for consistency */
-            --red: #FF3333;
-            --brain: #8B5CF6;
+            --border: rgba(255, 255, 255, 0.08);
+            --green: #16A34A;
+            --red: #ef4444;
+            --brain: #CA8A04;
         }
 
         body {
             font-family: 'Inter', sans-serif;
-            background: radial-gradient(circle at center, #1E293B 0%, #000000 100%);
+            background: var(--bg);
             color: var(--text-main);
             height: 100vh;
             overflow: hidden;
@@ -58,7 +59,7 @@
         /* Top Status Bar */
         .status-bar {
             height: 45px; background: #000; display: flex; align-items: center; justify-content: center;
-            border-bottom: 2px solid var(--border); font-family: 'Orbitron', sans-serif;
+            border-bottom: 2px solid var(--border); font-family: 'Manrope', sans-serif;
             font-size: 0.9rem; font-weight: 900; letter-spacing: 4px; text-transform: uppercase;
         }
         .status-bar.online { color: var(--green); text-shadow: 0 0 10px var(--green); }
@@ -70,14 +71,14 @@
             background: var(--panel); border-bottom: 1px solid var(--border);
             flex-shrink: 0;
         }
-        .tb-logo { font-family: 'Orbitron'; font-size: 1.25rem; font-weight: 900; letter-spacing: 2px; }
+        .tb-logo { font-family: 'Manrope'; font-size: 1.25rem; font-weight: 900; letter-spacing: 2px; }
         .tb-logo span { color: var(--primary); }
 
         /* SERVER SYNC STATUS */
         .sync-badge {
             background: rgba(0, 230, 118, 0.1); border: 1px solid var(--green);
             color: var(--green); padding: 5px 15px; border-radius: 20px;
-            font-family: 'Orbitron'; font-size: 0.7rem; font-weight: 900;
+            font-family: 'Manrope'; font-size: 0.7rem; font-weight: 900;
             display: flex; align-items: center; gap: 8px;
         }
         .sync-pulse { width: 8px; height: 8px; background: var(--green); border-radius: 50%; }
@@ -91,7 +92,7 @@
         }
 
         .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 24px; overflow: hidden; display: flex; flex-direction: column; }
-        .panel-header { padding: 1.5rem; border-bottom: 1px solid var(--border); font-family: 'Orbitron'; font-weight: 900; color: var(--primary); background: rgba(37, 99, 235, 0.05); }
+        .panel-header { padding: 1.5rem; border-bottom: 1px solid var(--border); font-family: 'Manrope'; font-weight: 900; color: var(--primary); background: rgba(37, 99, 235, 0.05); }
         .panel-body { padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; overflow-y: auto; }
 
         /* Infrastructure Heart */
@@ -139,20 +140,105 @@
 
         /* Stats Section */
         .stat-card { background: #000; border: 1px solid var(--border); border-radius: 16px; padding: 2rem 1.5rem; text-align: center; margin-bottom: 10px; }
-        .stat-val { font-family: 'Orbitron'; font-size: 3rem; font-weight: 900; line-height: 1; }
+        .stat-val { font-family: 'Manrope'; font-size: 3rem; font-weight: 900; line-height: 1; }
         .stat-lbl { font-size: 0.75rem; font-weight: 800; color: var(--primary); text-transform: uppercase; margin-top: 8px; }
 
-        .btn { width: 100%; padding: 18px; border-radius: 12px; border: none; font-family: 'Orbitron'; font-weight: 900; cursor: pointer; text-transform: uppercase; }
+        .btn { width: 100%; padding: 18px; border-radius: 12px; border: none; font-family: 'Manrope'; font-weight: 900; cursor: pointer; text-transform: uppercase; }
         .btn-primary { background: var(--primary); color: #FFF; }
         .btn-outline { background: transparent; border: 1px solid var(--border); color: #FFF; }
 
+        /* Source List */
+        .source-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px; max-height: 250px; overflow-y: auto; padding-right: 5px; }
+        /* Scrollbar styles for the list */
+        .source-list::-webkit-scrollbar { width: 6px; }
+        .source-list::-webkit-scrollbar-track { background: transparent; }
+        .source-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+        
+        .source-item { 
+            display: flex; align-items: center; gap: 12px; padding: 12px; 
+            background: #000; border: 1px solid var(--border); border-radius: 12px; 
+            cursor: pointer; transition: 0.3s;
+        }
+        .source-item:hover { border-color: var(--primary); background: rgba(37, 99, 235, 0.05); }
+        .source-item.active { border-color: var(--primary); background: rgba(37, 99, 235, 0.1); color: var(--primary); }
+        .source-icon { font-size: 1.2rem; width: 24px; text-align: center; }
+        .source-info { display: flex; flex-direction: column; }
+        .source-title { font-family: 'Manrope'; font-weight: 900; font-size: 0.75rem; text-transform: uppercase; }
+        .source-desc { font-size: 0.65rem; color: var(--text-dim); }
+
+        /* Dynamic Control Area */
+        .dynamic-ctrl { background: rgba(0,0,0,0.5); border: 1px solid var(--border); border-radius: 12px; padding: 15px; margin-bottom: 15px; display: none; }
+        .dynamic-ctrl.active { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Phone Mode Tabs */
+        .phone-tabs { display: flex; gap: 5px; margin-bottom: 10px; }
+        .phone-tab { flex: 1; text-align: center; padding: 8px; font-size: 0.7rem; font-weight: 800; cursor: pointer; border: 1px solid var(--border); border-radius: 8px; background: #000; }
+        .phone-tab.active { border-color: var(--brain); color: var(--brain); background: rgba(139, 92, 246, 0.1); }
+
+        /* Stepper styles */
+        .stepper {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-top: 15px;
+            padding: 10px 0;
+            font-family: 'Manrope', sans-serif;
+            font-size: 0.55rem;
+            font-weight: 800;
+            z-index: 10;
+        }
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            color: var(--text-dim);
+            flex: 1;
+            position: relative;
+        }
+        .step-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--border);
+            transition: 0.3s;
+        }
+        .step.active {
+            color: var(--primary);
+        }
+        .step.active .step-dot {
+            background: var(--primary);
+            box-shadow: 0 0 8px var(--primary);
+        }
+        .step.completed {
+            color: #10B981;
+        }
+        .step.completed .step-dot {
+            background: #10B981;
+        }
+        .step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 4px;
+            left: calc(50% + 5px);
+            width: calc(100% - 10px);
+            height: 2px;
+            background: var(--border);
+            z-index: -1;
+        }
+        .step.completed:not(:last-child)::after {
+            background: #10B981;
+        }
     </style>
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
 
     <div id="loading-overlay">
         <div class="loading-spinner"></div>
-        <div style="font-family:'Orbitron'; color:var(--primary); font-size:1.5rem; letter-spacing:8px;">UPLINK INITIALISING</div>
+        <div style="font-family:'Manrope'; color:var(--primary); font-size:1.5rem; letter-spacing:8px;">UPLINK INITIALISING</div>
         <div style="color:var(--text-dim); margin-top:15px; font-size:0.8rem;">SYNCING WITH NATIONAL HUB SERVERS</div>
     </div>
 
@@ -174,17 +260,154 @@
             <div class="panel-header">MEDIA INFRASTRUCTURE</div>
             <div class="panel-body">
                 <div class="heart-box">
-                    <div class="infra-grid">
-                        <button class="infra-btn active" id="btn-usb" onclick="setInfra('usb')">USB/HDMI</button>
-                        <button class="infra-btn" id="btn-rtsp" onclick="setInfra('rtsp')">RTSP STREAM</button>
-                        <button class="infra-btn" id="btn-rtmp" onclick="setInfra('rtmp')">RTMP STREAM</button>
-                        <button class="infra-btn" id="btn-file" onclick="setInfra('file')">FILE UPLOAD</button>
-                        <button class="infra-btn full" id="btn-studio" onclick="setInfra('studio')">TV STUDIO (NDI/SRT)</button>
+                    <div style="font-family:'Manrope'; font-size:0.65rem; color:var(--primary); margin-bottom:10px; letter-spacing:1px;">AUTO-DETECTED CAMERAS</div>
+                    <div class="source-list" id="detected-device-list" style="max-height: 120px; margin-bottom: 15px;">
+                        <div style="color:var(--text-dim); font-style:italic; font-size:0.7rem;">Scanning local inputs...</div>
                     </div>
-                    <input class="input-field" id="cfg-src" placeholder="e.g. 0" onchange="saveConfig()">
+
+                    <div style="font-family:'Manrope'; font-size:0.65rem; color:var(--primary); margin-bottom:10px; letter-spacing:1px;">UNIFIED SOURCE INGESTION</div>
+                    <div class="source-list" style="max-height: 240px;">
+                        <div class="source-item active" id="src-btn-phone" onclick="selectSource('phone')">
+                            <i data-lucide="smartphone" class="source-icon"></i>
+                            <div class="source-info">
+                                <div class="source-title">Phone Camera</div>
+                                <div class="source-desc">USB ADB / WiFi WebRTC</div>
+                            </div>
+                        </div>
+                        <div class="source-item" id="src-btn-browser" onclick="selectSource('browser')">
+                            <i data-lucide="globe" class="source-icon"></i>
+                            <div class="source-info">
+                                <div class="source-title">Browser Stream</div>
+                                <div class="source-desc">WebRTC / Mobile Connect</div>
+                            </div>
+                        </div>
+                        <div class="source-item" id="src-btn-webcam" onclick="selectSource('webcam')">
+                            <i data-lucide="camera" class="source-icon"></i>
+                            <div class="source-info">
+                                <div class="source-title">USB Webcam</div>
+                                <div class="source-desc">Local UVC Devices</div>
+                            </div>
+                        </div>
+                        <div class="source-item" id="src-btn-pro" onclick="selectSource('pro')">
+                            <i data-lucide="aperture" class="source-icon"></i>
+                            <div class="source-info">
+                                <div class="source-title">Pro Camera</div>
+                                <div class="source-desc">DSLR / HDMI Capture Card</div>
+                            </div>
+                        </div>
+                        <div class="source-item" id="src-btn-rtsp" onclick="selectSource('rtsp')">
+                            <i data-lucide="network" class="source-icon"></i>
+                            <div class="source-info">
+                                <div class="source-title">RTSP / IP Camera</div>
+                                <div class="source-desc">Stadium Network</div>
+                            </div>
+                        </div>
+                        <div class="source-item" id="src-btn-youtube" onclick="selectSource('youtube')">
+                            <i data-lucide="youtube" class="source-icon"></i>
+                            <div class="source-info">
+                                <div class="source-title">YouTube Live</div>
+                                <div class="source-desc">Cloud Extraction</div>
+                            </div>
+                        </div>
+                        <div class="source-item" id="src-btn-obs" onclick="selectSource('obs')">
+                            <i data-lucide="monitor" class="source-icon"></i>
+                            <div class="source-info">
+                                <div class="source-title">OBS Virtual Cam</div>
+                                <div class="source-desc">Studio Production</div>
+                            </div>
+                        </div>
+                        <div class="source-item" id="src-btn-broadcast" onclick="selectSource('broadcast')">
+                            <i data-lucide="tv" class="source-icon"></i>
+                            <div class="source-info">
+                                <div class="source-title">TV Broadcast</div>
+                                <div class="source-desc">SDI / HDMI Decoder</div>
+                            </div>
+                        </div>
+                        <div class="source-item" id="src-btn-file" onclick="selectSource('file')">
+                            <i data-lucide="file-video" class="source-icon"></i>
+                            <div class="source-info">
+                                <div class="source-title">Video File Upload</div>
+                                <div class="source-desc">Post-Match Analysis</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- DYNAMIC CONTROLS -->
+                    <div id="ctrl-phone" class="dynamic-ctrl active">
+                        <div class="phone-tabs">
+                            <div class="phone-tab active" id="tab-usb" onclick="setPhoneMode('usb')">USB MODE</div>
+                            <div class="phone-tab" id="tab-wifi" onclick="setPhoneMode('wifi')">WIFI MODE</div>
+                        </div>
+                        <div id="phone-usb-view">
+                            <div style="font-size:0.7rem; color:var(--text-dim); margin-bottom:10px;">Connect Android via USB and enable USB Debugging.</div>
+                            <button class="btn btn-outline" style="border-color:var(--brain); color:var(--brain); padding: 10px;" onclick="connectPhone()">BRIDGE USB CONNECTION</button>
+                        </div>
+                        <div id="phone-wifi-view" style="display:none;">
+                            <div style="font-size:0.7rem; color:var(--text-dim); margin-bottom:10px;">Scan QR or visit IP on local network.</div>
+                            <input class="input-field" id="cfg-phone-ip" placeholder="e.g. http://192.168.1.100:8080/video" onchange="updateMainSource(this.value)">
+                        </div>
+                    </div>
+
+                    <div id="ctrl-browser" class="dynamic-ctrl">
+                        <div style="font-size:0.7rem; color:var(--text-dim); margin-bottom:10px;">Open browser on phone to start WebRTC stream.</div>
+                        <button class="btn btn-outline" style="border-color:var(--primary); color:var(--primary); padding: 10px;" onclick="alert('QR Generation: Requires Hub Route')">SHOW QR CODE</button>
+                    </div>
+
+                    <div id="ctrl-webcam" class="dynamic-ctrl">
+                        <div style="font-size:0.7rem; color:var(--text-dim); margin-bottom:10px;">Select Local USB Webcam.</div>
+                        <select class="input-field" id="cfg-webcam-sel" onchange="updateMainSource(this.value)">
+                            <option value="0">Default Camera (0)</option>
+                            <option value="1">External USB (1)</option>
+                            <option value="2">External USB (2)</option>
+                        </select>
+                    </div>
+
+                    <div id="ctrl-pro" class="dynamic-ctrl">
+                        <div style="font-size:0.7rem; color:var(--text-dim); margin-bottom:10px;">Select HDMI Capture Card Device.</div>
+                        <select class="input-field" id="cfg-pro-sel" onchange="updateMainSource(this.value)">
+                            <option value="1">Elgato CamLink 4K</option>
+                            <option value="2">Blackmagic Design</option>
+                            <option value="3">Generic USB3.0 Video</option>
+                        </select>
+                    </div>
+
+                    <div id="ctrl-rtsp" class="dynamic-ctrl">
+                        <div style="font-size:0.7rem; color:var(--text-dim); margin-bottom:10px;">Stadium IP Camera RTSP URL.</div>
+                        <input class="input-field" id="cfg-rtsp-url" placeholder="e.g. rtsp://admin:pass@192.168.1.50/stream" onchange="updateMainSource(this.value)">
+                    </div>
+
+                    <div id="ctrl-youtube" class="dynamic-ctrl">
+                        <div style="font-size:0.7rem; color:var(--text-dim); margin-bottom:10px;">YouTube Live Match URL.</div>
+                        <input class="input-field" id="cfg-youtube-url" placeholder="e.g. https://youtube.com/watch?v=..." onchange="updateMainSource(this.value)">
+                    </div>
+
+                    <div id="ctrl-obs" class="dynamic-ctrl">
+                        <div style="font-size:0.7rem; color:var(--text-dim); margin-bottom:10px;">OBS Virtual Camera device index.</div>
+                        <input class="input-field" id="cfg-obs-idx" placeholder="e.g. 2" onchange="updateMainSource(this.value)">
+                    </div>
+
+                    <div id="ctrl-broadcast" class="dynamic-ctrl">
+                        <div style="font-size:0.7rem; color:var(--text-dim); margin-bottom:10px;">TV Broadcast Decoder input.</div>
+                        <input class="input-field" id="cfg-broadcast-src" placeholder="e.g. /dev/video0 or DeckLink SDI" onchange="updateMainSource(this.value)">
+                    </div>
+
+                    <div id="ctrl-file" class="dynamic-ctrl">
+                        <div style="font-size:0.7rem; color:var(--text-dim); margin-bottom:10px;">Path to local match video file.</div>
+                        <input class="input-field" id="cfg-file-path" placeholder="e.g. C:/videos/match.mp4" onchange="updateMainSource(this.value)">
+                        <button class="btn btn-outline" style="border-color:var(--text-dim); color:var(--text-main); padding: 10px; margin-top:5px;" onclick="document.getElementById('file-selector').click()">BROWSE FILE</button>
+                        <input type="file" id="file-selector" style="display:none;" onchange="handleFileSelected(event)">
+                    </div>
+
+                    <input type="hidden" id="cfg-src" value="0">
                 </div>
-                <input type="password" class="input-field" id="cfg-key" placeholder="National Bridge Key" onchange="saveConfig()">
-                <input type="password" class="input-field" id="cfg-token" placeholder="Match Session Token" onchange="saveConfig()">
+                <div style="position: relative;">
+                    <input type="password" class="input-field" id="cfg-key" placeholder="National Bridge Key" onchange="saveConfig()" style="padding-right: 40px; margin-bottom: 0;">
+                    <i data-lucide="eye" style="position: absolute; right: 15px; top: 15px; color: var(--text-dim); cursor: pointer;" onclick="const p = document.getElementById('cfg-key'); if(p.type === 'password') { p.type = 'text'; this.classList.remove('fa-eye'); this.classList.add('fa-eye-slash'); } else { p.type = 'password'; this.classList.remove('fa-eye-slash'); this.classList.add('fa-eye'); }"></i>
+                </div>
+                <div style="position: relative; margin-top: 10px;">
+                    <input type="password" class="input-field" id="cfg-token" placeholder="Match Session Token" onchange="saveConfig()" style="padding-right: 40px; margin-bottom: 0;">
+                    <i data-lucide="eye" style="position: absolute; right: 15px; top: 15px; color: var(--text-dim); cursor: pointer;" onclick="const p = document.getElementById('cfg-token'); if(p.type === 'password') { p.type = 'text'; this.classList.remove('fa-eye'); this.classList.add('fa-eye-slash'); } else { p.type = 'password'; this.classList.remove('fa-eye-slash'); this.classList.add('fa-eye'); }"></i>
+                </div>
                 <button class="btn btn-outline" style="margin-top: auto;" onclick="saveConfig()">Save Profile</button>
             </div>
         </div>
@@ -192,17 +415,27 @@
         <!-- Center: Engine View -->
         <div class="engine-view">
             <div class="main-view" id="main-view-box">
-                <div class="ring-outer"></div>
-                <div class="status-ring" id="engine-ring">
-                    <div style="font-family:'Orbitron'; font-size:2.2rem; font-weight:900;" id="engine-state">READY</div>
-                    <div style="font-family:'Orbitron'; font-size:0.8rem; color:var(--primary); margin-top:15px; letter-spacing:2px;">STADIUM LINK</div>
+                <video id="live-preview" autoplay muted playsinline style="width: 100%; height: 100%; object-fit: cover; border-radius: 20px; display: none; position: absolute; top: 0; left: 0; z-index: 1;"></video>
+                <div class="ring-outer" style="z-index: 2;"></div>
+                <div class="status-ring" id="engine-ring" style="z-index: 3;">
+                    <div style="font-family:'Manrope'; font-size:2.2rem; font-weight:900;" id="engine-state">READY</div>
+                    <div style="font-family:'Manrope'; font-size:0.8rem; color:var(--primary); margin-top:15px; letter-spacing:2px;">STADIUM LINK</div>
                 </div>
                 
                 <!-- UPLINK ANIMATION -->
-                <div class="uplink-track">
+                <div class="uplink-track" style="z-index: 4;">
                     <div class="uplink-wave"></div>
                 </div>
-                <div style="position:absolute; bottom:20px; font-family:'Orbitron'; font-size:0.6rem; color:var(--text-dim);">DATA UPLINK TO HUB</div>
+                <div style="position:absolute; bottom:20px; font-family:'Manrope'; font-size:0.6rem; color:var(--text-dim); z-index: 4;">DATA UPLINK TO HUB</div>
+            </div>
+            <!-- Real-Time Status Stepper -->
+            <div class="stepper" id="status-stepper">
+                <div class="step" id="step-connected"><div class="step-dot"></div><span>SOURCE CONNECTED</span></div>
+                <div class="step" id="step-active"><div class="step-dot"></div><span>STREAM ACTIVE</span></div>
+                <div class="step" id="step-received"><div class="step-dot"></div><span>FRAMES RECEIVED</span></div>
+                <div class="step" id="step-processing"><div class="step-dot"></div><span>AI PROCESSING ACTIVE</span></div>
+                <div class="step" id="step-synced"><div class="step-dot"></div><span>DASHBOARD SYNCHRONIZED</span></div>
+                <div class="step" id="step-db"><div class="step-dot"></div><span>DATABASE WRITING</span></div>
             </div>
             <div class="console">
                 <div class="log-stream" id="log-stream"></div>
@@ -223,7 +456,7 @@
                 </div>
 
                 <div style="background:rgba(0,0,0,0.4); border:1px solid var(--border); border-radius:12px; padding:15px; margin-top:5px;">
-                    <div style="font-family:'Orbitron'; font-size:0.65rem; color:var(--brain); margin-bottom:10px;">NEURAL SUBSYSTEMS</div>
+                    <div style="font-family:'Manrope'; font-size:0.65rem; color:var(--brain); margin-bottom:10px;">NEURAL SUBSYSTEMS</div>
                     <div style="display:flex; justify-content:space-between; font-size:0.75rem; margin-bottom:5px;">
                         <span>YOLOv8 Detector:</span> <span id="stat-yolo" style="color:var(--red);">OFFLINE</span>
                     </div>
@@ -246,7 +479,7 @@
 
                 <!-- FOUND USERS LIST -->
                 <div style="background:rgba(0,0,0,0.4); border:1px solid var(--border); border-radius:12px; padding:15px; flex:1; display:flex; flex-direction:column; overflow:hidden;">
-                    <div style="font-family:'Orbitron'; font-size:0.65rem; color:var(--primary); margin-bottom:10px;">FOUND USERS (SQUAD SYNC)</div>
+                    <div style="font-family:'Manrope'; font-size:0.65rem; color:var(--primary); margin-bottom:10px;">FOUND USERS (SQUAD SYNC)</div>
                     <div id="player-list" style="overflow-y:auto; font-size:0.75rem; display:flex; flex-direction:column; gap:8px;">
                         <div style="color:var(--text-dim); font-style:italic;">No players detected yet...</div>
                     </div>
@@ -254,8 +487,7 @@
 
                 <div style="display: flex; flex-direction: column; gap: 1rem; margin-top:10px;">
                     <button class="btn btn-outline" style="border-color:var(--brain); color:var(--brain);" onclick="runTest()">Run Diagnostic Test</button>
-                    <button class="btn btn-primary" id="btn-start" onclick="controlStart()">Launch Engine</button>
-                    <button class="btn btn-outline" id="btn-stop" onclick="controlStop()" disabled>Shutdown</button>
+                    <button class="btn btn-primary" id="btn-start" onclick="handleConnectDevice()">Connect Device</button>
                 </div>
             </div>
         </div>
@@ -271,13 +503,188 @@
     <script>
         const BASE = 'http://localhost:7777';
         let logLines = [];
+        let localDevices = [];
+        let localStream = null;
 
-        function setInfra(type) {
-            document.getElementById('cfg-src-type').value = type;
-            ['usb', 'rtsp', 'rtmp', 'file', 'studio'].forEach(t => {
-                document.getElementById('btn-' + t).className = (t === type) ? 'infra-btn active' + (t==='studio'?' full':'') : 'infra-btn' + (t==='studio'?' full':'');
-            });
+        async function scanLocalDevices() {
+            try {
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                const videoDevices = devices.filter(device => device.kind === 'videoinput');
+                localDevices = videoDevices;
+                updateDeviceListUI();
+            } catch (e) {
+                console.error("Device scan failed", e);
+            }
+        }
+        
+        function updateDeviceListUI() {
+            const listContainer = document.getElementById('detected-device-list');
+            if (!listContainer) return;
+            
+            if (localDevices.length === 0) {
+                listContainer.innerHTML = '<div style="color:var(--text-dim); font-style:italic; font-size:0.7rem;">Scanning local inputs...</div>';
+                return;
+            }
+            
+            listContainer.innerHTML = localDevices.map((device, index) => {
+                const label = device.label || `Camera ${index + 1}`;
+                const deviceId = device.deviceId;
+                const activeId = document.getElementById('cfg-src').value;
+                const activeClass = (deviceId === activeId) ? 'active' : '';
+                return `
+                    <div class="source-item ${activeClass}" id="device-${deviceId}" onclick="selectLocalDevice('${deviceId}')">
+                        <i data-lucide="camera" class="source-icon"></i>
+                        <div class="source-info">
+                            <div class="source-title">${label}</div>
+                            <div class="source-desc">Physical USB/Browser input</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function selectLocalDevice(deviceId) {
+            document.querySelectorAll('.source-item').forEach(el => el.classList.remove('active'));
+            const item = document.getElementById('device-' + deviceId);
+            if (item) item.classList.add('active');
+
+            // Hide virtual dynamic ctrls
+            document.querySelectorAll('.dynamic-ctrl').forEach(el => el.classList.remove('active'));
+
+            document.getElementById('cfg-src-type').value = 'browser';
+            document.getElementById('cfg-src').value = deviceId;
             saveConfig();
+        }
+
+        function selectSource(type) {
+            document.querySelectorAll('.source-item').forEach(el => el.classList.remove('active'));
+            const btn = document.getElementById('src-btn-' + type);
+            if (btn) btn.classList.add('active');
+
+            document.querySelectorAll('.dynamic-ctrl').forEach(el => el.classList.remove('active'));
+            const ctrl = document.getElementById('ctrl-' + type);
+            if (ctrl) ctrl.classList.add('active');
+
+            document.getElementById('cfg-src-type').value = type;
+
+            if (type === 'obs') { updateMainSource('2'); }
+            if (type === 'phone') { updateMainSource('http://localhost:8080/video'); }
+        }
+
+        function setPhoneMode(mode) {
+            document.getElementById('tab-usb').classList.remove('active');
+            document.getElementById('tab-wifi').classList.remove('active');
+            document.getElementById('tab-' + mode).classList.add('active');
+
+            document.getElementById('phone-usb-view').style.display = (mode === 'usb') ? 'block' : 'none';
+            document.getElementById('phone-wifi-view').style.display = (mode === 'wifi') ? 'block' : 'none';
+        }
+
+        function updateMainSource(val) {
+            document.getElementById('cfg-src').value = val;
+            saveConfig();
+        }
+
+        async function connectPhone() {
+            document.getElementById('loading-overlay').style.display = 'flex';
+            document.querySelector('#loading-overlay div:nth-child(2)').textContent = "BRIDGING PHONE USB";
+            document.querySelector('#loading-overlay div:nth-child(3)').textContent = "ESTABLISHING ADB CONNECTION...";
+            try {
+                const r = await fetch(`${BASE}/control/connect-phone`, { method:'POST' });
+                const d = await r.json();
+                if (d.success) {
+                    document.getElementById('cfg-src').value = "http://localhost:8080/video";
+                    selectSource('phone');
+                    alert(d.message);
+                } else {
+                    alert(d.error);
+                }
+            } catch(e) { alert("Failed to connect to AI engine"); }
+            document.getElementById('loading-overlay').style.display = 'none';
+        }
+
+        function updateStepper(stepNumber) {
+            const steps = ['connected', 'active', 'received', 'processing', 'synced', 'db'];
+            steps.forEach((step, idx) => {
+                const el = document.getElementById('step-' + step);
+                if (!el) return;
+                if (idx < stepNumber - 1) {
+                    el.className = "step completed";
+                } else if (idx === stepNumber - 1) {
+                    el.className = "step active";
+                } else {
+                    el.className = "step";
+                }
+            });
+        }
+
+        async function handleConnectDevice() {
+            const btn = document.getElementById('btn-start');
+            if (btn.textContent === "CONNECT DEVICE" || btn.textContent === "CONNECTING...") {
+                updateStepper(1); // DEVICE DETECTED
+                document.getElementById('loading-overlay').style.display = 'flex';
+                document.querySelector('#loading-overlay div:nth-child(2)').textContent = "CONNECTING STREAM";
+                
+                updateStepper(2); // CONNECTING STREAM
+                
+                const srcType = document.getElementById('cfg-src-type').value;
+                if (srcType === 'browser') {
+                    try {
+                        const deviceId = document.getElementById('cfg-src').value;
+                        const constraints = {
+                            video: deviceId ? { deviceId: { exact: deviceId } } : true,
+                            audio: false
+                        };
+                        localStream = await navigator.mediaDevices.getUserMedia(constraints);
+                        const video = document.getElementById('live-preview');
+                        video.srcObject = localStream;
+                        video.style.display = 'block';
+                        document.querySelector('.ring-outer').style.display = 'none';
+                        document.getElementById('engine-ring').style.display = 'none';
+                    } catch (err) {
+                        console.error("Local stream permission denied", err);
+                    }
+                }
+                
+                try {
+                    await saveConfig();
+                    const r = await fetch(`${BASE}/control/start`, { method:'POST' });
+                    const d = await r.json();
+                    if (!d.success) {
+                        alert(d.error || "Failed to initialize background processing");
+                        resetConnectionState();
+                        return;
+                    }
+                } catch(e) {
+                    alert("Backend connection failed");
+                    resetConnectionState();
+                    return;
+                }
+                
+                setTimeout(() => {
+                    document.getElementById('loading-overlay').style.display = 'none';
+                }, 1500);
+            } else {
+                controlStop();
+            }
+        }
+
+        function resetConnectionState() {
+            document.getElementById('loading-overlay').style.display = 'none';
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+                localStream = null;
+            }
+            const video = document.getElementById('live-preview');
+            video.style.display = 'none';
+            video.srcObject = null;
+            video.src = "";
+            document.querySelector('.ring-outer').style.display = 'flex';
+            document.getElementById('engine-ring').style.display = 'flex';
+            
+            document.querySelectorAll('.step').forEach(el => {
+                el.className = "step";
+            });
         }
 
         async function pollStatus() {
@@ -310,6 +717,21 @@
                     mainView.classList.remove('syncing');
                 }
 
+                let currentStep = 0;
+                const btn = document.getElementById('btn-start');
+                const isConnecting = btn.textContent === "CONNECTING...";
+                
+                if (isConnecting || d.connected || d.processing) {
+                    currentStep = 1; // SOURCE CONNECTED
+                    if (d.connected) currentStep = 2; // STREAM ACTIVE
+                    if (d.frames_processed > 0) currentStep = 3; // FRAMES RECEIVED
+                    if (d.processing && !d.paused) currentStep = 4; // AI PROCESSING ACTIVE
+                    if (d.events_sent >= 0 && d.connected) currentStep = 5; // DASHBOARD SYNCHRONIZED
+                    if (d.events_sent > 0) currentStep = 6; // DATABASE WRITING
+                }
+                
+                updateStepper(currentStep);
+
                 const yolo = document.getElementById('stat-yolo');
                 const tracker = document.getElementById('stat-tracker');
                 const ocr = document.getElementById('stat-ocr');
@@ -336,8 +758,18 @@
 
                 document.getElementById('cnt-frames').textContent = d.frames_processed.toLocaleString();
                 document.getElementById('cnt-events').textContent = d.events_sent.toLocaleString();
-                document.getElementById('btn-start').disabled = d.processing;
-                document.getElementById('btn-stop').disabled = !d.processing;
+                
+                if (d.processing || d.connected) {
+                    btn.textContent = "SHUTDOWN";
+                    btn.className = "btn btn-outline";
+                    btn.style.borderColor = "var(--red)";
+                    btn.style.color = "var(--red)";
+                } else {
+                    btn.textContent = "CONNECT DEVICE";
+                    btn.className = "btn btn-primary";
+                    btn.style.borderColor = "var(--primary)";
+                    btn.style.color = "#FFF";
+                }
             } catch(e) {}
         }
 
@@ -371,15 +803,12 @@
             try { await fetch(`${BASE}/config`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) }); } catch(e) {}
         }
 
-        async function controlStart() {
-            await saveConfig();
-            document.getElementById('loading-overlay').style.display = 'flex';
+        async function controlStop() {
             try { 
-                await fetch(`${BASE}/control/start`, { method:'POST' });
-                setTimeout(() => { document.getElementById('loading-overlay').style.display = 'none'; }, 3000);
-            } catch(e) { document.getElementById('loading-overlay').style.display = 'none'; }
+                await fetch(`${BASE}/control/stop`, { method:'POST' }); 
+                resetConnectionState();
+            } catch(e) {}
         }
-        async function controlStop() { try { await fetch(`${BASE}/control/stop`, { method:'POST' }); } catch(e) {} }
 
         async function runTest() {
             try { await fetch(`${BASE}/control/test`, { method:'POST' }); } catch(e) {}
@@ -401,7 +830,7 @@
                             <div style="font-weight:800; font-size:0.7rem;">${p.name}</div>
                             <div style="font-size:0.6rem; color:var(--text-dim);">#${p.jersey || '??'} | Track ID: ${p.track_id}</div>
                         </div>
-                        <div style="font-family:'Orbitron'; font-size:0.6rem; color:${p.confidence > 0.7 ? 'var(--green)' : 'var(--gold)'};">${Math.round(p.confidence*100)}%</div>
+                        <div style="font-family:'Manrope'; font-size:0.6rem; color:${p.confidence > 0.7 ? 'var(--green)' : 'var(--gold)'};">${Math.round(p.confidence*100)}%</div>
                     </div>
                 `).join('');
             } catch(e) {}
@@ -411,5 +840,6 @@
         setInterval(pollLogs, 2000);
         setInterval(pollPlayers, 3000);
     </script>
+    <script>lucide.createIcons();</script>
 </body>
 </html>

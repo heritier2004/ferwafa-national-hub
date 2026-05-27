@@ -4,9 +4,9 @@
 */
 
 :root {
-    --mcc-bg: #020617;
-    --mcc-card: #0f172a;
-    --mcc-accent: #6366f1;
+    --mcc-bg: #111827;
+    --mcc-card: #111827;
+    --mcc-accent: #16A34A;
     --mcc-text: #f8fafc;
     --mcc-text-dim: #94a3b8;
     --mcc-border: rgba(255, 255, 255, 0.08);
@@ -92,7 +92,7 @@
 .mcc-input:focus {
     outline: none;
     border-color: var(--mcc-accent);
-    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+    box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.15);
 }
 
 /* --- TACTICAL PITCH --- */
@@ -125,7 +125,7 @@
 }
 
 .mcc-player-row:hover { background: rgba(255, 255, 255, 0.03); }
-.mcc-player-row.selected { background: rgba(99, 102, 241, 0.1); border-left: 6px solid var(--mcc-accent); }
+.mcc-player-row.selected { background: rgba(22, 163, 74, 0.1); border-left: 6px solid var(--mcc-accent); }
 
 /* --- BADGES & STATUS --- */
 .mcc-badge {

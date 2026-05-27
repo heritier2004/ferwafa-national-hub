@@ -79,6 +79,20 @@ def seed_demo():
     api_key = "FWFA-APR-2026-893A"
     token = "MATCH-2026-DEMO"
     
+    from backend.app.database.models import APIKey
+    import hashlib
+    hashed_key = hashlib.sha256(api_key.encode()).hexdigest()
+    demo_key_record = db.query(APIKey).filter(APIKey.key_hash == hashed_key).first()
+    if not demo_key_record:
+        demo_key_record = APIKey(
+            key_hash=hashed_key,
+            service_name="AI_MACHINE_NODE_DEMO",
+            owner_email="manager@apr.rw",
+            is_active=True
+        )
+        db.add(demo_key_record)
+        db.flush()
+    
     demo_match = db.query(Match).filter(Match.match_token == token).first()
     if not demo_match:
         demo_match = Match(
@@ -112,6 +126,9 @@ def seed_demo():
         session = MatchSession(
             match_id=demo_match.id,
             match_token=token,
+            api_key_id=demo_key_record.id,
+            device_type="AI_MACHINE_NODE",
+            status="INACTIVE",
             ai_connected=False
         )
         db.add(session)

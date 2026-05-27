@@ -25,6 +25,9 @@ class MatchCreate(BaseModel):
     match_date: Optional[datetime] = None
     competition_id: Optional[int] = None
     division_name: Optional[str] = None
+    squad: Optional[List[int]] = None
+    starting_xi: Optional[List[int]] = None
+    kit_colors: Optional[dict] = None
 
 class MatchUpdate(BaseModel):
     home_team_id: Optional[int] = None
@@ -48,9 +51,82 @@ class MatchUpdate(BaseModel):
 @router.post("/", response_model=dict, status_code=status.HTTP_201_CREATED)
 def create_match(payload: MatchCreate, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
     try:
-        new_match = CrudMixin.create(Match, db, payload.dict(), actor_id=current_user["id"])
-        return {"match_id": new_match.id, "message": "Match created successfully"}
+        import hashlib
+        from datetime import timedelta
+        from backend.app.database.models import MatchSquad, APIKey, MatchSession, Institution
+        from backend.app.match_control.routes import generate_api_key, generate_match_token
+
+        data_dict = payload.dict()
+        squad_ids = data_dict.pop('squad', None)
+        starting_xi_ids = data_dict.pop('starting_xi', None)
+        kit_colors = data_dict.pop('kit_colors', None)
+
+        if kit_colors:
+            data_dict['kit_home_color'] = kit_colors.get('jersey', '#FF0000')
+            data_dict['kit_home_shorts_color'] = kit_colors.get('shorts', '#FFFFFF')
+            data_dict['kit_home_socks_color'] = kit_colors.get('socks', '#FFFFFF')
+
+        new_match = CrudMixin.create(Match, db, data_dict, actor_id=current_user["id"])
+
+        assigned_ids = set()
+        if starting_xi_ids:
+            for p_id in starting_xi_ids:
+                db.add(MatchSquad(
+                    match_id=new_match.id,
+                    player_id=p_id,
+                    role="starting",
+                    jersey_number=None
+                ))
+                assigned_ids.add(p_id)
+        if squad_ids:
+            for p_id in squad_ids:
+                if p_id not in assigned_ids:
+                    db.add(MatchSquad(
+                        match_id=new_match.id,
+                        player_id=p_id,
+                        role="substitute",
+                        jersey_number=None
+                    ))
+        db.flush()
+
+        inst = db.query(Institution).filter(Institution.id == new_match.home_team_id).first()
+        inst_code = inst.code if inst else "CLUB"
+
+        api_key = generate_api_key(inst_code)
+        match_token = generate_match_token()
+        hashed_key = hashlib.sha256(api_key.encode()).hexdigest()
+
+        new_match.match_token = match_token
+        new_match.api_key = api_key
+        new_match.session_status = "WAITING"
+        new_match.expires_at = datetime.utcnow() + timedelta(hours=6)
+
+        api_key_record = APIKey(
+            key_hash=hashed_key,
+            service_name=f"MATCH_KEY_{new_match.id}",
+            owner_email=current_user.get("email") or "club@ferwafa.rw",
+            expires_at=new_match.expires_at
+        )
+        db.add(api_key_record)
+
+        session_payload = {
+            "match_id": new_match.id,
+            "match_token": match_token
+        }
+        CrudMixin.create(MatchSession, db, session_payload, actor_id=current_user["id"])
+
+        db.commit()
+        db.refresh(new_match)
+
+        return {
+            "match_id": new_match.id,
+            "match_token": match_token,
+            "api_key": api_key,
+            "expires_at": new_match.expires_at.isoformat(),
+            "message": "Match created and credentials generated successfully"
+        }
     except Exception as e:
+        db.rollback()
         raise HTTPException(status_code=400, detail=str(e))
 
 @router.get("/")
