@@ -53,7 +53,7 @@
         .carousel-sub { font-size: 0.9rem; color: var(--text-secondary); margin-top: 0.5rem; }
     </style>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="/assets/js/api.js?v=1.2"></script>
+    <script src="/assets/js/api.js"></script>
 </head>
 <body>
 <div class="app-container">
@@ -423,7 +423,7 @@
                 <span class="section-tag">Live Match Monitoring</span>
                 <div class="dashboard-grid">
                     <div class="card" style="position:relative; overflow:hidden;">
-                        <div style="position:absolute;top:0;left:0;right:0;height:4px;background:var(--danger);"></div>
+                        <div style="position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg, var(--danger), #ef4444);"></div>
                         <div style="display:flex; justify-content:space-between; margin-bottom:1.5rem;">
                             <span class="badge" style="background:rgba(239,68,68,0.1);color:var(--danger);border:1px solid var(--danger);"><i data-lucide="circle" style="font-size:0.5rem;margin-right:5px;animation: pulse 1.5s infinite;"></i> LIVE</span>
                             <span style="font-weight:800; color:var(--danger);">67'</span>
@@ -440,7 +440,7 @@
                     </div>
 
                     <div class="card" style="position:relative; overflow:hidden;">
-                        <div style="position:absolute;top:0;left:0;right:0;height:4px;background:var(--danger);"></div>
+                        <div style="position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg, var(--danger), #ef4444);"></div>
                         <div style="display:flex; justify-content:space-between; margin-bottom:1.5rem;">
                             <span class="badge" style="background:rgba(239,68,68,0.1);color:var(--danger);border:1px solid var(--danger);"><i data-lucide="circle" style="font-size:0.5rem;margin-right:5px;animation: pulse 1.5s infinite;"></i> LIVE</span>
                             <span style="font-weight:800; color:var(--danger);">34'</span>
@@ -599,9 +599,7 @@
 
 <script>
     const token = localStorage.getItem('access_token');
-    const _role = localStorage.getItem('role');
-    if (!token) { window.location.href = '/login.html'; }
-    else if (_role !== 'FERWAFA' && _role !== 'SUPER_ADMIN') { window.location.href = '/login.html'; }
+    if (!token) window.location.href = '/login.html';
 
     document.getElementById('header-user').textContent = localStorage.getItem('full_name') || 'FERWAFA HQ';
 
@@ -649,13 +647,9 @@
     }
 
     function typeBadge(type) {
-        const colors = { 
-            club: { bg: 'rgba(22,163,74,0.13)', text: 'var(--accent-primary)' }, 
-            academy: { bg: 'rgba(202,138,4,0.13)', text: 'var(--gold)' }, 
-            school: { bg: 'rgba(16,185,129,0.13)', text: 'var(--success)' } 
-        };
-        const c = colors[type] || { bg: 'rgba(148,163,184,0.13)', text: 'var(--text-secondary)' };
-        return `<span style="background:${c.bg};color:${c.text};border:1px solid ${c.text};padding:3px 10px;border-radius:20px;font-size:0.7rem;font-weight:800;text-transform:uppercase;">${type}</span>`;
+        const colors = { club: '#16A34A', academy: '#CA8A04', school: '#10b981' };
+        const c = colors[type] || '#94a3b8';
+        return `<span style="background:${c}22;color:${c};border:1px solid ${c};padding:3px 10px;border-radius:20px;font-size:0.7rem;font-weight:800;text-transform:uppercase;">${type}</span>`;
     }
 
     function statusBadge(status) {
@@ -790,7 +784,7 @@
         body.innerHTML = `
             <div class="detail-row"><span class="lbl">Institution Name</span><span>${d.name}</span></div>
             <div class="detail-row"><span class="lbl">Type</span><span>${typeBadge(d.type)}</span></div>
-            <div class="detail-row"><span class="lbl">Code</span><span style="font-family:'JetBrains Mono', monospace;">${d.code || 'N/A'}</span></div>
+            <div class="detail-row"><span class="lbl">Code</span><span style="font-family:monospace;">${d.code || 'N/A'}</span></div>
             <div class="detail-row"><span class="lbl">Admin Name</span><span>${d.admin_name || 'N/A'}</span></div>
             <div class="detail-row"><span class="lbl">Admin Email</span><span>${d.admin_email || 'N/A'}</span></div>
             <div class="detail-row"><span class="lbl">Contact Phone</span><span>${d.contact || 'N/A'}</span></div>

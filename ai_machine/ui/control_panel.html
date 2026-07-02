@@ -253,11 +253,6 @@
         </div>
     </div>
 
-    <div id="safemode-banner" style="display:none; background: #CA8A04; color: #000; padding: 8px 2rem; font-family:'Manrope',sans-serif; font-size: 0.75rem; font-weight:800; justify-content:space-between; align-items:center; letter-spacing:1px; z-index:9999; border-bottom: 1px solid rgba(0,0,0,0.15);">
-        <span>⚠️ SYSTEM RUNNING IN SAFE MODE (OPTIONAL SERVICES DEACTIVATED)</span>
-        <button onclick="window.location.reload()" style="background:#000; color:#fff; border:none; padding:4px 12px; border-radius:4px; font-size:0.65rem; font-weight:800; cursor:pointer; text-transform:uppercase;">Reconnect Services</button>
-    </div>
-
     <div class="workspace">
         
         <!-- Left: Infrastructure -->
@@ -904,10 +899,6 @@
                     </div>
                 `).join('');
             } catch(e) {}
-        }
-
-        if (window.location.search.includes('safemode=1')) {
-            document.getElementById('safemode-banner').style.display = 'flex';
         }
 
         setInterval(pollStatus, 1000);

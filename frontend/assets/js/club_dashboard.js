@@ -14,9 +14,7 @@ const ClubDashboard = {
         ws: null,
         matchTimer: 0,
         timerInterval: null,
-        playerTrails: {}, // Store { id: [ {x,y}, ... ] }
-        trainings: [],
-        transfers: []
+        playerTrails: {} // Store { id: [ {x,y}, ... ] }
     },
 
     init() {
@@ -24,19 +22,6 @@ const ClubDashboard = {
         this.bindEvents();
         this.loadModule('overview');
         this.loadInitialData();
-        
-        window.addEventListener('pageshow', (event) => {
-            if (localStorage.getItem('player_sync_needed') === 'true') {
-                localStorage.removeItem('player_sync_needed');
-                this.loadInitialData();
-            }
-        });
-        window.addEventListener('storage', (event) => {
-            if (event.key === 'player_sync_needed' && event.newValue === 'true') {
-                localStorage.removeItem('player_sync_needed');
-                this.loadInitialData();
-            }
-        });
     },
 
     verifyAccess() {
@@ -46,27 +31,18 @@ const ClubDashboard = {
         }
         document.getElementById('user-name').innerText = localStorage.getItem('full_name') || 'CLUB USER';
         
-        const instName = localStorage.getItem('institution_name') || 'CLUB USER';
-        const sidebarNameEl = document.getElementById('inst-name-sidebar');
-        if (sidebarNameEl) sidebarNameEl.innerText = instName;
-        
         const logoUrl = localStorage.getItem('logo_url');
-        const brandingTargets = document.querySelectorAll('.ui-branding-target');
-        
-        brandingTargets.forEach(avatarEl => {
-            const defaultLogo = window.PlayerDisplay ? PlayerDisplay.DEFAULT_LOGO : "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNGI1NTYzIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEyIDIyczgtNCA4LTEwVjVsLTgtMy04IDN2N2MwIDYgOCAxMCA4IDEweiIvPjwvc3ZnPg==";
+        const avatarEl = document.getElementById('user-avatar');
+        if (avatarEl) {
             if (logoUrl && logoUrl !== 'null' && logoUrl !== 'undefined' && logoUrl.trim() !== '') {
-                avatarEl.innerHTML = `<img src="${logoUrl}" style="width:100%;height:100%;object-fit:contain;border-radius:inherit;" onerror="this.onerror=null; this.src='${defaultLogo}';">`;
+                avatarEl.innerHTML = `<img src="${logoUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
                 avatarEl.style.background = 'transparent';
                 avatarEl.style.color = 'transparent';
             } else {
-                avatarEl.innerHTML = `<img src="${defaultLogo}" style="width:100%;height:100%;object-fit:contain;border-radius:inherit;">`;
-                avatarEl.style.background = 'transparent';
-                avatarEl.style.color = 'transparent';
+                avatarEl.innerHTML = `<i data-lucide="shield" style="width:20px;height:20px;color:var(--text-secondary);"></i>`;
+                lucide.createIcons();
             }
-        });
-        
-        if (window.lucide) lucide.createIcons();
+        }
     },
 
     bindEvents() {
@@ -82,136 +58,41 @@ const ClubDashboard = {
 
     async loadInitialData() {
         try {
-            const [pRes, mRes, tRes, trRes] = await Promise.all([
+            const [pRes, mRes] = await Promise.all([
                 fetch(`/api/match/institution/${this.state.institutionId}/players`, {
                     headers: { 'Authorization': `Bearer ${this.state.token}` }
                 }),
                 fetch(`/api/match/all`, {
                     headers: { 'Authorization': `Bearer ${this.state.token}` }
-                }),
-                fetch(`/api/club/training`, {
-                    headers: { 'Authorization': `Bearer ${this.state.token}` }
-                }),
-                fetch(`/api/club/transfers`, {
-                    headers: { 'Authorization': `Bearer ${this.state.token}` }
                 })
             ]);
             
-            let rawPlayers = pRes.ok ? await pRes.json() : [];
-            if (window.PlayerDisplay) {
-                const ctx = PlayerDisplay.getDisplayContext();
-                this.state.players = PlayerDisplay.dedupePlayersById(rawPlayers).map(function(p) {
-                    return PlayerDisplay.normalizePlayer(p, ctx);
-                });
-            } else {
-                this.state.players = rawPlayers;
-            }
-            this.state.matches = mRes.ok ? await mRes.json() : [];
-            this.state.trainings = tRes.ok ? await tRes.json() : [];
-            this.state.transfers = trRes.ok ? await trRes.json() : [];
+            this.state.players = await pRes.json();
+            this.state.matches = await mRes.json();
             
             this.updateStats();
-            // Re-render the currently active module so UI stays in sync
-            this.refreshActiveModule();
         } catch (error) {
             console.error("Failed to load initial data", error);
         }
     },
 
-    // Real-time module refresh — re-renders whichever module is currently visible
-    refreshActiveModule() {
-        const active = document.querySelector('.module.active');
-        if (!active) return;
-        const moduleId = active.id.replace('mod-', '');
-        if (moduleId === 'players') this.renderPlayers();
-        if (moduleId === 'overview') this.renderOverview();
-        if (moduleId === 'training') this.renderTraining();
-        if (moduleId === 'transfers') { this.renderTransfers(); this.renderTransferHistory(); }
-        if (moduleId === 'match-control') this.renderMccRoster();
-    },
-
-    // Player count + overview stat sync
-    updateStats() {
-        const countEl = document.getElementById('total-players-count');
-        if (countEl) {
-            const players = Array.isArray(this.state.players) ? this.state.players : [];
-            countEl.innerText = players.length;
-        }
-    },
-
-    // Alias so player_profile.js deletePlayer() can trigger a real-time refresh
-    loadPlayers() {
-        this.loadInitialData();
-    },
-
-    async deletePlayer(id) {
-        const player = this.state.players.find(p => p.id === id);
-        const displayName = player ? (player.fullName || 'this player') : 'this player';
-        if (confirm(`Are you sure you want to release ${displayName} from the squad?`)) {
-            try {
-                const res = await fetch(`/api/players/${id}`, {
-                    method: 'DELETE',
-                    headers: { 'Authorization': `Bearer ${this.state.token}` }
-                });
-                if (res.ok) {
-                    alert("Player released successfully!");
-                    this.loadInitialData(); // Real-time sync list!
-                } else {
-                    const err = await res.json();
-                    alert("Failed to release player: " + (err.detail || "Unknown error"));
-                }
-            } catch (e) {
-                alert("Network error");
-            }
-        }
-    },
-
     loadModule(moduleId) {
+        // Update UI
         document.querySelectorAll('.module').forEach(m => m.classList.remove('active'));
         document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-
-        // ── INTERVAL TEARDOWN: prevent duplicate timers when switching tabs ──
-        if (moduleId !== 'match-control') {
-            if (this.state.simInterval)      { clearInterval(this.state.simInterval);      this.state.simInterval = null; }
-            if (this.state.eventSimInterval) { clearInterval(this.state.eventSimInterval); this.state.eventSimInterval = null; }
-            if (this.state.timerInterval)    { clearInterval(this.state.timerInterval);    this.state.timerInterval = null; }
-            if (this.state.ws && this.state.ws.readyState === WebSocket.OPEN) {
-                this.state.ws.close();
-                this.state.ws = null;
-            }
-        }
         
         const targetModule = document.getElementById(`mod-${moduleId}`);
         if (targetModule) {
             targetModule.classList.add('active');
-            const navItem = document.querySelector(`.nav-item[data-module="${moduleId}"]`);
-            if (navItem) navItem.classList.add('active');
+            document.querySelector(`.nav-item[data-module="${moduleId}"]`).classList.add('active');
             document.getElementById('current-page-title').innerText = moduleId.replace('-', ' ').toUpperCase();
         }
 
+        // Module Specific Init
         if (moduleId === 'match-control') this.initMatchControl();
         if (moduleId === 'players') this.renderPlayers();
         if (moduleId === 'overview') this.renderOverview();
         if (moduleId === 'teams') this.renderTeams();
-        if (moduleId === 'training') this.renderTraining();
-        if (moduleId === 'transfers') {
-            this.renderTransfers();
-            this.renderTransferHistory();
-        }
-        if (moduleId === 'settings') {
-            document.getElementById('settings-club-name').innerText = localStorage.getItem('institution_name') || 'Club Name';
-            document.getElementById('settings-logo-url').value = localStorage.getItem('logo_url') || '';
-            document.getElementById('settings-stadium').value = localStorage.getItem('stadium_name') || '';
-            
-            const preview = document.getElementById('settings-logo-preview');
-            const logoUrl = localStorage.getItem('logo_url');
-            const defaultLogo = window.PlayerDisplay ? PlayerDisplay.DEFAULT_LOGO : "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNGI1NTYzIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEyIDIyczgtNCA4LTEwVjVsLTgtMy04IDN2N2MwIDYgOCAxMCA4IDEweiIvPjwvc3ZnPg==";
-            if (logoUrl && logoUrl !== 'null' && logoUrl !== 'undefined' && logoUrl.trim() !== '') {
-                preview.innerHTML = `<img src="${logoUrl}" style="width:100%;height:100%;object-fit:contain;border-radius:50%;" onerror="this.onerror=null; this.src='${defaultLogo}';">`;
-            } else {
-                preview.innerHTML = `<img src="${defaultLogo}" style="width:100%;height:100%;object-fit:contain;border-radius:50%;">`;
-            }
-        }
     },
 
     renderTeams() {
@@ -245,123 +126,54 @@ const ClubDashboard = {
     },
 
     renderPlayers() {
-        const tbody = document.getElementById('players-table');
-        if (!tbody) return;
+        const grid = document.getElementById('players-grid');
+        if (!grid) return;
 
-        const ctx = window.PlayerDisplay ? PlayerDisplay.getDisplayContext() : {};
-        
-        let playersToRender = this.state.players;
-        
-        // Filtering logic
-        const searchInput = document.getElementById('player-registry-search');
-        const posInput = document.getElementById('player-registry-pos');
-        
-        const q = searchInput ? searchInput.value.toLowerCase() : '';
-        const pos = posInput ? posInput.value : '';
-        
-        if (q || pos) {
-            playersToRender = playersToRender.filter(p => {
-                const norm = PlayerDisplay.normalizePlayer(p, ctx);
-                let match = true;
-                if (q) {
-                    const matchName = (norm.fullName || '').toLowerCase().includes(q);
-                    const matchId = (norm.playerId || '').toLowerCase().includes(q);
-                    if (!matchName && !matchId) match = false;
-                }
-                if (pos && norm.position !== pos) {
-                    match = false;
-                }
-                return match;
-            });
-        }
-
-        const normalized = PlayerDisplay.dedupePlayersById(playersToRender).map(function (p) {
-            return PlayerDisplay.normalizePlayer(p, ctx);
-        });
-
-        tbody.innerHTML = normalized.map(function (n) {
-            return PlayerDisplay.rowHtml(
-                n,
-                'PlayerProfile.open(' + n.id + ')',
-                'window.location.href=\'../players/add_player.html?id=' + n.id + '\'',
-                'PlayerProfile.open(' + n.id + ')',
-                'ClubDashboard.deletePlayer(' + n.id + ')',
-                'alert(\'Transfer coming soon.\')'
-            );
-        }).join('');
-        
-        if (window.lucide) window.lucide.createIcons();
-    },
-    
-    filterPlayers() {
-        this.renderPlayers();
+        grid.innerHTML = this.state.players.map(p => `
+            <div class="card stat-card" style="cursor: pointer;" onclick="ClubDashboard.openPlayerModal(${p.id})">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                    <div>
+                        <div style="font-weight:700; font-size:1.1rem;">${p.name}</div>
+                        <div class="stat-label">${p.position} | #${p.jersey_number || '--'}</div>
+                    </div>
+                    <div class="badge badge-success">ACTIVE</div>
+                </div>
+                <div style="margin-top:1rem; display:grid; grid-template-columns: 1fr 1fr; gap:1rem;">
+                    <div>
+                        <div class="stat-label">Rating</div>
+                        <div style="font-weight:700; color:var(--accent-secondary);">${p.rating || '8.4'}</div>
+                    </div>
+                    <div>
+                        <div class="stat-label">Goals</div>
+                        <div style="font-weight:700;">${p.goals || 0}</div>
+                    </div>
+                </div>
+            </div>
+        `).join('');
     },
 
     openPlayerModal(playerId) {
-        const raw = this.state.players.find(p => p.id === playerId);
-        if (!raw) return;
+        const player = this.state.players.find(p => p.id === playerId);
+        if (!player) return;
 
-        const player = window.PlayerDisplay
-            ? PlayerDisplay.normalizePlayer(raw, PlayerDisplay.getDisplayContext())
-            : null;
-
-        document.getElementById('modal-player-name').innerText = player ? player.fullName : raw.name;
-        document.getElementById('modal-player-pos').innerText = player
-            ? `${player.position} | #${player.jerseyNumber} · ${player.teamLabel}`
-            : `${raw.position} | #${raw.jersey_number || '--'}`;
-        document.getElementById('modal-player-rating').innerText = (player && player.rating != null) ? player.rating : (raw.rating || '—');
-        document.getElementById('modal-player-goals').innerText = (player && player.goals != null) ? player.goals : (raw.goals || 0);
-        document.getElementById('modal-player-assists').innerText = (player && player.assists != null) ? player.assists : (raw.assists || 0);
-
-        const medicalEl = document.getElementById('modal-player-medical');
-        if (medicalEl) {
-            if (player) {
-                medicalEl.innerText = player.medical.fitnessLevel + ' · ' + player.statusLabel.toUpperCase();
-                medicalEl.className = 'badge ' + player.statusBadgeClass;
-            } else {
-                medicalEl.innerText = (raw.fitness_status || 'FIT').toUpperCase();
-                medicalEl.className = 'badge badge-success';
-            }
-            medicalEl.style.display = 'block';
-            medicalEl.style.marginTop = '0.5rem';
-            medicalEl.style.textAlign = 'center';
-        }
-
-        const photoBox = document.querySelector('#player-modal [style*="aspect-ratio"]');
-        if (photoBox) {
-            const rawUrl = player ? player.photoUrl : raw.photo_url;
-            const defaultAvatar = window.PlayerDisplay ? PlayerDisplay.DEFAULT_AVATAR :
-                "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNGI1NTYzIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PGNpcmNsZSBjeD0iMTIiIGN5PSI4IiByPSI0Ii8+PHBhdGggZD0iTTQgMjBjMC00IDQtNyA4LTdzOCAzIDggN1wiLz48L3N2Zz4=";
-            const url = (window.PlayerDisplay && rawUrl)
-                ? PlayerDisplay.normalizePhotoUrl(rawUrl)
-                : (rawUrl || '');
-            const img = document.createElement('img');
-            img.style.cssText = 'width:100%;height:100%;object-fit:cover;';
-            img.alt = '';
-            img.src = url || defaultAvatar;
-            img.onerror = function() {
-                this.onerror = null;
-                this.src = defaultAvatar;
-            };
-            photoBox.innerHTML = '';
-            photoBox.appendChild(img);
-        }
+        document.getElementById('modal-player-name').innerText = player.name;
+        document.getElementById('modal-player-pos').innerText = `${player.position} | #${player.jersey_number || '--'}`;
+        document.getElementById('modal-player-rating').innerText = player.rating || '8.4';
+        document.getElementById('modal-player-goals').innerText = player.goals || 0;
+        document.getElementById('modal-player-assists').innerText = player.assists || 0;
         
         const editBtn = document.getElementById('modal-edit-btn');
         const deleteBtn = document.getElementById('modal-delete-btn');
-        const displayName = player ? player.fullName : raw.name;
-        const pid = player ? player.id : raw.id;
-
         if (editBtn) {
             editBtn.onclick = () => {
-                window.location.href = `../players/add_player.html?id=${pid}`;
+                window.location.href = `../players/add_player.html?id=${player.id}`;
             };
         }
         if (deleteBtn) {
             deleteBtn.onclick = async () => {
-                if (confirm(`Are you sure you want to release ${displayName} from the squad?`)) {
+                if (confirm(`Are you sure you want to release ${player.name} from the squad?`)) {
                     try {
-                        const res = await fetch(`/api/players/${pid}`, {
+                        const res = await fetch(`/api/players/${player.id}`, {
                             method: 'DELETE',
                             headers: { 'Authorization': `Bearer ${this.state.token}` }
                         });
@@ -396,16 +208,10 @@ const ClubDashboard = {
     },
 
     async submitPlayer() {
-        const nameVal = document.getElementById('reg-name').value.trim();
-        const posVal = document.getElementById('reg-position').value;
-        const jerseyVal = parseInt(document.getElementById('reg-jersey').value);
-
-        if (!nameVal) { alert('Please enter a player name.'); return; }
-
         const payload = {
-            name: nameVal,
-            position: posVal,
-            jersey_number: jerseyVal
+            name: document.getElementById('reg-name').value,
+            position: document.getElementById('reg-position').value,
+            jersey_number: parseInt(document.getElementById('reg-jersey').value)
         };
 
         try {
@@ -418,22 +224,15 @@ const ClubDashboard = {
                 body: JSON.stringify(payload)
             });
             if (r.ok) {
-                this.closeRegisterModal();
-                // Clear form fields for next use
-                document.getElementById('reg-name').value = '';
-                document.getElementById('reg-jersey').value = '';
-                // Real-time sync: re-fetch + re-render immediately
-                localStorage.setItem('player_sync_needed', 'true');
-                await this.loadInitialData();
                 alert("Player Registered Successfully!");
+                this.closeRegisterModal();
+                this.loadInitialData(); // Refresh list
+                if (this.state.activeModule === 'match-control') this.initMatchControl();
             } else {
                 const d = await r.json();
                 alert("Registration Failed: " + (d.detail || "Unknown error"));
             }
-        } catch (e) { 
-            console.error('submitPlayer error:', e);
-            alert("Network Error"); 
-        }
+        } catch (e) { alert("Network Error"); }
     },
 
     /* --- MATCH CONTROL CENTER LOGIC --- */
@@ -735,8 +534,7 @@ const ClubDashboard = {
 
     startSimulation() {
         console.log("Starting Live Tactical Simulation...");
-        if (this.state.simInterval) clearInterval(this.state.simInterval);
-        this.state.simInterval = setInterval(() => {
+        setInterval(() => {
             const frames = Array.from({length: 22}, (_, i) => ({
                 id: i,
                 x: Math.random() * 100,
@@ -747,8 +545,7 @@ const ClubDashboard = {
             this.renderPitch(frames);
         }, 1000);
 
-        if (this.state.eventSimInterval) clearInterval(this.state.eventSimInterval);
-        this.state.eventSimInterval = setInterval(() => {
+        setInterval(() => {
             const types = ['goal', 'foul', 'shot', 'pass'];
             this.processEvent({
                 event_type: types[Math.floor(Math.random() * types.length)],
@@ -758,7 +555,6 @@ const ClubDashboard = {
             });
         }, 15000);
     },
-
 
     startTimer() {
         clearInterval(this.state.timerInterval);
@@ -828,449 +624,6 @@ const ClubDashboard = {
             <div style="font-size:0.8rem;">${ev.player_name || 'AI Detection'}</div>
         `;
         feed.prepend(item);
-    },
-
-    renderTraining() {
-        const list = document.getElementById('training-list');
-        const empty = document.getElementById('training-empty');
-        const table = document.getElementById('training-table');
-        if (!list) return;
-
-        const sessions = this.state.trainings || [];
-        
-        // Compute statistics
-        document.getElementById('train-total').innerText = sessions.length;
-        document.getElementById('train-active').innerText = this.state.players.length;
-        
-        const now = new Date();
-        const upcomingCount = sessions.filter(s => new Date(s.date) > now).length;
-        document.getElementById('train-upcoming').innerText = upcomingCount;
-        
-        if (sessions.length > 0) {
-            const sumRate = sessions.reduce((sum, s) => sum + (s.attendance_rate || 0), 0);
-            document.getElementById('train-rate').innerText = (sumRate / sessions.length).toFixed(1) + '%';
-        } else {
-            document.getElementById('train-rate').innerText = '0%';
-        }
-
-        if (sessions.length === 0) {
-            empty.style.display = 'block';
-            table.style.display = 'none';
-        } else {
-            empty.style.display = 'none';
-            table.style.display = 'table';
-            list.innerHTML = sessions.map(s => {
-                let coach = "Jean-Pierre Kwizera";
-                let category = "Tactical";
-                let rawNotes = s.notes || "";
-                
-                try {
-                    if (rawNotes.startsWith("{")) {
-                        const parsed = JSON.parse(rawNotes);
-                        coach = parsed.coach || coach;
-                        category = parsed.category || category;
-                        rawNotes = parsed.notes || "";
-                    }
-                } catch(e) {}
-                
-                const sessionDate = new Date(s.date);
-                const isUpcoming = sessionDate > now;
-                const statusBadge = isUpcoming ? 
-                    `<span class="badge" style="background: rgba(245, 158, 11, 0.15); color: var(--accent-secondary);">UPCOMING</span>` :
-                    `<span class="badge badge-success">COMPLETED</span>`;
-                
-                return `
-                <tr style="cursor: pointer;" onclick="if(event.target.tagName !== 'BUTTON' && event.target.tagName !== 'I') ClubDashboard.openTrainingDetailsModal(${s.id})">
-                    <td style="font-weight: 800; color: white;">${s.topic}</td>
-                    <td>${coach}</td>
-                    <td><span class="badge" style="background: rgba(255,255,255,0.05); color: var(--text-secondary); border: 1px solid var(--border);">${category}</span></td>
-                    <td>${sessionDate.toLocaleDateString()} ${sessionDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</td>
-                    <td>
-                        <div style="display:flex; align-items:center; gap:10px;">
-                            <div style="flex:1; background:rgba(255,255,255,0.05); height:6px; border-radius:3px; overflow:hidden; min-width: 60px;">
-                                <div style="width:${s.attendance_rate}%; background:var(--success); height:100%; border-radius:3px;"></div>
-                            </div>
-                            <span style="font-size:0.75rem; font-weight:800; color:var(--success);">${s.attendance_rate}%</span>
-                        </div>
-                    </td>
-                    <td>${statusBadge}</td>
-                    <td>
-                        <div style="display:flex; gap:5px;">
-                            <button class="btn btn-sm" style="color:var(--accent-primary); background:rgba(22, 163, 74, 0.1); border:1px solid rgba(22, 163, 74, 0.2); padding: 5px 8px;" onclick="event.stopPropagation(); ClubDashboard.openEditTrainingModal(${s.id})"><i data-lucide="edit-3" style="width:12px; height:12px;"></i></button>
-                            <button class="btn btn-sm" style="color:var(--danger); background:rgba(239, 68, 68, 0.1); border:1px solid rgba(239, 68, 68, 0.2); padding: 5px 8px;" onclick="event.stopPropagation(); ClubDashboard.deleteTraining(${s.id})"><i data-lucide="trash-2" style="width:12px; height:12px;"></i></button>
-                        </div>
-                    </td>
-                </tr>
-            `}).join('');
-            
-            if (window.lucide) lucide.createIcons();
-        }
-    },
-
-    openCreateTrainingModal() {
-        this.state.editingSessionId = null;
-        document.getElementById('training-modal-title').innerText = "Schedule Training";
-        document.getElementById('train-date').value = "";
-        document.getElementById('train-topic').value = "";
-        document.getElementById('train-coach').value = "Jean-Pierre Kwizera";
-        document.getElementById('train-category').value = "Tactical";
-        document.getElementById('train-att').value = "100";
-        document.getElementById('train-notes').value = "";
-        document.getElementById('training-modal').style.display = 'flex';
-    },
-
-    openEditTrainingModal(id) {
-        const s = this.state.trainings.find(x => x.id === id);
-        if (!s) return;
-        
-        this.state.editingSessionId = id;
-        document.getElementById('training-modal-title').innerText = "Edit Training Session";
-        
-        // Parse date for input
-        let dateVal = "";
-        if (s.date) {
-            const d = new Date(s.date);
-            const pad = num => String(num).padStart(2, '0');
-            dateVal = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-        }
-        
-        document.getElementById('train-date').value = dateVal;
-        document.getElementById('train-topic').value = s.topic || "";
-        document.getElementById('train-att').value = s.attendance_rate || "100";
-        
-        let coach = "Jean-Pierre Kwizera";
-        let category = "Tactical";
-        let notesText = s.notes || "";
-        
-        try {
-            if (notesText.startsWith("{")) {
-                const parsed = JSON.parse(notesText);
-                coach = parsed.coach || coach;
-                category = parsed.category || category;
-                notesText = parsed.notes || "";
-            }
-        } catch(e) {}
-        
-        document.getElementById('train-coach').value = coach;
-        document.getElementById('train-category').value = category;
-        document.getElementById('train-notes').value = notesText;
-        
-        document.getElementById('training-modal').style.display = 'flex';
-    },
-
-    closeTrainingModal() {
-        document.getElementById('training-modal').style.display = 'none';
-        this.state.editingSessionId = null;
-    },
-
-    async submitTraining() {
-        const topic = document.getElementById('train-topic').value;
-        const coach = document.getElementById('train-coach').value;
-        const category = document.getElementById('train-category').value;
-        const notes = document.getElementById('train-notes').value;
-        
-        const encodedNotes = JSON.stringify({ notes, coach, category });
-        
-        const payload = {
-            date: document.getElementById('train-date').value,
-            topic: topic,
-            attendance_rate: parseFloat(document.getElementById('train-att').value) || 100,
-            notes: encodedNotes
-        };
-        
-        const isEditing = this.state.editingSessionId != null;
-        const url = isEditing ? `/api/club/training/${this.state.editingSessionId}` : '/api/club/training';
-        const method = isEditing ? 'PUT' : 'POST';
-        
-        try {
-            const r = await fetch(url, {
-                method: method,
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${this.state.token}` },
-                body: JSON.stringify(payload)
-            });
-            if (r.ok) {
-                this.closeTrainingModal();
-                await this.loadInitialData();
-                this.renderTraining();
-            } else { 
-                const err = await r.json();
-                alert("Failed to save session: " + (err.detail || "Error")); 
-            }
-        } catch (e) { alert("Network Error"); }
-    },
-
-    async deleteTraining(id) {
-        if (!confirm("Delete this training session?")) return;
-        try {
-            const r = await fetch(`/api/club/training/${id}`, {
-                method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${this.state.token}` }
-            });
-            if (r.ok) {
-                await this.loadInitialData();
-                this.renderTraining();
-            }
-        } catch (e) { alert("Error deleting session."); }
-    },
-
-    openTrainingDetailsModal(id) {
-        const s = this.state.trainings.find(x => x.id === id);
-        if (!s) return;
-        
-        let coach = "Jean-Pierre Kwizera";
-        let category = "Tactical";
-        let notesText = s.notes || "";
-        
-        try {
-            if (notesText.startsWith("{")) {
-                const parsed = JSON.parse(notesText);
-                coach = parsed.coach || coach;
-                category = parsed.category || category;
-                notesText = parsed.notes || "";
-            }
-        } catch(e) {}
-        
-        document.getElementById('detail-topic').innerText = s.topic;
-        document.getElementById('detail-coach').innerText = coach;
-        document.getElementById('detail-category').innerText = category;
-        document.getElementById('detail-date').innerText = new Date(s.date).toLocaleDateString() + " " + new Date(s.date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-        document.getElementById('detail-attendance').innerText = s.attendance_rate + "%";
-        document.getElementById('detail-notes').innerText = notesText || "No session feedback notes entered.";
-        
-        // Populate Attendance tracking widget
-        const attContainer = document.getElementById('training-attendance-section');
-        const players = this.state.players || [];
-        if (players.length === 0) {
-            attContainer.innerHTML = `<div style="color:var(--text-secondary);font-size:0.8rem;text-align:center;padding:1rem;">No players registered to show squad roster.</div>`;
-        } else {
-            attContainer.innerHTML = players.map((p, idx) => {
-                const isPresent = (idx / players.length) * 100 <= s.attendance_rate;
-                const statusColor = isPresent ? 'var(--success)' : 'var(--danger)';
-                const statusLabel = isPresent ? 'PRESENT' : 'ABSENT';
-                return `
-                    <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.02); padding:10px 15px; border-radius:8px; border:1px solid var(--border);">
-                        <span style="font-weight:700;">${p.name}</span>
-                        <span style="font-size:0.7rem; font-weight:900; color:${statusColor};">${statusLabel}</span>
-                    </div>
-                `;
-            }).join('');
-        }
-        
-        // Populate Player Performance widget
-        const perfContainer = document.getElementById('training-performance-section');
-        if (players.length === 0) {
-            perfContainer.innerHTML = `<div style="color:var(--text-secondary);font-size:0.8rem;text-align:center;padding:1rem;">No players registered to show performance metrics.</div>`;
-        } else {
-            perfContainer.innerHTML = players.slice(0, 4).map(p => {
-                const sessionRating = (8.0 + Math.random() * 2).toFixed(1);
-                return `
-                    <div style="background:rgba(255,255,255,0.02); padding:12px; border-radius:8px; border:1px solid var(--border);">
-                        <div style="display:flex; justify-content:space-between; margin-bottom: 5px;">
-                            <span style="font-weight:700; font-size:0.85rem;">${p.name}</span>
-                            <span style="font-weight:800; font-size:0.85rem; color:var(--accent-secondary);">${sessionRating}</span>
-                        </div>
-                        <div style="height:4px; background:rgba(255,255,255,0.05); border-radius:2px; overflow:hidden;">
-                            <div style="height:100%; width:${sessionRating*10}%; background:var(--accent-secondary);"></div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-        
-        // Populate Tactical Coach notes widget
-        const notesLog = document.getElementById('training-notes-section');
-        notesLog.innerHTML = `
-            <div style="width: 100%; text-align: left;">
-                <div style="font-size: 0.75rem; font-weight:700; color: var(--accent-primary); margin-bottom: 5px;">COACH FEEDBACK BUBBLE</div>
-                <div style="color: white; font-size: 0.85rem; font-style: italic; line-height: 1.5;">"${notesText || 'No comments log'}"</div>
-                <div style="font-size: 0.7rem; color: var(--text-secondary); font-weight: 700; text-transform: uppercase; margin-top: 15px; text-align: right;">- Signed, ${coach}</div>
-            </div>
-        `;
-        
-        document.getElementById('training-detail-modal').style.display = 'flex';
-    },
-
-    renderTransfers() {
-        const list = document.getElementById('transfer-list');
-        const empty = document.getElementById('transfer-empty');
-        const table = document.getElementById('transfer-table');
-        if (!list) return;
-        const esc = window.PlayerDisplay ? PlayerDisplay.escapeHtml.bind(PlayerDisplay) : (v) => String(v == null ? '' : v);
-
-        const transfers = this.state.transfers || [];
-
-        if (transfers.length === 0) {
-            empty.style.display = 'block';
-            table.style.display = 'none';
-        } else {
-            empty.style.display = 'none';
-            table.style.display = 'table';
-            list.innerHTML = transfers.map(t => {
-                let badgeClass = 'badge-primary';
-                if (t.status === 'APPROVED' || t.status === 'COMPLETED') badgeClass = 'badge-success';
-                if (t.status === 'REJECTED' || t.status === 'CANCELLED') badgeClass = 'badge-danger';
-                
-                const ageLabel = t.age ? `, ${t.age}y` : "";
-                const catLabel = t.team_category && t.team_category !== "-" ? ` | ${t.team_category}` : "";
-                
-                // Beautiful team logo styling
-                const fromName = esc(t.from_institution || 'Unknown');
-                const toName = esc(t.to_institution || 'Unknown');
-                const fromLogoHtml = `<div style="display:inline-flex; align-items:center; gap:8px;"><div style="width:20px; height:20px; border-radius:50%; background:var(--accent-secondary); color:black; font-size:0.6rem; font-weight:900; display:flex; align-items:center; justify-content:center;">${fromName[0] || '?'}</div><span>${fromName}</span></div>`;
-                const toLogoHtml = `<div style="display:inline-flex; align-items:center; gap:8px;"><div style="width:20px; height:20px; border-radius:50%; background:var(--accent-primary); color:black; font-size:0.6rem; font-weight:900; display:flex; align-items:center; justify-content:center;">${toName[0] || '?'}</div><span>${toName}</span></div>`;
-                
-                // Show role-appropriate workflow actions
-                let actionHtml = "";
-                if (t.status === 'PENDING') {
-                    if (t.from_institution_id == this.state.institutionId) {
-                        // Senders see APPROVE / REJECT
-                        actionHtml = `
-                            <div style="display:flex; gap:5px;">
-                                <button class="btn btn-sm btn-outline" style="border-color:var(--success); color:var(--success); padding: 4px 8px; font-size:0.7rem;" onclick="ClubDashboard.updateTransferStatus(${t.id}, 'APPROVED')">APPROVE</button>
-                                <button class="btn btn-sm btn-outline" style="border-color:var(--danger); color:var(--danger); padding: 4px 8px; font-size:0.7rem;" onclick="ClubDashboard.updateTransferStatus(${t.id}, 'REJECTED')">REJECT</button>
-                            </div>
-                        `;
-                    } else if (t.to_institution_id == this.state.institutionId) {
-                        // Requestors see CANCEL
-                        actionHtml = `<button class="btn btn-sm btn-outline" style="border-color:var(--danger); color:var(--danger); padding: 4px 8px; font-size:0.7rem;" onclick="ClubDashboard.updateTransferStatus(${t.id}, 'CANCELLED')">CANCEL</button>`;
-                    }
-                } else {
-                    actionHtml = `<span style="font-size:0.7rem; color:var(--text-secondary); font-weight:700; text-transform:uppercase;">ARCHIVED</span>`;
-                }
-
-                return `
-                <tr>
-                    <td>${new Date(t.transfer_date).toLocaleDateString()}</td>
-                    <td><strong>${esc(t.player_name || 'Unknown Player')}</strong> <span style="font-size:0.7rem;color:var(--text-secondary); font-weight:700;">(${esc(t.position || '--')}${ageLabel}${catLabel})</span></td>
-                    <td>${fromLogoHtml}</td>
-                    <td>${toLogoHtml}</td>
-                    <td style="font-variant-numeric: tabular-nums; font-weight: 800; color: white;">$${t.fee.toLocaleString()}</td>
-                    <td><span class="badge ${badgeClass}">${t.status}</span></td>
-                    <td>${actionHtml}</td>
-                </tr>
-            `}).join('');
-        }
-    },
-
-    renderTransferHistory() {
-        const histContainer = document.getElementById('transfer-history-list');
-        if (!histContainer) return;
-        const esc = window.PlayerDisplay ? PlayerDisplay.escapeHtml.bind(PlayerDisplay) : (v) => String(v == null ? '' : v);
-        
-        const transfers = this.state.transfers || [];
-        if (transfers.length === 0) {
-            histContainer.innerHTML = `<div style="color:var(--text-secondary);font-size:0.85rem;text-align:center;padding:2rem 0;">No club transfer timeline entries to display.</div>`;
-            return;
-        }
-        
-        histContainer.innerHTML = transfers.map(t => {
-            let timelineColor = 'var(--accent-secondary)';
-            let statusText = `requested transition to ${t.to_institution}`;
-            if (t.status === 'APPROVED' || t.status === 'COMPLETED') {
-                timelineColor = 'var(--success)';
-                statusText = `completed contract movement to ${t.to_institution}`;
-            } else if (t.status === 'REJECTED') {
-                timelineColor = 'var(--danger)';
-                statusText = `transfer offer rejected by ${t.from_institution}`;
-            } else if (t.status === 'CANCELLED') {
-                timelineColor = 'var(--text-secondary)';
-                statusText = `transfer offer cancelled by ${t.to_institution}`;
-            }
-            
-            return `
-                <div style="display:flex; gap:15px; align-items:flex-start; padding: 12px; background:rgba(255,255,255,0.01); border-radius:8px; border-left:3px solid ${timelineColor};">
-                    <div style="font-variant-numeric: tabular-nums; font-size:0.75rem; font-weight:800; color:var(--text-secondary); width: 80px; flex-shrink: 0;">${new Date(t.transfer_date).toLocaleDateString()}</div>
-                    <div style="flex:1;">
-                        <span style="font-weight:800; color:white;">${esc(t.player_name || 'Unknown Player')}</span>
-                        <span style="color:var(--text-secondary); font-size:0.85rem;">${esc(statusText)} for a fee of $${t.fee.toLocaleString()}</span>
-                    </div>
-                </div>
-            `;
-        }).join('');
-    },
-
-    async submitTransfer() {
-        const payload = {
-            player_id: parseInt(document.getElementById('trans-player').value),
-            to_institution_id: parseInt(document.getElementById('trans-to').value),
-            fee: parseFloat(document.getElementById('trans-fee').value) || 0.0
-        };
-        try {
-            const r = await fetch('/api/club/transfers/request', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${this.state.token}` },
-                body: JSON.stringify(payload)
-            });
-            if (r.ok) {
-                document.getElementById('transfer-modal').style.display = 'none';
-                await this.loadInitialData();
-                this.renderTransfers();
-                this.renderTransferHistory();
-                alert("Transfer Request Submitted");
-            } else {
-                const err = await r.json();
-                alert("Request Failed: " + (err.detail || "Error"));
-            }
-        } catch (e) { alert("Network Error"); }
-    },
-
-    async updateTransferStatus(id, status) {
-        if (!confirm(`Are you sure you want to set status to ${status}?`)) return;
-        try {
-            const r = await fetch(`/api/club/transfers/${id}/status`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${this.state.token}` },
-                body: JSON.stringify({ status })
-            });
-            if (r.ok) {
-                await this.loadInitialData();
-                this.renderTransfers();
-                this.renderTransferHistory();
-            } else {
-                const err = await r.json();
-                alert("Action failed: " + (err.detail || "Error"));
-            }
-        } catch (e) { alert("Error updating transfer"); }
-    },
-
-    async saveBrandingSettings() {
-        const logoUrl = document.getElementById('settings-logo-url').value;
-        const stadiumName = document.getElementById('settings-stadium').value;
-        
-        try {
-            const r = await fetch('/api/club/institution', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${this.state.token}` },
-                body: JSON.stringify({ logo_url: logoUrl, stadium_name: stadiumName })
-            });
-            
-            if (r.ok) {
-                const data = await r.json();
-                
-                // Update local storage so that dynamic branding target renders instantly
-                localStorage.setItem('logo_url', logoUrl);
-                localStorage.setItem('stadium_name', stadiumName);
-                
-                // Run global identity target synchronizer
-                this.verifyAccess();
-                
-                // Re-populate settings preview
-                const preview = document.getElementById('settings-logo-preview');
-                const defaultLogo = window.PlayerDisplay ? PlayerDisplay.DEFAULT_LOGO : "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNGI1NTYzIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEyIDIyczgtNCA4LTEwVjVsLTgtMy04IDN2N2MwIDYgOCAxMCA4IDEweiIvPjwvc3ZnPg==";
-                if (logoUrl && logoUrl !== 'null' && logoUrl !== 'undefined' && logoUrl.trim() !== '') {
-                    preview.innerHTML = `<img src="${logoUrl}" style="width:100%;height:100%;object-fit:contain;border-radius:50%;" onerror="this.onerror=null; this.src='${defaultLogo}';">`;
-                } else {
-                    preview.innerHTML = `<img src="${defaultLogo}" style="width:100%;height:100%;object-fit:contain;border-radius:50%;">`;
-                }
-                
-                alert("Branding identity saved successfully!");
-            } else {
-                const err = await r.json();
-                alert("Failed to save branding settings: " + (err.detail || "Error"));
-            }
-        } catch (e) {
-            alert("Network Error");
-        }
     },
 
     logout() {

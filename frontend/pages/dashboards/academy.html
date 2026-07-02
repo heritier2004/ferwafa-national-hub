@@ -34,9 +34,7 @@
         option { background: var(--bg-secondary); }
     </style>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="/assets/js/api.js?v=1.2"></script>
-    <script src="/assets/js/player_display.js?v=2.0"></script>
-    <script src="/assets/js/player_profile.js?v=2.0"></script>
+    <script src="/assets/js/api.js"></script>
 </head>
 <body>
 <div class="app-container">
@@ -120,47 +118,15 @@
             <section id="players" class="tab-pane">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem;">
                     <span class="section-tag" style="margin-bottom:0;">Full Academy Registry</span>
+                    <input class="search-box" type="text" placeholder="Search prospect..." id="player-search" oninput="filterPlayers()">
                 </div>
-
-                <!-- TOP TOOLBAR -->
-                <div style="background:var(--bg-tertiary);border:1px solid var(--border);border-radius:12px;padding:1rem;margin-bottom:1.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;box-shadow:0 10px 15px -3px rgba(0,0,0,0.3);">
-                    <div style="display:flex;gap:1rem;align-items:center;flex:1;">
-                        <input type="text" id="player-registry-search" placeholder="Search Prospect by Name or ID..." style="padding:0.6rem 1rem;border:1px solid var(--border);border-radius:8px;font-size:0.9rem;width:250px;background:var(--bg-primary);color:var(--text-primary);" oninput="filterPlayers()">
-                        <select id="player-registry-pos" style="padding:0.6rem;border:1px solid var(--border);border-radius:8px;font-size:0.9rem;background:var(--bg-primary);color:var(--text-primary);" onchange="filterPlayers()">
-                            <option value="" style="background:var(--bg-primary);">All Positions</option>
-                            <option value="GK" style="background:var(--bg-primary);">GK</option>
-                            <option value="DEF" style="background:var(--bg-primary);">Defender</option>
-                            <option value="MID" style="background:var(--bg-primary);">Midfielder</option>
-                            <option value="FWD" style="background:var(--bg-primary);">Forward</option>
-                        </select>
-                    </div>
-                    <div style="display:flex;gap:0.75rem;">
-                        <button class="btn btn-outline" style="padding:0.6rem 1rem;border:1px solid var(--border);background:var(--bg-tertiary);font-size:0.85rem;color:var(--text-primary);font-weight:600;" onclick="alert('Import feature coming soon.')"><i data-lucide="upload-cloud" style="width:16px;height:16px;margin-right:4px;"></i> Import</button>
-                        <button class="btn btn-outline" style="padding:0.6rem 1rem;border:1px solid var(--border);background:var(--bg-tertiary);font-size:0.85rem;color:var(--text-primary);font-weight:600;" onclick="alert('Export feature coming soon.')"><i data-lucide="download-cloud" style="width:16px;height:16px;margin-right:4px;"></i> Export</button>
-                        <button class="btn btn-primary" style="padding:0.6rem 1rem;background:var(--accent-primary);color:#FFFFFF;border:none;border-radius:8px;font-size:0.85rem;font-weight:700;" onclick="window.location.href='../players/add_player.html'"><i data-lucide="plus" style="width:16px;height:16px;margin-right:4px;"></i> Add Prospect</button>
-                    </div>
-                </div>
-
-                <!-- REGISTRY TABLE -->
-                <div style="background:var(--bg-tertiary);border:1px solid var(--border);border-radius:12px;overflow-x:auto;box-shadow:0 10px 15px -3px rgba(0,0,0,0.3);">
-                    <table style="width:100%;border-collapse:collapse;text-align:left;">
-                        <thead style="background:var(--bg-primary);color:var(--text-primary);">
-                            <tr>
-                                <th style="padding:1rem;font-weight:700;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em;white-space:nowrap;color:var(--text-primary);">Photo</th>
-                                <th style="padding:1rem;font-weight:700;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em;white-space:nowrap;color:var(--text-primary);">Player ID</th>
-                                <th style="padding:1rem;font-weight:700;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em;white-space:nowrap;color:var(--text-primary);">Full Name</th>
-                                <th style="padding:1rem;font-weight:700;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em;white-space:nowrap;color:var(--text-primary);">DOB</th>
-                                <th style="padding:1rem;font-weight:700;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em;white-space:nowrap;color:var(--text-primary);">Age</th>
-                                <th style="padding:1rem;font-weight:700;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em;white-space:nowrap;color:var(--text-primary);">Position</th>
-                                <th style="padding:1rem;font-weight:700;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em;white-space:nowrap;color:var(--text-primary);">Jersey No</th>
-                                <th style="padding:1rem;font-weight:700;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em;white-space:nowrap;color:var(--text-primary);">Nationality</th>
-                                <th style="padding:1rem;font-weight:700;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em;white-space:nowrap;color:var(--text-primary);">Team</th>
-                                <th style="padding:1rem;font-weight:700;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em;white-space:nowrap;color:var(--text-primary);">Status</th>
-                                <th style="padding:1rem;font-weight:700;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em;white-space:nowrap;color:var(--text-primary);">Actions</th>
-                            </tr>
-                        </thead>
+                <div class="card" style="padding:0;overflow:hidden;">
+                    <table>
+                        <thead><tr>
+                            <th>CODE</th><th>NAME</th><th>POSITION</th><th>AGE</th><th>NATIONALITY</th><th>TALENT SCORE</th><th>ELITE</th><th style="text-align:right;">ACTIONS</th>
+                        </tr></thead>
                         <tbody id="players-table">
-                            <tr><td colspan="11"><div class="empty-state"><span class="spinner"></span></div></td></tr>
+                            <tr><td colspan="7"><div class="empty-state"><span class="spinner"></span></div></td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -204,35 +170,13 @@
     const instName = localStorage.getItem('institution_name') || 'ACADEMY';
     document.getElementById('inst-name').textContent = instName;
     document.getElementById('inst-name-sidebar').textContent = instName;
-    const defaultLogo = window.PlayerDisplay ? PlayerDisplay.DEFAULT_LOGO : "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNGI1NTYzIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEyIDIyczgtNCA4LTEwVjVsLTgtMy04IDN2N2MwIDYgOCAxMCA4IDEweiIvPjwvc3ZnPg==";
     const logoUrl = localStorage.getItem('logo_url');
     if (logoUrl && logoUrl !== 'null' && logoUrl !== 'undefined' && logoUrl.trim() !== '') {
-        document.getElementById('logo-wrap').innerHTML = `<img src="${logoUrl}" style="width:100%;height:100%;object-fit:cover;" onerror="this.onerror=null; this.src='${defaultLogo}';">`;
+        document.getElementById('logo-wrap').innerHTML = `<img src="${logoUrl}" style="width:100%;height:100%;object-fit:cover;">`;
     } else {
-        document.getElementById('logo-wrap').innerHTML = `<img src="${defaultLogo}" style="width:100%;height:100%;object-fit:cover;">`;
+        document.getElementById('logo-wrap').innerHTML = `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;"><i data-lucide="shield" style="width:20px;height:20px;color:var(--text-secondary);"></i></div>`;
+        lucide.createIcons();
     }
-
-    window.addEventListener('pageshow', (event) => {
-        if (localStorage.getItem('player_sync_needed') === 'true') {
-            localStorage.removeItem('player_sync_needed');
-            window.forceRefreshPlayers();
-        }
-    });
-    window.addEventListener('storage', (event) => {
-        if (event.key === 'player_sync_needed' && event.newValue === 'true') {
-            localStorage.removeItem('player_sync_needed');
-            window.forceRefreshPlayers();
-        }
-    });
-
-    window.forceRefreshPlayers = function() {
-        allPlayers = [];
-        loadOverview();
-        const activeTab = document.querySelector('.tab-pane.active')?.id;
-        if (activeTab === 'players') {
-            loadPlayers();
-        }
-    };
 
     let allPlayers = [];
 
@@ -265,44 +209,34 @@
             if (!r.ok) return;
             const players = await r.json();
             const list = Array.isArray(players) ? players : (players.players || []);
-            allPlayers = list.map(p => PlayerDisplay.normalizePlayer(p));
-            const elite = allPlayers.filter(p => p.raw.is_elite_prospect).length;
-            const avg = allPlayers.length ? (allPlayers.reduce((s, p) => s + (p.rating || 0), 0) / allPlayers.length).toFixed(1) : '0.0';
-            document.getElementById('kpi-total').textContent = allPlayers.length;
+            allPlayers = list;
+            const elite = list.filter(p => p.is_elite_prospect).length;
+            const avg = list.length ? (list.reduce((s, p) => s + (p.talent_score || 0), 0) / list.length).toFixed(1) : '0.0';
+            document.getElementById('kpi-total').textContent = list.length;
             document.getElementById('kpi-elite').textContent = elite;
             document.getElementById('kpi-avg').textContent = avg;
 
-            const top = [...allPlayers].sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, 10);
+            const top = [...list].sort((a, b) => (b.talent_score || 0) - (a.talent_score || 0)).slice(0, 10);
             const tbody = document.getElementById('top-prospects');
             if (!top.length) {
                 tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><i data-lucide="user"></i>No prospects yet.</div></td></tr>`;
                 return;
             }
-            tbody.innerHTML = top.map((p, i) => {
-                const photoHtml = PlayerDisplay.photoHtml(p.photoUrl, 32);
-                return `
-                <tr style="cursor: pointer;" onclick="PlayerProfile.open(${p.id})">
+            tbody.innerHTML = top.map((p, i) => `
+                <tr>
                     <td style="color:var(--text-secondary);font-weight:800;">${i + 1}</td>
-                    <td>
-                        <div style="display:flex;align-items:center;gap:10px;">
-                            ${photoHtml}
-                            <div>
-                                <strong>${PlayerDisplay.escapeHtml(p.fullName)}</strong><br>
-                                <small style="color:var(--text-secondary);">${p.playerId}</small>
-                            </div>
-                        </div>
-                    </td>
-                    <td><span class="badge-pos">${p.position}</span></td>
-                    <td style="color:var(--text-secondary);">${p.age}</td>
+                    <td><strong>${p.name}</strong><br><small style="color:var(--text-secondary);">${p.player_code}</small></td>
+                    <td><span class="badge-pos">${p.position || '—'}</span></td>
+                    <td style="color:var(--text-secondary);">${p.age || '—'}</td>
                     <td>
                         <div class="score-bar">
-                            <div class="bar"><div class="fill" style="width:${Math.min((p.rating||0)*10,100)}%"></div></div>
-                            <strong>${(p.rating || 0).toFixed(1)}</strong>
+                            <div class="bar"><div class="fill" style="width:${Math.min((p.talent_score||0)*10,100)}%"></div></div>
+                            <strong>${(p.talent_score || 0).toFixed(1)}</strong>
                         </div>
                     </td>
-                    <td>${p.raw.is_elite_prospect ? '<span class="badge-elite">Elite</span>' : '<span style="color:var(--text-secondary);font-size:0.75rem;">Standard</span>'}</td>
+                    <td>${p.is_elite_prospect ? '<span class="badge-elite">Elite</span>' : '<span style="color:var(--text-secondary);font-size:0.75rem;">Standard</span>'}</td>
                 </tr>
-            `}).join('');
+            `).join('');
         } catch (e) {}
 
         // Match count
@@ -320,8 +254,7 @@
         try {
             const r = await fetch(`/api/ferwafa/players?institution_id=${inst_id}`, { headers: { Authorization: `Bearer ${token}` } });
             const data = await r.json();
-            const list = Array.isArray(data) ? data : (data.players || []);
-            allPlayers = list.map(p => PlayerDisplay.normalizePlayer(p));
+            allPlayers = Array.isArray(data) ? data : (data.players || []);
             renderPlayers(allPlayers);
         } catch (e) {
             document.getElementById('players-table').innerHTML = `<tr><td colspan="7"><div class="empty-state">Failed to load.</div></td></tr>`;
@@ -331,43 +264,41 @@
     function renderPlayers(list) {
         const tbody = document.getElementById('players-table');
         if (!list.length) {
-            tbody.innerHTML = `<tr><td colspan="11"><div class="empty-state"><i data-lucide="user"></i>No prospects registered yet.<br><br><button class="btn btn-primary" onclick="window.location.href='../players/add_player.html'"><i data-lucide="plus"></i> Add First Prospect</button></div></td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><i data-lucide="user"></i>No prospects registered yet.<br><br><button class="btn btn-primary" onclick="window.location.href='../players/add_player.html'"><i data-lucide="plus"></i> Add First Prospect</button></div></td></tr>`;
             return;
         }
-        tbody.innerHTML = list.map(rawP => {
-            const p = PlayerDisplay.normalizePlayer(rawP);
-            return PlayerDisplay.rowHtml(
-                p,
-                'PlayerProfile.open(' + p.id + ')',
-                'editPlayer(' + p.id + ')',
-                'PlayerProfile.open(' + p.id + ')',
-                'deletePlayer(' + p.id + ')',
-                'alert(\\'Transfer coming soon.\\')'
-            );
-        }).join('');
-        if (window.lucide) window.lucide.createIcons();
+        tbody.innerHTML = list.map(p => `
+            <tr>
+                <td style="font-family:monospace;color:var(--text-secondary);font-size:0.8rem;">${p.player_code}</td>
+                <td><strong>${p.name}</strong></td>
+                <td><span class="badge-pos">${p.position || '—'}</span></td>
+                <td style="color:var(--text-secondary);">${p.age || '—'}</td>
+                <td style="color:var(--text-secondary);">${p.nationality || '—'}</td>
+                <td>
+                    <div class="score-bar">
+                        <div class="bar"><div class="fill" style="width:${Math.min((p.talent_score||0)*10,100)}%"></div></div>
+                        <span style="font-size:0.85rem;font-weight:800;">${(p.talent_score||0).toFixed(1)}</span>
+                    </div>
+                </td>
+                <td>${p.is_elite_prospect ? '<span class="badge-elite">Elite</span>' : '—'}</td>
+                <td style="text-align:right;white-space:nowrap;">
+                    <button class="btn btn-outline" style="padding: 4px 8px; font-size: 0.75rem; margin-right: 5px; cursor: pointer; border-color: rgba(255,255,255,0.15);" onclick="editPlayer(${p.id})"><i data-lucide="pen"></i></button>
+                    <button class="btn btn-outline" style="padding: 4px 8px; font-size: 0.75rem; border-color: var(--danger); color: var(--danger); cursor: pointer;" onclick="deletePlayer(${p.id}, '${p.name}')"><i data-lucide="trash"></i></button>
+                </td>
+            </tr>
+        `).join('');
     }
 
     function filterPlayers() {
-        const input = document.getElementById('player-registry-search');
-        const posInput = document.getElementById('player-registry-pos');
-        const q = input ? input.value.toLowerCase() : '';
-        const pos = posInput ? posInput.value : '';
-        
-        let list = allPlayers;
-        if (q) list = list.filter(p => (p.fullName||'').toLowerCase().includes(q) || (p.playerId||'').toLowerCase().includes(q));
-        if (pos) list = list.filter(p => p.position === pos);
-        
-        renderPlayers(list);
+        const q = document.getElementById('player-search').value.toLowerCase();
+        renderPlayers(allPlayers.filter(p => p.name.toLowerCase().includes(q) || (p.player_code||'').toLowerCase().includes(q)));
     }
 
     function editPlayer(id) {
         window.location.href = `../players/add_player.html?id=${id}`;
     }
 
-    async function deletePlayer(id) {
-        const player = allPlayers.find(p => p.id === id);
-        const name = player ? (player.fullName || 'prospect') : 'prospect';
+    async function deletePlayer(id, name) {
         if (!confirm(`Are you sure you want to release prospect ${name} from the academy roster?`)) return;
         try {
             const r = await fetch(`/api/players/${id}`, {
@@ -376,7 +307,6 @@
             });
             if (r.ok) {
                 toast("Prospect released from academy roster successfully.");
-                localStorage.setItem('player_sync_needed', 'true');
                 allPlayers = [];  // Clear local list cache
                 loadPlayers();    // Real-time sync reload list!
                 loadOverview();   // Update overview KPI counts too!
