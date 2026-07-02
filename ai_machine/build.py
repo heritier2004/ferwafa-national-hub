@@ -81,9 +81,8 @@ if __name__ == "__main__":
     print("  AI PITCH MACHINE — BUILD SYSTEM")
     print("=" * 55)
 
-    try:
-        import PyInstaller
-    except ImportError:
+    import importlib.util
+    if importlib.util.find_spec('PyInstaller') is None:
         print("❌ PyInstaller not found. Install it:")
         print("   pip install pyinstaller")
         sys.exit(1)

@@ -10,7 +10,7 @@ from backend.app.config.database import get_db
 from backend.app.database.models import (
     Match, Institution, Player, MatchEvent,
     MatchSquad, MatchSession, SystemActivity, DisciplinaryRecord,
-    PlayerStat, MatchAnalytics, APIKey
+    PlayerStat, APIKey
 )
 from pydantic import BaseModel
 from typing import List, Optional

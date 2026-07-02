@@ -201,7 +201,7 @@ _run_safe_migrations()
 # APP — Lifespan Context Manager (replaces deprecated @app.on_event)
 # =====================================================
 @asynccontextmanager
-async def lifespan(app_instance):
+async def lifespan(_app_instance):
     """Seed the database on startup without blocking the main event loop."""
     db_seed = SessionLocal()
     try:
@@ -507,7 +507,7 @@ async def match_page_viewer(websocket: WebSocket, match_id: int):
 # DOWNLOAD ENDPOINT (Unified Universal Package)
 # =====================================================
 @app.get("/api/download/ai-machine")
-async def download_ai_machine(current_user: dict = Depends(get_current_user), os_type: str = "universal"):
+async def download_ai_machine(current_user: dict = Depends(get_current_user), _os_type: str = "universal"):
     # We serve the single universal package that handles all OS via its own launchers
     # Use path relative to backend app root or current directory
     zip_path = os.path.join(os.getcwd(), "backend", "dist", "ai_machine_universal.zip")

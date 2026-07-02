@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from backend.app.config.database import get_db
-from backend.app.database.models import Institution, Match, Fixture, Player, AIAnalysis, User, SystemActivity, MatchSession, Competition
+from backend.app.database.models import Institution, Match, Player, AIAnalysis, User, SystemActivity, MatchSession, Competition
 from backend.app.auth.security import get_password_hash
 from sqlalchemy import text
 import random

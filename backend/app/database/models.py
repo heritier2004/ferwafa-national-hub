@@ -3,7 +3,7 @@ from sqlalchemy.orm import relationship
 from backend.app.config.database import Base
 from datetime import datetime
 import uuid
-from sqlalchemy.dialects.postgresql import UUID
+# PostgreSQL UUID type not required in current models; removed to silence static analysis warnings
 
 class User(Base):
     __tablename__ = "users"
