@@ -24,6 +24,7 @@ class Token(BaseModel):
     logo_url: Optional[str] = None
     stadium_name: Optional[str] = None
     institution_name: Optional[str] = None
+    institution_id: Optional[int] = None
 
 @router.post("/register", status_code=status.HTTP_201_CREATED)
 def register(user: UserCreate, db: Session = Depends(get_db)):
@@ -77,8 +78,12 @@ def register_institution(
         filename = f"{uuid.uuid4()}{ext}"
         logo_url = f"/uploads/{filename}"
         
-    code = f"{type.upper()[:3]}-{uuid.uuid4().hex[:6].upper()}"
-    
+    from backend.app.players.service import get_institution_prefix, generate_unique_institution_code
+
+    # Generate a unique 3‑letter prefix based on the institution name
+    prefix = get_institution_prefix(name)
+    code = generate_unique_institution_code(db, prefix)
+
     new_inst = Institution(
         name=name,
         type=type.lower(),
@@ -96,7 +101,7 @@ def register_institution(
     db.add(new_inst)
     db.commit()
     db.refresh(new_inst)
-    
+
     hashed_password = get_password_hash(password)
     new_user = User(
         email=clean_email,
@@ -108,7 +113,7 @@ def register_institution(
     )
     db.add(new_user)
     db.commit()
-    
+
     return {"message": "Registration submitted successfully. Waiting for FERWAFA approval."}
 
 
@@ -161,5 +166,6 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
         "full_name": user.full_name,
         "logo_url": logo,
         "stadium_name": stadium,
-        "institution_name": inst.name if user.institution_id and inst else user.full_name
+        "institution_name": inst.name if user.institution_id and inst else user.full_name,
+        "institution_id": user.institution_id
     }

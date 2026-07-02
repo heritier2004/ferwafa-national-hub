@@ -3,8 +3,14 @@ from sqlalchemy.orm import Session
 from backend.app.config.database import get_db
 from backend.app.database.models import MatchEvent, PlayerStat, Match
 from typing import List
+from backend.app.auth.dependencies import get_current_user
 
-router = APIRouter(prefix="/api/data", tags=["data"])
+router = APIRouter(
+    prefix="/api/data",
+    tags=["data"],
+    dependencies=[Depends(get_current_user)]
+)
+
 
 @router.post("/sync-event")
 def sync_event(data: dict, db: Session = Depends(get_db)):

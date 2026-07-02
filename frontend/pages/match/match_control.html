@@ -3,23 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Match Control Center | No Scroll</title>
+    <title>National Football Operations Command Center | SPORTEXA</title>
+    <meta name="description" content="National Football Operations Command Center for live match tracking, VAR analysis, and tactical intelligence.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Manrope:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --bg: #111827;
-            --card: #111827;
-            --accent: #16A34A;
-            --text: #f8fafc;
-            --text-dim: #94a3b8;
+            --bg: #070A10;
+            --bg-surface: #0E1420;
+            --bg-elevated: #161F30;
+            --card: #0E1420;
+            --accent: #10B981;
+            --accent-glow: rgba(16, 185, 129, 0.2);
+            --text: #F1F5F9;
+            --text-dim: #94A3B8;
+            --text-muted: #475569;
             --border: rgba(255,255,255,0.08);
-            --pitch: #064e3b;
-            --success: #10b981;
-            --danger: #ef4444;
-            --warning: #f59e0b;
+            --border-subtle: rgba(255,255,255,0.04);
+            --pitch: radial-gradient(circle at center, #064E3B 0%, #022C20 100%);
+            --pitch-line: rgba(255,255,255,0.5);
+            --success: #10B981;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+            --gold: #EAB308;
+            --cyan: #06B6D4;
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 14px;
+            --shadow-command: 0 10px 40px rgba(0,0,0,0.6);
+            --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -27,120 +40,656 @@
         body {
             background: var(--bg);
             color: var(--text);
-            font-family: 'Outfit', sans-serif;
+            font-family: 'Inter', -apple-system, sans-serif;
             height: 100vh;
             width: 100vw;
-            overflow: hidden; /* STRICT NO SCROLLING */
+            overflow: hidden;
             display: flex;
             flex-direction: column;
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* 1. HEADER */
+        /* COMMAND CENTER HEADER BAR */
         .mcc-header {
-            height: 70px;
+            height: 56px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 2rem;
+            padding: 0 1.5rem;
             border-bottom: 1px solid var(--border);
-            background: var(--bg);
+            background: var(--bg-surface);
             flex-shrink: 0;
+            z-index: 20;
         }
+        .command-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: var(--accent);
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.65rem;
+            font-weight: 900;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+        }
+        .command-pulse {
+            width: 6px; height: 6px; background: var(--accent); border-radius: 50%;
+            animation: pulse-ring 1.5s infinite ease-in-out;
+        }
+        @keyframes pulse-ring { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.5); opacity: 0.4; } }
 
+        .mcc-header-title {
+            font-family: 'Manrope', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text);
+        }
+        .mcc-header-sub {
+            font-size: 0.68rem;
+            color: var(--text-dim);
+            font-weight: 700;
+            display: flex; align-items: center; gap: 0.5rem;
+        }
+        .mcc-header-sub .comp-name { color: var(--text); font-weight: 800; }
+
+        /* COMMAND CENTER MAIN GRID: 3-COLUMN LOCKED WORKSPACE */
         .mcc-main {
             flex: 1;
             display: grid;
-            grid-template-columns: 350px 1fr 320px;
-            height: calc(100vh - 70px);
+            grid-template-columns: 320px 1fr 420px;
+            height: calc(100vh - 56px);
+            overflow: hidden;
         }
 
         .mcc-col {
-            padding: 1.5rem;
             display: flex;
             flex-direction: column;
-            gap: 1.5rem;
             height: 100%;
-            overflow-y: auto;
+            overflow: hidden;
             position: relative;
-            -ms-overflow-style: none; /* IE and Edge */
-            scrollbar-width: none; /* Firefox */
-        }
-        .mcc-col::-webkit-scrollbar {
-            display: none; /* Chrome, Safari and Opera */
         }
 
-        .mcc-col-left { border-right: 1px solid var(--border); }
-        .mcc-col-right { border-left: 1px solid var(--border); }
-
-        .mcc-box {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 1.25rem;
-            display: flex;
-            flex-direction: column;
+        /* LEFT: Squad & Lineup Control */
+        .mcc-col-left {
+            padding: 0.85rem;
+            gap: 0.75rem;
+            background: var(--bg-surface);
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+            scrollbar-width: thin;
         }
 
-        .mcc-title {
-            font-size: 0.75rem;
-            font-weight: 800;
-            color: var(--accent);
-            text-transform: uppercase;
-            letter-spacing: 0.15em;
-            margin-bottom: 1rem;
+        /* CENTER: Live Video + Tactical Pitch */
+        .mcc-col-center {
+            padding: 1rem;
+            gap: 0.85rem;
+            background: var(--bg);
+            border-right: 1px solid var(--border);
+        }
+
+        /* RIGHT: Match Intelligence — all sections visible simultaneously */
+        .mcc-col-right {
+            padding: 0.85rem;
+            gap: 0.75rem;
+            background: var(--bg-surface);
+            overflow-y: auto;
+            scrollbar-width: thin;
+        }
+
+        /* SCOREBOARD COMMAND BAR */
+        .mcc-scoreboard {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding: 0.75rem 2rem;
+            background: var(--bg-surface);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            flex-shrink: 0;
+            box-shadow: var(--shadow-command);
+        }
+        .mcc-score-value {
+            font-family: 'Manrope', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 900;
+            line-height: 1;
+            color: var(--text);
+            letter-spacing: -0.04em;
+        }
+        .mcc-scoreboard-center {
+            text-align: center;
+            display: flex; flex-direction: column; align-items: center; gap: 4px;
+        }
+        .mcc-timer {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--gold);
+            font-variant-numeric: tabular-nums;
+        }
+        .mcc-telemetry-badge {
+            font-size: 0.6rem;
+            padding: 2px 10px;
+            border-radius: 4px;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+        .mcc-telemetry-inactive {
+            background: rgba(239,68,68,0.1);
+            color: var(--danger);
+            border: 1px solid rgba(239,68,68,0.25);
         }
 
-        /* Forms */
-        .mcc-group { margin-bottom: 0.75rem; }
-        .mcc-group label {
-            display: block; font-size: 0.65rem; font-weight: 800; color: var(--text-dim); text-transform: uppercase; margin-bottom: 0.25rem;
-        }
-        .mcc-input {
-            width: 100%; background: #000; border: 1px solid var(--border); border-radius: 6px; padding: 0.5rem; color: white; font-family: inherit; font-size: 0.8rem;
-        }
-        
-        .btn {
-            background: var(--accent); color: white; border: none; padding: 0.75rem; border-radius: 6px; font-weight: 800; font-family: inherit; cursor: pointer; text-transform: uppercase; font-size: 0.8rem; transition: 0.2s; text-align: center; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; text-decoration: none;
-        }
-        .btn-outline { background: transparent; border: 1px solid var(--border); }
-        .btn-outline:hover { background: rgba(255,255,255,0.05); }
-        
+        /* MASSIVE HEART OF THE APP: CENTERPIECE TACTICAL PITCH */
         .pitch-container {
-            background: var(--pitch); border-radius: 8px; border: 2px solid var(--border); position: relative; width: 100%; overflow: hidden;
+            background: var(--pitch);
+            border-radius: var(--radius-lg);
+            border: 1.5px solid rgba(255,255,255,0.15);
+            position: relative;
+            width: 100%;
+            flex: 1;
+            min-height: 400px;
+            overflow: hidden;
+            box-shadow: inset 0 4px 40px rgba(0,0,0,0.7), 0 12px 40px rgba(0,0,0,0.5);
         }
+
+        /* PITCH OPERATIONAL OVERLAY TOOLS */
+        .pitch-overlay-tools {
+            position: absolute;
+            top: 14px; left: 14px; right: 14px;
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 10; pointer-events: none;
+        }
+        .pitch-overlay-tools > * { pointer-events: auto; }
+        .pitch-tool-group { display: flex; gap: 6px; }
+        .pitch-tool-btn {
+            background: rgba(14, 20, 32, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.15);
+            color: var(--text);
+            padding: 5px 12px;
+            border-radius: 4px;
+            font-size: 0.62rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .pitch-tool-btn.active, .pitch-tool-btn:hover {
+            background: var(--accent); color: white; border-color: var(--accent);
+        }
+
+        /* VAR / HAWK-EYE STYLE HORIZONTAL MATCH TIMELINE */
+        .mcc-event-log {
+            height: 135px;
+            background: var(--bg-surface);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            overflow-y: auto;
+            padding: 0.75rem;
+            flex-shrink: 0;
+            scrollbar-width: thin;
+        }
+        .mcc-event-log-header {
+            font-size: 0.6rem;
+            color: var(--text-dim);
+            font-weight: 800;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+            position: sticky; top: 0;
+            background: var(--bg-surface);
+            padding-bottom: 4px;
+            display: flex; align-items: center; gap: 6px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        /* MISSION CONTROL SIDEBAR PANELS */
+        .mcc-box {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+        }
+        .mcc-title {
+            font-family: 'Manrope', sans-serif;
+            font-size: 0.68rem;
+            font-weight: 900;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            margin-bottom: 0.75rem;
+            display: flex; justify-content: space-between; align-items: center;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+        .mcc-title .mcc-title-accent { color: var(--accent); }
+
+        /* MATCH INTELLIGENCE RIGHT COLUMN — NO TABS, ALL SIMULTANEOUS */
+        .intel-section { margin-bottom: 0.1rem; }
+        .intel-section-title {
+            font-size: 0.58rem; font-weight: 900; color: var(--accent); text-transform: uppercase;
+            letter-spacing: 0.14em; padding: 0.4rem 0; margin-bottom: 0.4rem;
+            border-bottom: 1px solid rgba(16,185,129,0.2);
+            display: flex; align-items: center; gap: 6px;
+        }
+        .intel-section-title::before { content: ''; width: 3px; height: 10px; background: var(--accent); border-radius: 2px; flex-shrink: 0; }
+
+        .intel-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.4rem; margin-bottom: 0.4rem; }
+        .intel-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.4rem; margin-bottom: 0.4rem; }
+        .intel-kpi {
+            background: var(--bg); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm);
+            padding: 0.5rem 0.4rem; text-align: center;
+        }
+        .intel-kpi-label { font-size: 0.52rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 3px; }
+        .intel-kpi-value { font-family: 'Manrope', sans-serif; font-size: 1.05rem; font-weight: 900; color: var(--text); line-height: 1; }
+        .intel-kpi-value.accent { color: var(--accent); }
+        .intel-kpi-value.cyan { color: var(--cyan); }
+        .intel-kpi-value.gold { color: var(--gold); }
+        .intel-kpi-value.danger { color: var(--danger); }
+
+        .intel-bar-row { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem; }
+        .intel-bar-label { font-size: 0.55rem; font-weight: 700; color: var(--text-dim); width: 80px; flex-shrink: 0; }
+        .intel-bar-track { flex: 1; height: 4px; background: var(--bg); border-radius: 2px; overflow: hidden; }
+        .intel-bar-fill { height: 100%; border-radius: 2px; transition: width 0.8s cubic-bezier(0.4,0,0.2,1); }
+        .intel-bar-value { font-size: 0.6rem; font-weight: 800; color: var(--text-dim); width: 34px; text-align: right; flex-shrink: 0; }
+
+        .intel-status-row { display: flex; justify-content: space-between; align-items: center; padding: 0.3rem 0; border-bottom: 1px solid var(--border-subtle); }
+        .intel-status-label { font-size: 0.6rem; font-weight: 700; color: var(--text-dim); }
+        .intel-status-value { font-size: 0.65rem; font-weight: 800; color: var(--text); font-family: 'JetBrains Mono', monospace; }
+        .intel-status-value.live { color: var(--accent); }
+        .intel-status-value.warn { color: var(--warning); }
+        .intel-status-value.err { color: var(--danger); }
+
+        /* LOCK OVERLAY */
+        .mcc-lock-overlay {
+            position: absolute; inset: 0; background: rgba(7, 10, 16, 0.93); z-index: 15; display: flex; flex-direction: column; justify-content: center; align-items: center; backdrop-filter: blur(8px); border-radius: var(--radius-md); border: 1px solid var(--border);
+        }
+        .mcc-lock-label { font-family: 'Manrope', sans-serif; font-size: 0.78rem; font-weight: 900; letter-spacing: 0.1em; color: var(--text); display: flex; align-items: center; gap: 0.4rem; }
+
+        /* ROSTER & SQUAD */
+        .mcc-roster-list { flex: 1; min-height: 130px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); overflow-y: auto; margin-bottom: 0.5rem; scrollbar-width: thin; }
+        .mcc-formation-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem; font-family: 'Manrope', sans-serif; font-size: 0.65rem; font-weight: 800; color: var(--text-dim); text-transform: uppercase; padding-bottom: 0.4rem; border-bottom: 1px solid var(--border-subtle); }
+        .mcc-formation-select { padding: 2px 6px; font-size: 0.68rem; font-weight: 700; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); font-family: 'JetBrains Mono', monospace; }
+
+        /* FORM CONTROLS & BUTTONS */
+        .mcc-group { margin-bottom: 0.75rem; }
+        .mcc-group label { display: block; font-size: 0.6rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; }
+        .mcc-input { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0.55rem 0.75rem; color: var(--text); font-family: 'Inter', sans-serif; font-size: 0.8rem; outline: none; transition: border-color var(--transition); }
+        .mcc-input:focus { border-color: rgba(16, 185, 129, 0.5); }
+        .mcc-input[readonly] { color: var(--text-dim); background: rgba(14, 20, 32, 0.6); }
+
+        .btn { background: var(--accent); color: white; border: none; padding: 0.55rem 1rem; border-radius: var(--radius-sm); font-weight: 800; font-family: 'Inter', sans-serif; cursor: pointer; text-transform: uppercase; font-size: 0.72rem; letter-spacing: 0.04em; transition: all var(--transition); display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem; text-decoration: none; }
+        .btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+        .btn-outline { background: transparent; border: 1px solid var(--border); }
+
+        .mcc-header-actions { display: flex; gap: 0.6rem; align-items: center; }
+        .btn-header { padding: 0.45rem 0.85rem; font-size: 0.68rem; border-radius: 4px; font-weight: 800; display: inline-flex; align-items: center; gap: 0.4rem; text-transform: uppercase; }
+        .btn-header-secondary { background: rgba(6, 182, 212, 0.08); border: 1px solid rgba(6, 182, 212, 0.25); color: var(--cyan); }
+        .btn-header-primary { background: var(--accent); border: 1px solid transparent; color: white; }
+        
+        .mcc-control-actions { display: flex; gap: 0.5rem; }
+        .btn-control { padding: 5px 14px; font-size: 0.65rem; font-weight: 800; border-radius: 4px; cursor: pointer; text-transform: uppercase; }
+        .btn-pause { background: transparent; border: 1px solid rgba(245, 158, 11, 0.4); color: var(--warning); }
+        .btn-end { background: var(--danger); border: none; color: white; }
+
+        .btn-save-match { width: 100%; margin-bottom: 0.75rem; padding: 0.75rem; font-size: 0.75rem; font-weight: 900; letter-spacing: 0.06em; border-radius: var(--radius-sm); background: var(--accent); color: white; border: none; cursor: pointer; text-transform: uppercase; }
+
+        /* COLLAPSIBLE MATCH CONFIGURATION DRAWER */
+        .mcc-setup-overlay { display: none; position: fixed; inset: 0; background: rgba(7, 10, 16, 0.85); backdrop-filter: blur(10px); z-index: 1500; justify-content: flex-start; align-items: stretch; opacity: 0; transition: opacity 0.3s; }
+        .mcc-setup-panel { width: 420px; background: var(--bg-surface); border-right: 1px solid var(--border); padding: 2rem; overflow-y: auto; box-shadow: var(--shadow-command); display: flex; flex-direction: column; gap: 1.25rem; transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.4,0,0.2,1); }
+        .mcc-setup-overlay.open { display: flex; opacity: 1; }
+        .mcc-setup-overlay.open .mcc-setup-panel { transform: translateX(0); }
+
+        .sportexa-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(7, 10, 16, 0.9); backdrop-filter: blur(12px); z-index: 2000; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s; }
+        .sportexa-modal-box { width: 90vw; max-width: 680px; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 2rem; color: var(--text); position: relative; }
+        .sportexa-modal-close { position: absolute; top: 1rem; right: 1rem; background: transparent; border: none; color: var(--text-dim); font-size: 1.25rem; cursor: pointer; }
+        
+        .mcc-creds-wrapper { opacity: 0.2; transition: all 0.4s ease; display: flex; flex-direction: column; gap: 0.6rem; filter: grayscale(1); }
+        .mcc-cred-card { background: rgba(16, 185, 129, 0.06); border-radius: var(--radius-sm); padding: 0.75rem; text-align: center; border: 1px solid rgba(16, 185, 129, 0.2); }
+        .mcc-cred-label { font-size: 0.65rem; color: var(--text-muted); font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 4px; display: flex; align-items: center; justify-content: center; gap: 4px; }
+        .mcc-cred-value { font-family: 'JetBrains Mono', monospace; font-size: 1.05rem; font-weight: 700; color: var(--text); }
+        .mcc-engine-status { background: rgba(14, 20, 32, 0.5); border-radius: var(--radius-sm); padding: 0.75rem; text-align: center; border: 1px solid var(--border); }
+        .mcc-kit-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.6rem; text-align: center; }
+        .mcc-kit-item label { display: block; font-size: 0.6rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; margin-bottom: 4px; }
+        .mcc-kit-item input[type="color"] { width: 100%; height: 34px; padding: 2px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg); cursor: pointer; }
     </style>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="/assets/js/api.js"></script>
+    <script src="/assets/js/api.js?v=1.2"></script>
 </head>
 <body>
 
-    <!-- 1. HEADER & DOWNLOADS -->
+    <!-- COMMAND CENTER HEADER BAR -->
     <header class="mcc-header">
-        <div>
-            <h1 style="font-size: 1.5rem; font-weight: 900; text-transform: uppercase; margin: 0; letter-spacing: -0.02em;">Match Control Center</h1>
-            <div style="font-size: 0.75rem; color: var(--text-dim); font-weight: 800; letter-spacing: 0.1em; margin-top: 4px;">COMPETITION: <span style="color: white;">NATIONAL PREMIER LEAGUE</span> &nbsp;&bull;&nbsp; <span style="color: var(--success);" id="header-status">● PRE-MATCH</span></div>
+        <div style="display:flex; align-items:center; gap:1.25rem;">
+            <div class="command-badge">
+                <div class="command-pulse"></div>
+                Command Center Active
+            </div>
+            <div>
+                <h1 class="mcc-header-title">National Match Operations Room</h1>
+                <div class="mcc-header-sub">
+                    <span>COMPETITION:</span>
+                    <span class="comp-name">NATIONAL PREMIER LEAGUE</span>
+                    <span style="color:var(--text-muted);">|</span>
+                    <span style="color: var(--success);" id="header-status">● PRE-MATCH</span>
+                </div>
+            </div>
         </div>
-        <div style="display: flex; gap: 1rem;">
-            <a href="capability_proof.html" class="btn" style="background: rgba(14, 165, 233, 0.2); border: 1px solid var(--accent-secondary); color: var(--accent-secondary); padding: 0.5rem 1rem;"><i data-lucide="cpu"></i> CAPABILITY PROOF</a>
-            <a href="../../../ai_machine/install_and_launch.bat" download class="btn btn-outline" style="padding: 0.5rem 1rem;"><i data-lucide="windows"></i> WINDOWS AI MACHINE</a>
-            <button onclick="alert('Linux build downloading...')" class="btn btn-outline" style="padding: 0.5rem 1rem;"><i data-lucide="linux"></i> LINUX AI MACHINE</button>
+        <div class="mcc-header-actions">
+            <button onclick="openSetupDrawer()" class="btn btn-header btn-header-secondary"><i data-lucide="sliders"></i> MATCH SETUP & SETUP KEYS</button>
+            <a href="capability_proof.html" class="btn btn-header btn-header-secondary"><i data-lucide="cpu"></i> CAPABILITY PROOF</a>
+            <button onclick="openSportexaModal()" class="btn btn-header btn-header-primary"><i data-lucide="download"></i> GET SPORTEXA CLIENT</button>
         </div>
     </header>
 
+    <!-- MAIN OPERATIONAL GRID LAYOUT -->
     <main class="mcc-main">
-        
-        <!-- LEFT COLUMN: SETUP, KITS, CREDS -->
+
+        <!-- ═══════════════════════════════════════════════════════
+             LEFT COLUMN: Squad Selection & Lineup Control
+        ═══════════════════════════════════════════════════════ -->
         <div class="mcc-col mcc-col-left">
-            <!-- 2. MATCH SETUP -->
-            <div class="mcc-box" style="flex: none;">
-                <div class="mcc-title">2. Match Setup</div>
-                <div class="mcc-group"><label>Our Team</label><input type="text" class="mcc-input" id="mcc-home-in" value="Home Institution" readonly></div>
-                <div class="mcc-group"><label>Opponent</label><input type="text" class="mcc-input" id="mcc-opponent-in" placeholder="Search Opponent..."></div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
-                    <div class="mcc-group"><label>Match Type</label>
+
+            <!-- SQUAD HEADER -->
+            <div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:0.5rem; border-bottom:1px solid var(--border); margin-bottom:0.5rem;">
+                <div style="font-family:'Manrope'; font-size:0.68rem; font-weight:900; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.12em;">Squad Selection</div>
+                <span style="font-family:'JetBrains Mono'; font-size:0.72rem; color:var(--success); font-weight:700;" id="mcc-squad-count">0/18</span>
+            </div>
+
+            <!-- PLAYER SEARCH -->
+            <input type="text" class="mcc-input" id="mcc-search-roster" placeholder="Search Roster..." style="margin-bottom:0.5rem;" oninput="MatchControl.filterRoster()">
+
+            <!-- SQUAD ROSTER LIST -->
+            <div id="mcc-squad-list" class="mcc-roster-list" style="flex:1; min-height:180px;"></div>
+
+            <!-- FORMATION SELECTOR -->
+            <div class="mcc-formation-header" style="margin-top:0.5rem;">
+                <span>Starting XI Formation</span>
+                <select class="mcc-formation-select" id="mcc-formation" onchange="MatchControl.changeFormation()">
+                    <option value="4-3-3">4-3-3</option>
+                    <option value="4-4-2">4-4-2</option>
+                    <option value="3-5-2">3-5-2</option>
+                </select>
+            </div>
+
+            <!-- STARTING XI MINI PITCH -->
+            <div class="pitch-container" style="height:180px; flex:none;">
+                <svg viewBox="0 0 105 68" style="width:100%;height:100%;position:absolute;inset:0;">
+                    <rect x="0" y="0" width="105" height="68" fill="url(#pitch-grad-small)"/>
+                    <defs>
+                        <radialGradient id="pitch-grad-small" cx="50%" cy="50%" r="70%">
+                            <stop offset="0%" stop-color="#064E3B"/>
+                            <stop offset="100%" stop-color="#022C20"/>
+                        </radialGradient>
+                    </defs>
+                    <rect x="5" y="5" width="95" height="58" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="0.4"/>
+                    <line x1="52.5" y1="5" x2="52.5" y2="63" stroke="rgba(255,255,255,0.4)" stroke-width="0.4"/>
+                    <circle cx="52.5" cy="34" r="9" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="0.4"/>
+                    <rect x="5" y="16.5" width="16.5" height="35" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="0.4"/>
+                    <rect x="83.5" y="16.5" width="16.5" height="35" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="0.4"/>
+                    <g id="mcc-xi-nodes"></g>
+                </svg>
+            </div>
+
+            <!-- LINEUP LABEL -->
+            <div style="font-size:0.56rem; color:var(--text-muted); text-align:center; text-transform:uppercase; letter-spacing:0.1em; margin-top:0.3rem;">Starting XI Preview</div>
+
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════
+             CENTER COLUMN: Live Video + Tactical Pitch + Event Feed
+        ═══════════════════════════════════════════════════════ -->
+        <div class="mcc-col mcc-col-center">
+            
+            <!-- LIVE SCOREBOARD & CONTROL ACTIONS -->
+            <div class="mcc-scoreboard">
+                <div class="mcc-score-value" id="mcc-score-home">0</div>
+                <div class="mcc-scoreboard-center">
+                    <div class="mcc-timer" id="mcc-timer">00:00</div>
+                    <div class="mcc-telemetry-badge mcc-telemetry-inactive" id="mcc-telemetry-badge">TELEMETRY INACTIVE</div>
+                </div>
+                <div style="display:flex; align-items:center; gap:2.5rem;">
+                    <div class="mcc-score-value" id="mcc-score-away">0</div>
+                    <div class="mcc-control-actions">
+                        <button class="btn-control btn-pause" id="mcc-pause-btn" onclick="MatchControl.togglePause()">PAUSE</button>
+                        <button class="btn-control btn-end" id="mcc-end-btn" onclick="MatchControl.endMatch()">END MATCH</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MASSIVE HEART OF THE APP: CENTERPIECE TACTICAL PITCH -->
+            <div class="pitch-container">
+                <div class="pitch-overlay-tools">
+                    <div style="font-family:'Manrope'; font-size:0.75rem; font-weight:900; letter-spacing:0.12em; color:rgba(255,255,255,0.8); text-transform:uppercase;">
+                        LIVE TACTICAL TELEMETRY STREAM
+                    </div>
+                    <div class="pitch-tool-group">
+                        <button class="pitch-tool-btn active"><i data-lucide="layers" style="width:12px;height:12px;"></i> LIVE OVERLAY</button>
+                        <button class="pitch-tool-btn"><i data-lucide="git-commit" style="width:12px;height:12px;"></i> PASSING LANES</button>
+                        <button class="pitch-tool-btn"><i data-lucide="activity" style="width:12px;height:12px;"></i> HEATMAPS</button>
+                        <button class="pitch-tool-btn"><i data-lucide="shield" style="width:12px;height:12px;"></i> PRESSURE ZONES</button>
+                    </div>
+                </div>
+
+                <svg viewBox="0 0 105 68" style="width: 100%; height: 100%; position: absolute; inset: 0;">
+                    <rect x="0" y="0" width="105" height="68" fill="url(#pitch-grad)"/>
+                    <defs>
+                        <radialGradient id="pitch-grad" cx="50%" cy="50%" r="70%">
+                            <stop offset="0%" stop-color="#064E3B"/>
+                            <stop offset="100%" stop-color="#022C20"/>
+                        </radialGradient>
+                    </defs>
+                    
+                    <!-- Professional Football Markings -->
+                    <rect x="5" y="5" width="95" height="58" fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="0.45"/>
+                    <line x1="52.5" y1="5" x2="52.5" y2="63" stroke="rgba(255,255,255,0.45)" stroke-width="0.45"/>
+                    <circle cx="52.5" cy="34" r="9" fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="0.45"/>
+                    <circle cx="52.5" cy="34" r="0.6" fill="rgba(255,255,255,0.7)"/>
+                    <rect x="5" y="16.5" width="16.5" height="35" fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="0.45"/>
+                    <rect x="83.5" y="16.5" width="16.5" height="35" fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="0.45"/>
+                    <rect x="5" y="24.8" width="5.5" height="18.3" fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="0.45"/>
+                    <rect x="94.5" y="24.8" width="5.5" height="18.3" fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="0.45"/>
+                    <circle cx="16" cy="34" r="0.6" fill="rgba(255,255,255,0.7)"/>
+                    <path d="M 21.5 26.5 A 9 9 0 0 1 21.5 41.5" fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="0.45"/>
+                    <circle cx="89" cy="34" r="0.6" fill="rgba(255,255,255,0.7)"/>
+                    <path d="M 83.5 26.5 A 9 9 0 0 0 83.5 41.5" fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="0.45"/>
+                    
+                    <!-- Real-time SVG layers -->
+                    <g id="mcc-trails-layer"></g>
+                    <g id="mcc-players-layer"></g>
+                    <circle id="mcc-ball" r="1.2" fill="#fff" filter="drop-shadow(0 0 4px rgba(255,255,255,0.9))" style="display: none;"/>
+                </svg>
+            </div>
+
+            <!-- VAR-STYLE HORIZONTAL MATCH TIMELINE & FEED -->
+            <div class="mcc-event-log">
+                <div class="mcc-event-log-header"><i data-lucide="video" style="width:12px;height:12px;color:var(--accent);"></i> HAWK-EYE MATCH TIMELINE & LIVE EVENT FEED</div>
+                <div id="mcc-events-list">
+                    <div style="font-size: 0.75rem; color: var(--text-dim); text-align: center; margin-top: 1rem;">Awaiting telemetry feed...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════
+             RIGHT COLUMN: Match Intelligence Workspace
+             ALL FOUR SECTIONS DISPLAYED SIMULTANEOUSLY — NO TABS
+        ═══════════════════════════════════════════════════════ -->
+        <div class="mcc-col mcc-col-right">
+
+            <!-- LOCK OVERLAY (shown before match init) -->
+            <div id="stats-overlay" style="position:absolute;inset:0;background:rgba(7,10,16,0.93);z-index:15;display:flex;flex-direction:column;justify-content:center;align-items:center;backdrop-filter:blur(8px);border-radius:0;">
+                <div style="font-family:'Manrope';font-size:0.78rem;font-weight:900;letter-spacing:0.1em;color:var(--text);display:flex;align-items:center;gap:0.4rem;">
+                    <i data-lucide="lock" style="width:16px;height:16px;opacity:0.4;"></i> INTELLIGENCE LOCKED
+                </div>
+                <div style="font-size:0.6rem;color:var(--text-muted);text-transform:uppercase;margin-top:4px;">Awaiting match initialization</div>
+            </div>
+
+            <!-- ─── SECTION 1: MATCH OVERVIEW ─── -->
+            <div class="intel-section">
+                <div class="intel-section-title"><i data-lucide="bar-chart-2" style="width:11px;height:11px;"></i> Match Overview</div>
+                <div class="intel-grid-3">
+                    <div class="intel-kpi">
+                        <div class="intel-kpi-label">Possession</div>
+                        <div class="intel-kpi-value accent" id="mcc-stat-possession">50<span style="font-size:0.65rem">%</span></div>
+                    </div>
+                    <div class="intel-kpi">
+                        <div class="intel-kpi-label">Shots</div>
+                        <div class="intel-kpi-value" id="mcc-stat-shots">0</div>
+                    </div>
+                    <div class="intel-kpi">
+                        <div class="intel-kpi-label">On Target</div>
+                        <div class="intel-kpi-value" id="mcc-stat-ontarget">0</div>
+                    </div>
+                </div>
+                <div class="intel-grid-3">
+                    <div class="intel-kpi">
+                        <div class="intel-kpi-label">Corners</div>
+                        <div class="intel-kpi-value" id="mcc-stat-corners">0</div>
+                    </div>
+                    <div class="intel-kpi">
+                        <div class="intel-kpi-label">Attacks</div>
+                        <div class="intel-kpi-value gold" id="mcc-stat-attacks">0</div>
+                    </div>
+                    <div class="intel-kpi">
+                        <div class="intel-kpi-label">Dangerous</div>
+                        <div class="intel-kpi-value danger" id="mcc-stat-dangerous">0</div>
+                    </div>
+                </div>
+                <!-- xG Bar -->
+                <div class="intel-bar-row">
+                    <div class="intel-bar-label">xG</div>
+                    <div class="intel-bar-track"><div class="intel-bar-fill" id="mcc-bar-xg" style="width:38%;background:var(--accent);"></div></div>
+                    <div class="intel-bar-value" id="mcc-val-xg">0.38</div>
+                </div>
+            </div>
+
+            <!-- ─── SECTION 2: PLAYER PERFORMANCE ─── -->
+            <div class="intel-section">
+                <div class="intel-section-title"><i data-lucide="user-check" style="width:11px;height:11px;"></i> Player Performance</div>
+                <div class="intel-bar-row">
+                    <div class="intel-bar-label">Touches</div>
+                    <div class="intel-bar-track"><div class="intel-bar-fill" id="mcc-bar-touches" style="width:62%;background:var(--cyan);"></div></div>
+                    <div class="intel-bar-value" id="mcc-val-touches">124</div>
+                </div>
+                <div class="intel-bar-row">
+                    <div class="intel-bar-label">Distance</div>
+                    <div class="intel-bar-track"><div class="intel-bar-fill" id="mcc-bar-distance" style="width:55%;background:var(--accent);"></div></div>
+                    <div class="intel-bar-value" id="mcc-val-distance">11.2km</div>
+                </div>
+                <div class="intel-bar-row">
+                    <div class="intel-bar-label">Sprint Spd</div>
+                    <div class="intel-bar-track"><div class="intel-bar-fill" id="mcc-bar-sprint" style="width:72%;background:var(--gold);"></div></div>
+                    <div class="intel-bar-value" id="mcc-val-sprint">32km/h</div>
+                </div>
+                <div class="intel-bar-row">
+                    <div class="intel-bar-label">Pass Acc.</div>
+                    <div class="intel-bar-track"><div class="intel-bar-fill" id="mcc-bar-accuracy" style="width:83%;background:var(--accent);"></div></div>
+                    <div class="intel-bar-value" id="mcc-stat-accuracy">83%</div>
+                </div>
+                <div class="intel-grid-3" style="margin-top:0.3rem;">
+                    <div class="intel-kpi">
+                        <div class="intel-kpi-label">Recoveries</div>
+                        <div class="intel-kpi-value cyan" id="mcc-val-recoveries">18</div>
+                    </div>
+                    <div class="intel-kpi">
+                        <div class="intel-kpi-label">Duels Won</div>
+                        <div class="intel-kpi-value" id="mcc-val-duels">12</div>
+                    </div>
+                    <div class="intel-kpi">
+                        <div class="intel-kpi-label">Def. Actions</div>
+                        <div class="intel-kpi-value" id="mcc-val-defactions">9</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ─── SECTION 3: TACTICAL ANALYSIS ─── -->
+            <div class="intel-section">
+                <div class="intel-section-title"><i data-lucide="layout" style="width:11px;height:11px;"></i> Tactical Analysis</div>
+                <div class="intel-status-row">
+                    <div class="intel-status-label">Formation</div>
+                    <div class="intel-status-value live" id="mcc-tac-formation">4-3-3</div>
+                </div>
+                <div class="intel-status-row">
+                    <div class="intel-status-label">Width</div>
+                    <div class="intel-status-value" id="mcc-tac-width">48.2m</div>
+                </div>
+                <div class="intel-status-row">
+                    <div class="intel-status-label">Depth</div>
+                    <div class="intel-status-value" id="mcc-tac-depth">32.1m</div>
+                </div>
+                <div class="intel-status-row">
+                    <div class="intel-status-label">Compactness</div>
+                    <div class="intel-status-value" id="mcc-tac-compactness">Moderate</div>
+                </div>
+                <div class="intel-status-row">
+                    <div class="intel-status-label">Pressing</div>
+                    <div class="intel-status-value" id="mcc-tac-pressing">Medium</div>
+                </div>
+                <div class="intel-status-row" style="border-bottom:none;">
+                    <div class="intel-status-label">Transition</div>
+                    <div class="intel-status-value" id="mcc-tac-transition">Balanced</div>
+                </div>
+            </div>
+
+            <!-- ─── SECTION 4: AI INSIGHTS ─── -->
+            <div class="intel-section">
+                <div class="intel-section-title"><i data-lucide="cpu" style="width:11px;height:11px;"></i> AI Insights</div>
+                <div class="intel-status-row">
+                    <div class="intel-status-label">Tracking Quality</div>
+                    <div class="intel-status-value live" id="mcc-ai-quality">HIGH</div>
+                </div>
+                <div class="intel-status-row">
+                    <div class="intel-status-label">Detection Conf.</div>
+                    <div class="intel-status-value" id="mcc-ai-confidence">98.3%</div>
+                </div>
+                <div class="intel-status-row">
+                    <div class="intel-status-label">Frame Rate</div>
+                    <div class="intel-status-value live" id="mcc-ai-fps">60 FPS</div>
+                </div>
+                <div class="intel-status-row">
+                    <div class="intel-status-label">Latency</div>
+                    <div class="intel-status-value" id="mcc-ai-latency">18ms</div>
+                </div>
+                <div class="intel-status-row">
+                    <div class="intel-status-label">Camera</div>
+                    <div class="intel-status-value live" id="mcc-ai-camera">ONLINE</div>
+                </div>
+                <div class="intel-status-row" style="border-bottom:none;">
+                    <div class="intel-status-label">Sync Status</div>
+                    <div class="intel-status-value live" id="mcc-ai-sync">SYNCED</div>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- COLLAPSIBLE MATCH CONFIGURATION DRAWER -->
+    <div id="mcc-setup-overlay" class="mcc-setup-overlay" onclick="if(event.target===this) closeSetupDrawer()">
+        <div class="mcc-setup-panel">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:1rem;">
+                <h3 style="font-family:'Manrope'; font-size:1.1rem; font-weight:900; text-transform:uppercase; color:var(--text);">Match Setup & Keys</h3>
+                <button onclick="closeSetupDrawer()" style="background:transparent; border:none; color:var(--text-dim); cursor:pointer; font-size:1.2rem;">&times;</button>
+            </div>
+
+            <!-- MATCH SETUP FORM -->
+            <div class="mcc-box">
+                <div class="mcc-title"><span class="mcc-title-accent">Team & Venue Setup</span></div>
+                <div class="mcc-group"><label>Home Team</label><input type="text" class="mcc-input" id="mcc-home-in" value="Home Institution" readonly></div>
+                <div class="mcc-group"><label>Opponent Team</label><input type="text" class="mcc-input" id="mcc-opponent-in" placeholder="Select Opponent..."></div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem;">
+                    <div class="mcc-group"><label>Competition</label>
                         <select class="mcc-input" id="mcc-type-in">
                             <option value="League">League</option>
                             <option value="Friendly">Friendly</option>
@@ -149,196 +698,92 @@
                     </div>
                     <div class="mcc-group"><label>Venue</label><input type="text" class="mcc-input" id="mcc-venue-in" placeholder="Stadium"></div>
                 </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 0;">
-                    <div class="mcc-group" style="margin: 0;"><label>Date</label><input type="date" class="mcc-input" id="mcc-date-in"></div>
-                    <div class="mcc-group" style="margin: 0;"><label>Time</label><input type="time" class="mcc-input" id="mcc-time-in"></div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; margin-bottom:0;">
+                    <div class="mcc-group" style="margin:0;"><label>Date</label><input type="date" class="mcc-input" id="mcc-date-in"></div>
+                    <div class="mcc-group" style="margin:0;"><label>Time</label><input type="time" class="mcc-input" id="mcc-time-in"></div>
                 </div>
             </div>
 
-            <!-- 4. KIT COLORS -->
-            <div class="mcc-box" style="flex: none;">
-                <div class="mcc-title">4. Kit Colors</div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem; text-align: center;">
-                    <div><label style="font-size: 0.6rem; color: var(--text-dim); font-weight: 800; text-transform: uppercase;">Jersey</label><input type="color" class="mcc-input" id="mcc-k-jersey" style="height: 40px; padding: 2px; cursor: pointer;" value="#16A34A"></div>
-                    <div><label style="font-size: 0.6rem; color: var(--text-dim); font-weight: 800; text-transform: uppercase;">Shorts</label><input type="color" class="mcc-input" id="mcc-k-shorts" style="height: 40px; padding: 2px; cursor: pointer;" value="#ffffff"></div>
-                    <div><label style="font-size: 0.6rem; color: var(--text-dim); font-weight: 800; text-transform: uppercase;">Socks</label><input type="color" class="mcc-input" id="mcc-k-socks" style="height: 40px; padding: 2px; cursor: pointer;" value="#16A34A"></div>
+            <!-- KIT COLORS -->
+            <div class="mcc-box">
+                <div class="mcc-title"><span class="mcc-title-accent">Kit Configurations</span></div>
+                <div class="mcc-kit-grid">
+                    <div class="mcc-kit-item"><label>Jersey</label><input type="color" id="mcc-k-jersey" value="#16A34A"></div>
+                    <div class="mcc-kit-item"><label>Shorts</label><input type="color" id="mcc-k-shorts" value="#ffffff"></div>
+                    <div class="mcc-kit-item"><label>Socks</label><input type="color" id="mcc-k-socks" value="#16A34A"></div>
                 </div>
             </div>
 
-            <!-- 5. SAVE & CREDENTIALS -->
-            <div class="mcc-box" style="flex: 1;">
-                <div class="mcc-title">5. Save & Credentials</div>
-                <button class="btn" id="mcc-save-btn" style="width: 100%; margin-bottom: 1rem;" onclick="MatchControl.saveMatchSetup()">[ SAVE MATCH SETUP ]</button>
+            <!-- SAVE & TOKENS -->
+            <div class="mcc-box">
+                <div class="mcc-title"><span class="mcc-title-accent">Authorization & Tokens</span></div>
+                <button class="btn-save-match" id="mcc-save-btn" onclick="MatchControl.saveMatchSetup()">SAVE MATCH SETUP</button>
                 
-                <div id="creds-overlay" style="opacity: 0.2; transition: 0.3s; flex: 1; display: flex; flex-direction: column; gap: 0.75rem; filter: grayscale(1);">
-                    <div style="background: rgba(22, 163, 74, 0.1); border-radius: 8px; padding: 1rem; text-align: center; border: 1px solid rgba(22, 163, 74, 0.4); box-shadow: inset 0 0 15px rgba(22, 163, 74, 0.1);">
-                        <div style="font-size: 0.65rem; color: var(--text-dim); font-weight: 800; letter-spacing: 0.15em; margin-bottom: 4px;"><i data-lucide="key" style="margin-right: 5px;"></i> MATCH TOKEN</div>
-                        <div style="font-size: 1.3rem; font-weight: 900; letter-spacing: 0.1em; color: white; text-shadow: 0 0 10px rgba(255,255,255,0.5);" id="mcc-token-val">PENDING</div>
+                <div id="creds-overlay" class="mcc-creds-wrapper">
+                    <div class="mcc-cred-card">
+                        <div class="mcc-cred-label"><i data-lucide="key" style="width: 12px; height: 12px;"></i> MATCH TOKEN</div>
+                        <div class="mcc-cred-value" id="mcc-token-val">PENDING</div>
                     </div>
-                    <div style="background: rgba(22, 163, 74, 0.1); border-radius: 8px; padding: 1rem; text-align: center; border: 1px solid rgba(22, 163, 74, 0.4); box-shadow: inset 0 0 15px rgba(22, 163, 74, 0.1);">
-                        <div style="font-size: 0.65rem; color: var(--text-dim); font-weight: 800; letter-spacing: 0.15em; margin-bottom: 4px;"><i data-lucide="shield-half" style="margin-right: 5px;"></i> SECURE API KEY</div>
-                        <div style="font-size: 1.3rem; font-weight: 900; letter-spacing: 0.1em; color: white; text-shadow: 0 0 10px rgba(255,255,255,0.5);" id="mcc-key-val">PENDING</div>
+                    <div class="mcc-cred-card">
+                        <div class="mcc-cred-label"><i data-lucide="shield-half" style="width: 12px; height: 12px;"></i> SECURE API KEY</div>
+                        <div class="mcc-cred-value" id="mcc-key-val">PENDING</div>
                     </div>
-                    <div style="background: rgba(16, 185, 129, 0.05); border-radius: 8px; padding: 0.75rem; text-align: center; border: 1px solid rgba(16, 185, 129, 0.2); flex: 1; display: flex; flex-direction: column; justify-content: center;">
-                        <div style="font-size: 0.6rem; color: var(--text-dim); font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;">Engine Status</div>
-                        <div style="font-size: 1.25rem; font-weight: 900; color: var(--danger); letter-spacing: 0.05em;" id="session-status">● PENDING START</div>
+                    <div class="mcc-engine-status">
+                        <div style="font-size:0.58rem; color:var(--text-muted); font-weight:800; text-transform:uppercase;">Engine Connection</div>
+                        <div style="font-family:'Manrope'; font-size:1rem; font-weight:900; color:var(--danger);" id="session-status">● PENDING START</div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- CENTER COLUMN: LIVE CONTROL & STATS -->
-        <div class="mcc-col" style="padding-top: 1.5rem; padding-bottom: 1.5rem;">
-            
-            <!-- 6. LIVE MATCH CONTROL (UNLOCKED) -->
-            <div class="mcc-box" style="flex: 1; border-color: rgba(22, 163, 74, 0.3);">
-                <div class="mcc-title">
-                    <span>6. Live Match Control</span>
-                    <div style="display: flex; gap: 0.5rem;">
-                        <button class="btn btn-outline" id="mcc-pause-btn" style="padding: 4px 12px; font-size: 0.65rem; color: var(--warning); border-color: var(--warning);" onclick="MatchControl.togglePause()">PAUSE</button>
-                        <button class="btn" id="mcc-end-btn" style="padding: 4px 12px; font-size: 0.65rem; background: var(--danger);" onclick="MatchControl.endMatch()">END</button>
-                    </div>
-                </div>
-
-                <!-- Scoreboard -->
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 2rem; margin-bottom: 1rem;">
-                    <div style="font-size: 4.5rem; font-weight: 900; line-height: 1;" id="mcc-score-home">0</div>
-                    <div style="text-align: center;">
-                        <div style="font-size: 2.5rem; font-weight: 900; color: #CA8A04; font-variant-numeric: tabular-nums;" id="mcc-timer">00:00</div>
-                        <div style="font-size: 0.65rem; background: rgba(239,68,68,0.1); color: var(--danger); padding: 2px 8px; border-radius: 10px; font-weight: 800; margin-top: 4px;" id="mcc-telemetry-badge">TELEMETRY INACTIVE</div>
-                    </div>
-                    <div style="font-size: 4.5rem; font-weight: 900; line-height: 1;" id="mcc-score-away">0</div>
-                </div>
-
-                <!-- Tactical Pitch -->
-                <div class="pitch-container" style="flex: 1; margin-bottom: 1rem;">
-                    <svg viewBox="0 0 105 68" style="width: 100%; height: 100%; position: absolute; inset: 0;">
-                        <!-- Outer Boundary -->
-                        <rect x="0" y="0" width="105" height="68" fill="var(--pitch)"/>
-                        <!-- Pitch Lines -->
-                        <rect x="5" y="5" width="95" height="58" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="0.4"/>
-                        <!-- Center Line & Circle -->
-                        <line x1="52.5" y1="5" x2="52.5" y2="63" stroke="rgba(255,255,255,0.4)" stroke-width="0.4"/>
-                        <circle cx="52.5" cy="34" r="9" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="0.4"/>
-                        <circle cx="52.5" cy="34" r="0.6" fill="rgba(255,255,255,0.6)"/>
-                        <!-- Penalty Areas -->
-                        <rect x="5" y="16.5" width="16.5" height="35" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="0.4"/>
-                        <rect x="83.5" y="16.5" width="16.5" height="35" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="0.4"/>
-                        <!-- Goal Areas -->
-                        <rect x="5" y="24.8" width="5.5" height="18.3" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="0.4"/>
-                        <rect x="94.5" y="24.8" width="5.5" height="18.3" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="0.4"/>
-                        <!-- Penalty Spots & Arcs -->
-                        <circle cx="16" cy="34" r="0.6" fill="rgba(255,255,255,0.6)"/>
-                        <path d="M 21.5 26.5 A 9 9 0 0 1 21.5 41.5" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="0.4"/>
-                        <circle cx="89" cy="34" r="0.6" fill="rgba(255,255,255,0.6)"/>
-                        <path d="M 83.5 26.5 A 9 9 0 0 0 83.5 41.5" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="0.4"/>
-                        
-                        <!-- Real-time SVG layers -->
-                        <g id="mcc-trails-layer"></g>
-                        <g id="mcc-players-layer"></g>
-                        <circle id="mcc-ball" r="1.2" fill="#fff" filter="drop-shadow(0 0 3px rgba(255,255,255,0.8))" style="display: none;"/>
-                    </svg>
-                </div>
-
-                <!-- Event Log -->
-                <div style="height: 100px; background: #000; border-radius: 8px; border: 1px solid var(--border); overflow-y: auto; padding: 0.75rem;">
-                    <div style="font-size: 0.6rem; color: var(--text-dim); font-weight: 800; margin-bottom: 0.5rem; position: sticky; top: 0; background: #000;">MISSION EVENTS</div>
-                    <div id="mcc-events-list">
-                        <div style="font-size: 0.75rem; color: var(--text-dim); text-align: center; margin-top: 1rem;">Awaiting telemetry feed...</div>
+    <!-- SPORTEXA INSTALLATION FLOW MODAL -->
+    <div id="sportexa-modal" class="sportexa-modal-overlay">
+        <div class="sportexa-modal-box">
+            <button onclick="closeSportexaModal()" class="sportexa-modal-close">&times;</button>
+            <div style="text-align: center; margin-bottom: 1.5rem;">
+                <h2 style="font-family:'Manrope'; font-size:1.4rem; font-weight:900; text-transform:uppercase;">SPORTEXA CLIENT INTEGRATION</h2>
+                <p style="color:var(--text-dim); font-size:0.78rem; text-transform:uppercase;">Standalone Desktop Analysis Client Setup</p>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 0.85rem; margin-bottom: 1.5rem;">
+                <div style="background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-sm); padding:1rem;">
+                    <h4 style="font-size:0.85rem; font-weight:800; text-transform:uppercase;">1. Download Standalone Client</h4>
+                    <p style="color:var(--text-dim); font-size:0.75rem; margin-top:4px;">Get the desktop client package for your operating system.</p>
+                    <div style="display: flex; gap: 0.5rem; margin-top: 0.6rem;">
+                        <a href="/downloads/sportexa-windows.zip" class="btn btn-header btn-header-primary"><i data-lucide="monitor"></i> Windows Zip</a>
+                        <a href="/downloads/sportexa-linux.AppImage" class="btn btn-header btn-header-secondary"><i data-lucide="terminal"></i> Linux AppImage</a>
                     </div>
                 </div>
             </div>
-
-            <!-- 7. MATCH STATISTICS (LOCKED) -->
-            <div class="mcc-box" style="height: 120px; flex: none; position: relative;">
-                
-                <!-- LOCK OVERLAY: RESERVED FOR START -->
-                <div id="stats-overlay" style="position: absolute; inset: 0; background: rgba(2, 6, 23, 0.85); z-index: 10; display: flex; flex-direction: column; justify-content: center; align-items: center; backdrop-filter: blur(8px); border-radius: 12px; border: 1px solid var(--border);">
-                    <div style="display: flex; align-items: center; gap: 0.5rem;">
-                        <i data-lucide="lock" style="font-size: 1rem; color: rgba(255,255,255,0.3);"></i>
-                        <div style="font-size: 0.8rem; font-weight: 900; letter-spacing: 0.1em; color: white;">STATISTICS LOCKED</div>
-                    </div>
-                    <div style="font-size: 0.6rem; color: var(--text-dim); margin-top: 0.25rem; text-transform: uppercase;">Awaiting match initialization</div>
-                </div>
-
-                <div class="mcc-title">7. Match Statistics</div>
-                <div style="display: flex; justify-content: space-between; height: 100%; align-items: center;">
-                    <div style="text-align: center; flex: 1; border-right: 1px solid var(--border);">
-                        <div style="font-size: 0.6rem; color: var(--text-dim); font-weight: 800;">POSSESSION</div>
-                        <div style="font-size: 2rem; font-weight: 900; color: var(--success);" id="mcc-stat-possession">50<span style="font-size:1rem;">%</span></div>
-                    </div>
-                    <div style="text-align: center; flex: 1; border-right: 1px solid var(--border);">
-                        <div style="font-size: 0.6rem; color: var(--text-dim); font-weight: 800;">SHOTS</div>
-                        <div style="font-size: 2rem; font-weight: 900;" id="mcc-stat-shots">0</div>
-                    </div>
-                    <div style="text-align: center; flex: 1; border-right: 1px solid var(--border);">
-                        <div style="font-size: 0.6rem; color: var(--text-dim); font-weight: 800;">ON TARGET</div>
-                        <div style="font-size: 2rem; font-weight: 900;" id="mcc-stat-ontarget">0</div>
-                    </div>
-                    <div style="text-align: center; flex: 1;">
-                        <div style="font-size: 0.6rem; color: var(--text-dim); font-weight: 800;">PASS ACCURACY</div>
-                        <div style="font-size: 2rem; font-weight: 900;" id="mcc-stat-accuracy">--</div>
-                    </div>
-                </div>
+            <div style="display: flex; justify-content: flex-end;">
+                <button onclick="closeSportexaModal()" class="btn btn-outline">Dismiss Guide</button>
             </div>
         </div>
-
-        <!-- RIGHT COLUMN: SQUAD -->
-        <div class="mcc-col mcc-col-right">
-            <div class="mcc-box" style="flex: 1; overflow: hidden;">
-                <div class="mcc-title" style="margin-bottom: 0.5rem;">
-                    <span>3. Squad Selection</span>
-                    <span style="color: var(--success);" id="mcc-squad-count">0/18</span>
-                </div>
-                
-                <input type="text" class="mcc-input" id="mcc-search-roster" placeholder="Search Roster..." style="margin-bottom: 0.75rem;" oninput="MatchControl.filterRoster()">
-                
-                <div id="mcc-squad-list" style="flex: 1; background: #000; border: 1px solid var(--border); border-radius: 8px; overflow-y: auto; margin-bottom: 1rem;">
-                    <!-- Dynamically populated roster list -->
-                </div>
-
-                <div class="mcc-title" style="margin-bottom: 0.5rem; margin-top: 0;">
-                    <span>Starting XI</span>
-                    <select class="mcc-input" id="mcc-formation" style="width: auto; padding: 2px 5px; font-size: 0.7rem;" onchange="MatchControl.changeFormation()">
-                        <option value="4-3-3">4-3-3</option>
-                        <option value="4-4-2">4-4-2</option>
-                        <option value="3-5-2">3-5-2</option>
-                    </select>
-                </div>
-                
-                <div class="pitch-container" style="height: 180px; flex: none;">
-                    <svg viewBox="0 0 105 68" style="width: 100%; height: 100%; position: absolute; inset: 0;">
-                        <!-- Outer Boundary -->
-                        <rect x="0" y="0" width="105" height="68" fill="var(--pitch)"/>
-                        <!-- Pitch Lines -->
-                        <rect x="5" y="5" width="95" height="58" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="0.4"/>
-                        <!-- Center Line & Circle -->
-                        <line x1="52.5" y1="5" x2="52.5" y2="63" stroke="rgba(255,255,255,0.4)" stroke-width="0.4"/>
-                        <circle cx="52.5" cy="34" r="9" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="0.4"/>
-                        <circle cx="52.5" cy="34" r="0.6" fill="rgba(255,255,255,0.6)"/>
-                        <!-- Penalty Areas -->
-                        <rect x="5" y="16.5" width="16.5" height="35" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="0.4"/>
-                        <rect x="83.5" y="16.5" width="16.5" height="35" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="0.4"/>
-                        <!-- Goal Areas -->
-                        <rect x="5" y="24.8" width="5.5" height="18.3" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="0.4"/>
-                        <rect x="94.5" y="24.8" width="5.5" height="18.3" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="0.4"/>
-                        <!-- Penalty Spots & Arcs -->
-                        <circle cx="16" cy="34" r="0.6" fill="rgba(255,255,255,0.6)"/>
-                        <path d="M 21.5 26.5 A 9 9 0 0 1 21.5 41.5" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="0.4"/>
-                        <circle cx="89" cy="34" r="0.6" fill="rgba(255,255,255,0.6)"/>
-                        <path d="M 83.5 26.5 A 9 9 0 0 0 83.5 41.5" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="0.4"/>
-
-                        <g id="mcc-xi-nodes"></g>
-                    </svg>
-                </div>
-            </div>
-        </div>
-
-    </main>
+    </div>
 
     <!-- Script dependencies -->
     <script src="../../assets/js/app.js?v=2.0"></script>
     <script src="../../assets/js/match_control.js?v=2.0"></script>
+    <script>
+        function openSetupDrawer() {
+            document.getElementById('mcc-setup-overlay').classList.add('open');
+            if(window.lucide) window.lucide.createIcons();
+        }
+        function closeSetupDrawer() {
+            document.getElementById('mcc-setup-overlay').classList.remove('open');
+        }
+        function openSportexaModal() {
+            const modal = document.getElementById('sportexa-modal');
+            modal.style.display = 'flex';
+            setTimeout(() => { modal.style.opacity = '1'; }, 10);
+            if(window.lucide) window.lucide.createIcons();
+        }
+        function closeSportexaModal() {
+            const modal = document.getElementById('sportexa-modal');
+            modal.style.opacity = '0';
+            setTimeout(() => { modal.style.display = 'none'; }, 300);
+        }
+    </script>
     <script>lucide.createIcons();</script>
 </body>
 </html>

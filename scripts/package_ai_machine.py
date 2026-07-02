@@ -54,8 +54,9 @@ def package_ai_machine():
                 zipf.write(abs_path, rel_path)
                 # print(f"  + {rel_path}")
 
-    print(f"\n✅ SUCCESS: Release baked to {output_filename}")
+    print(f"\n[SUCCESS] Release baked to {output_filename}")
     print(f"   Size: {os.path.getsize(output_filename) / 1024 / 1024:.2f} MB")
+
 
 if __name__ == "__main__":
     package_ai_machine()

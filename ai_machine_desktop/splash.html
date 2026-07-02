@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SPORTEXA | System Boot & Diagnostics</title>
+    <style>
+        :root {
+            --bg: #0F172A;
+            --surface: #111827;
+            --surface-2: #1E293B;
+            --primary: #16A34A;
+            --gold: #CA8A04;
+            --text: #E2E8F0;
+            --text-dim: #94A3B8;
+            --border: rgba(255, 255, 255, 0.08);
+            --danger: #EF4444;
+            --warning: #F59E0B;
+            --radius-lg: 16px;
+            --radius-md: 10px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: transparent;
+            color: var(--text);
+            width: 800px;
+            height: 520px;
+            overflow: hidden;
+        }
+
+        .splash-card {
+            width: 100%;
+            height: 100%;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.65);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Ambient Glow Behind Logo */
+        .splash-card::before {
+            content: '';
+            position: absolute;
+            top: -150px;
+            left: -150px;
+            width: 450px;
+            height: 450px;
+            background: radial-gradient(circle, rgba(22, 163, 74, 0.06) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .main-layout {
+            display: flex;
+            flex: 1;
+            height: calc(100% - 60px);
+            z-index: 1;
+        }
+
+        /* Left Sidebar: System Info */
+        .sidebar {
+            width: 38%;
+            border-right: 1px solid var(--border);
+            background: rgba(17, 24, 39, 0.4);
+            padding: 2.5rem 1.8rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .brand-box {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .logo-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-svg {
+            width: 32px;
+            height: 32px;
+            fill: none;
+            stroke: var(--primary);
+            stroke-width: 2;
+            animation: pulseGlow 2.5s ease-in-out infinite;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { filter: drop-shadow(0 0 2px var(--primary)); opacity: 0.8; }
+            50% { filter: drop-shadow(0 0 10px var(--primary)); opacity: 1; }
+        }
+
+        .title {
+            font-size: 1.4rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            text-transform: uppercase;
+        }
+
+        .title span {
+            color: var(--primary);
+        }
+
+        .subtitle {
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: var(--gold);
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+        }
+
+        .specs-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+
+        .spec-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.15rem;
+        }
+
+        .spec-label {
+            font-size: 0.6rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-weight: 700;
+        }
+
+        .spec-val {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text);
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        /* Right Panel: Health checks */
+        .health-panel {
+            flex: 1;
+            padding: 2.2rem 2rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .section-title {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            margin-bottom: 1.2rem;
+        }
+
+        .table-wrap {
+            flex: 1;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            background: rgba(17, 24, 39, 0.6);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.72rem;
+            text-align: left;
+        }
+
+        thead {
+            background: var(--surface);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        th {
+            padding: 0.6rem 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: 0.55rem 0.8rem;
+            border-bottom: 1px solid var(--border);
+            font-weight: 500;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .col-module { font-weight: 600; color: var(--text); }
+        .col-status { font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+        .col-latency { font-family: monospace; color: var(--text-dim); text-align: right; }
+
+        /* Status colors */
+        .status-ok { color: var(--primary); }
+        .status-warn { color: var(--warning); }
+        .status-err { color: var(--danger); }
+        .status-wait { color: var(--text-dim); }
+
+        /* Bottom Loading and Progress */
+        .footer-bar {
+            height: 60px;
+            border-top: 1px solid var(--border);
+            background: rgba(17, 24, 39, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+            position: relative;
+        }
+
+        .progress-bar-container {
+            position: absolute;
+            top: -1.5px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: rgba(22, 163, 74, 0.15);
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--primary), var(--gold));
+            transition: width 0.3s ease;
+        }
+
+        .status-msg {
+            font-size: 0.72rem;
+            color: var(--text-dim);
+            font-weight: 600;
+        }
+
+        .version-badge {
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            font-weight: 700;
+            letter-spacing: 0.05em;
+        }
+
+        /* Failure recovery modal overlay */
+        .recovery-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.92);
+            backdrop-filter: blur(8px);
+            z-index: 100;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .recovery-box {
+            width: 100%;
+            max-width: 480px;
+            background: var(--surface);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: var(--radius-lg);
+            padding: 2.2rem;
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+
+        .recovery-title {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--danger);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.8rem;
+        }
+
+        .recovery-desc {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            line-height: 1.5;
+            margin-bottom: 1.8rem;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 0.75rem 1.4rem;
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            filter: brightness(1.1);
+        }
+
+        .btn-secondary {
+            background: var(--surface-2);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="splash-card">
+        <div class="main-layout">
+            <!-- Left Panel: Diagnostics and brand -->
+            <div class="sidebar">
+                <div class="brand-box">
+                    <div class="logo-row">
+                        <svg class="logo-svg" viewBox="0 0 24 24">
+                            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor"/>
+                        </svg>
+                        <div class="title">Sportexa <span>AI</span></div>
+                    </div>
+                    <div class="subtitle">Football Intelligence</div>
+                </div>
+
+                <div class="specs-panel">
+                    <div class="spec-item">
+                        <span class="spec-label">Operating System</span>
+                        <span class="spec-val" id="spec-os">Loading...</span>
+                    </div>
+                    <div class="spec-item">
+                        <span class="spec-label">Processor</span>
+                        <span class="spec-val" id="spec-cpu">Loading...</span>
+                    </div>
+                    <div class="spec-item">
+                        <span class="spec-label">System Memory</span>
+                        <span class="spec-val" id="spec-ram">Loading...</span>
+                    </div>
+                    <div class="spec-item">
+                        <span class="spec-label">GPU Acceleration</span>
+                        <span class="spec-val" id="spec-gpu">CPU Only</span>
+                    </div>
+                    <div class="spec-item">
+                        <span class="spec-label">Camera Detection</span>
+                        <span class="spec-val" id="spec-cameras">Scanning...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel: Health diagnostics table -->
+            <div class="health-panel">
+                <h2 class="section-title">Startup Diagnostics</h2>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 45%;">Module</th>
+                                <th style="width: 30%;">Status</th>
+                                <th style="width: 25%; text-align: right;">Latency</th>
+                            </tr>
+                        </thead>
+                        <tbody id="checks-table-body">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Progress -->
+        <div class="footer-bar">
+            <div class="progress-bar-container">
+                <div class="progress-bar-fill" id="progress-fill"></div>
+            </div>
+            <div class="status-msg" id="status-text">Booting runtime...</div>
+            <div class="version-badge" id="app-version">v1.0.0</div>
+        </div>
+
+        <!-- Connection Error Recovery Modal -->
+        <div class="recovery-overlay" id="recovery-overlay">
+            <div class="recovery-box">
+                <div class="recovery-title">Dependency Error</div>
+                <div class="recovery-desc" id="recovery-desc">
+                    A core system validation check has failed. Please verify that the local AI services and National Hub endpoints are active.
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="retryAllChecks()">Retry Checks</button>
+                    <button class="btn btn-primary" onclick="proceedInSafeMode()">Safe Mode</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { ipcRenderer } = require('electron');
+        const fs = require('fs');
+        const path = require('path');
+        const http = require('http');
+
+        let appDataPath = '';
+        let appVersion = 'v1.0.0';
+        let osInfo = {};
+        
+        let checks = [
+            { id: 'runtime', name: 'Electron Runtime', status: 'wait', latency: '--' },
+            { id: 'config', name: 'Configuration Files', status: 'wait', latency: '--' },
+            { id: 'directories', name: 'Storage Directories', status: 'wait', latency: '--' },
+            { id: 'ai_engine', name: 'Local AI Engine', status: 'wait', latency: '--', optional: false },
+            { id: 'hub_api', name: 'National Hub API', status: 'wait', latency: '--', optional: true },
+            { id: 'db_avail', name: 'Database Engine', status: 'wait', latency: '--', optional: true },
+            { id: 'yolo_model', name: 'YOLO Detection Model', status: 'wait', latency: '--', optional: true },
+            { id: 'ocr_model', name: 'EasyOCR Model', status: 'wait', latency: '--', optional: true },
+            { id: 'video_pipe', name: 'Video Pipeline', status: 'wait', latency: '--', optional: true },
+            { id: 'cameras', name: 'Camera Devices', status: 'wait', latency: '--', optional: true },
+            { id: 'gpu_check', name: 'GPU Acceleration', status: 'wait', latency: '--', optional: true }
+        ];
+
+        // Receive setup info from main process
+        ipcRenderer.on('init-specs', (event, data) => {
+            appDataPath = data.appDataPath;
+            appVersion = data.appVersion;
+            osInfo = data.osInfo;
+
+            document.getElementById('app-version').innerText = `v${appVersion}`;
+            document.getElementById('spec-os').innerText = `${osInfo.type} ${osInfo.release}`;
+            document.getElementById('spec-cpu').innerText = osInfo.cpuModel;
+            document.getElementById('spec-ram').innerText = `${Math.round(osInfo.totalMem / (1024*1024*1024))} GB`;
+            
+            // Build the table initially
+            renderTable();
+
+            // Run checks
+            runDiagnostics();
+        });
+
+        function renderTable() {
+            const tbody = document.getElementById('checks-table-body');
+            tbody.innerHTML = checks.map(c => {
+                let statusClass = 'status-wait';
+                let statusText = 'PENDING';
+                
+                if (c.status === 'ok') {
+                    statusClass = 'status-ok';
+                    statusText = 'VERIFIED';
+                } else if (c.status === 'warn') {
+                    statusClass = 'status-warn';
+                    statusText = 'WARNING';
+                } else if (c.status === 'err') {
+                    statusClass = 'status-err';
+                    statusText = 'FAILED';
+                }
+
+                return `
+                    <tr>
+                        <td class="col-module">${c.name}</td>
+                        <td class="col-status ${statusClass}">${statusText}</td>
+                        <td class="col-latency">${c.latency}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function updateCheck(id, status, latencyVal) {
+            const check = checks.find(c => c.id === id);
+            if (check) {
+                check.status = status;
+                check.latency = latencyVal !== undefined ? `${latencyVal}ms` : '--';
+            }
+            renderTable();
+            updateProgressBar();
+        }
+
+        function updateProgressBar() {
+            const completed = checks.filter(c => c.status !== 'wait').length;
+            const percentage = Math.round((completed / checks.length) * 100);
+            document.getElementById('progress-fill').style.width = `${percentage}%`;
+        }
+
+        // Caching Logic
+        function getCachePath() {
+            return path.join(appDataPath, 'startup_cache.json');
+        }
+
+        function loadCache() {
+            try {
+                const cPath = getCachePath();
+                if (fs.existsSync(cPath)) {
+                    return JSON.parse(fs.readFileSync(cPath, 'utf8'));
+                }
+            } catch (e) {
+                console.error('Error reading startup cache:', e);
+            }
+            return null;
+        }
+
+        function saveCache(cacheData) {
+            try {
+                const cPath = getCachePath();
+                const dir = path.dirname(cPath);
+                if (!fs.existsSync(dir)) {
+                    fs.mkdirSync(dir, { recursive: true });
+                }
+                fs.writeFileSync(cPath, JSON.stringify(cacheData, null, 2), 'utf8');
+            } catch (e) {
+                console.error('Error saving startup cache:', e);
+            }
+        }
+
+        // Diagnostic Runner
+        async function runDiagnostics() {
+            console.log('Starting system validation checks...');
+            document.getElementById('recovery-overlay').style.display = 'none';
+            document.getElementById('status-text').innerText = 'Initializing diagnostics...';
+
+            const startTime = Date.now();
+            const cache = loadCache();
+
+            // 1. Electron Runtime Check
+            console.log('Checking Electron runtime environment...');
+            updateCheck('runtime', 'ok', Date.now() - startTime);
+
+            // 2. Config Files Check
+            const configStart = Date.now();
+            const configPath = path.resolve(__dirname, '..', 'ai_machine', 'ai_machine_config.json');
+            const configExists = fs.existsSync(configPath);
+            console.log(`Checking config files. Exist: ${configExists}`);
+            updateCheck('config', configExists ? 'ok' : 'err', Date.now() - configStart);
+
+            // 3. Directories Check
+            const dirStart = Date.now();
+            const projectRoot = path.resolve(__dirname, '..');
+            const requiredDirs = [
+                path.join(projectRoot, 'ai_machine', 'ui'),
+                path.join(projectRoot, 'backend'),
+                path.join(projectRoot, 'frontend')
+            ];
+            const dirsExist = requiredDirs.every(d => fs.existsSync(d));
+            console.log(`Checking storage directories. Exist: ${dirsExist}`);
+            updateCheck('directories', dirsExist ? 'ok' : 'err', Date.now() - dirStart);
+
+            // 4. Camera Detection Check
+            const camStart = Date.now();
+            let cameraCount = 0;
+            try {
+                console.log('Scanning camera devices...');
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                const videoInputs = devices.filter(device => device.kind === 'videoinput');
+                cameraCount = videoInputs.length;
+                console.log(`Found ${cameraCount} video input devices.`);
+                if (cameraCount > 0) {
+                    document.getElementById('spec-cameras').innerText = `${cameraCount} Device(s) Active`;
+                    updateCheck('cameras', 'ok', Date.now() - camStart);
+                } else {
+                    document.getElementById('spec-cameras').innerText = 'No Devices Found';
+                    updateCheck('cameras', 'warn', Date.now() - camStart);
+                }
+            } catch (e) {
+                console.log(`Camera scanning failed: ${e.message}`);
+                document.getElementById('spec-cameras').innerText = 'Access Denied';
+                updateCheck('cameras', 'warn', Date.now() - camStart);
+            }
+
+            // Parallel verification of ports 7777 and 8001 (with polling)
+            console.log('Beginning service interfaces polling...');
+            document.getElementById('status-text').innerText = 'Waiting for service interfaces...';
+            
+            const hubPromise = pollEndpoint('http://localhost:8001/health', 60000, 1500, 'hub_api', 'db_avail');
+            const aiPromise = pollAIEndpoint('http://localhost:7777/status', 60000, 1500);
+
+            const [hubResult, aiResult] = await Promise.all([hubPromise, aiPromise]);
+            console.log(`Services polling complete. Hub OK: ${hubResult.ok}, AI Engine OK: ${aiResult.ok}`);
+
+            // Save cache if both succeeded
+            if (hubResult.ok && aiResult.ok) {
+                saveCache({
+                    lastSuccessfulStartup: new Date().toISOString(),
+                    configValidated: configExists,
+                    yoloModelValidated: aiResult.statusData?.yolo_active || false,
+                    ocrModelValidated: aiResult.statusData?.ocr_active || false
+                });
+            }
+
+            // Check if startup should succeed or fail
+            checks.forEach(c => {
+                console.log(`Diagnostic Module: ${c.name} (id: ${c.id}) -> status: ${c.status}, optional: ${c.optional}`);
+            });
+            const coreFailed = checks.some(c => c.status === 'err' && !c.optional);
+            console.log(`Diagnostics result: coreFailed = ${coreFailed}`);
+            
+            if (coreFailed) {
+                document.getElementById('status-text').innerText = 'Startup failed';
+                document.getElementById('recovery-overlay').style.display = 'flex';
+            } else {
+                document.getElementById('status-text').innerText = 'Startup successful! Launching main UI...';
+                setTimeout(() => {
+                    console.log('Sending startup-complete event to main process.');
+                    ipcRenderer.send('startup-complete');
+                }, 1000);
+            }
+        }
+
+        // Poll a simple health endpoint (used for Hub API + DB)
+        function pollEndpoint(url, timeoutMs, intervalMs, checkId, linkedCheckId) {
+            return new Promise((resolve) => {
+                const globalStart = Date.now();
+
+                const attempt = () => {
+                    const start = Date.now();
+                    const req = http.get(url, (res) => {
+                        const latency = Date.now() - start;
+                        if (res.statusCode === 200) {
+                            updateCheck(checkId, 'ok', latency);
+                            if (linkedCheckId) updateCheck(linkedCheckId, 'ok', latency);
+                            resolve({ ok: true });
+                        } else {
+                            retryOrFail();
+                        }
+                    });
+
+                    req.on('error', () => retryOrFail());
+                    req.setTimeout(3000, () => { req.destroy(); retryOrFail(); });
+
+                    function retryOrFail() {
+                        if (Date.now() - globalStart > timeoutMs) {
+                            const latency = Date.now() - start;
+                            updateCheck(checkId, 'err', latency);
+                            if (linkedCheckId) updateCheck(linkedCheckId, 'err', latency);
+                            resolve({ ok: false });
+                        } else {
+                            document.getElementById('status-text').innerText = `Waiting for ${checks.find(c=>c.id===checkId)?.name || 'service'}...`;
+                            setTimeout(attempt, intervalMs);
+                        }
+                    }
+                };
+                attempt();
+            });
+        }
+
+        // Poll the AI engine status endpoint with rich data extraction
+        function pollAIEndpoint(url, timeoutMs, intervalMs) {
+            return new Promise((resolve) => {
+                const globalStart = Date.now();
+
+                const attempt = () => {
+                    const start = Date.now();
+                    const req = http.get(url, (res) => {
+                        let body = '';
+                        res.on('data', chunk => body += chunk);
+                        res.on('end', () => {
+                            const latency = Date.now() - start;
+                            if (res.statusCode === 200) {
+                                try {
+                                    const data = JSON.parse(body);
+                                    updateCheck('ai_engine', 'ok', latency);
+                                    
+                                    updateCheck('yolo_model', data.yolo_active ? 'ok' : 'warn', latency);
+                                    updateCheck('ocr_model', data.ocr_active ? 'ok' : 'warn', latency);
+
+                                    const videoOk = data.tracker_active || data.processing;
+                                    updateCheck('video_pipe', videoOk ? 'ok' : 'warn', latency);
+
+                                    const isGPU = data.device && data.device.toLowerCase() !== 'cpu';
+                                    updateCheck('gpu_check', isGPU ? 'ok' : 'warn', latency);
+                                    document.getElementById('spec-gpu').innerText = data.device ? data.device.toUpperCase() : 'CPU ONLY';
+
+                                    resolve({ ok: true, statusData: data });
+                                } catch (e) {
+                                    retryOrFail();
+                                }
+                            } else {
+                                retryOrFail();
+                            }
+                        });
+                    });
+
+                    req.on('error', () => retryOrFail());
+                    req.setTimeout(3000, () => { req.destroy(); retryOrFail(); });
+
+                    function retryOrFail() {
+                        if (Date.now() - globalStart > timeoutMs) {
+                            const latency = Date.now() - start;
+                            updateCheck('ai_engine', 'err', latency);
+                            resolve({ ok: false });
+                        } else {
+                            document.getElementById('status-text').innerText = 'Waiting for AI Engine to initialize...';
+                            setTimeout(attempt, intervalMs);
+                        }
+                    }
+                };
+                attempt();
+            });
+        }
+
+        function retryAllChecks() {
+            checks.forEach(c => {
+                c.status = 'wait';
+                c.latency = '--';
+            });
+            renderTable();
+            runDiagnostics();
+        }
+
+        function proceedInSafeMode() {
+            ipcRenderer.send('startup-safe-mode');
+        }
+
+        // Suppress browser behaviors in splash
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        document.addEventListener('keydown', e => {
+            if (e.key === 'F5' || (e.ctrlKey && e.key === 'r') || (e.metaKey && e.key === 'r')) {
+                e.preventDefault();
+            }
+            if (e.ctrlKey && (e.key === '=' || e.key === '-' || e.key === '0')) {
+                e.preventDefault();
+            }
+        });
+    </script>
+</body>
+</html>

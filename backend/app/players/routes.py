@@ -33,6 +33,7 @@ class PlayerCreate(BaseModel):
     guardian_name: Optional[str] = None
     guardian_contact: Optional[str] = None
     blood_group: Optional[str] = None
+    last_medical_check: Optional[str] = None
 
 class PlayerUpdate(BaseModel):
     name: Optional[str] = None
@@ -53,6 +54,7 @@ class PlayerUpdate(BaseModel):
     guardian_name: Optional[str] = None
     guardian_contact: Optional[str] = None
     blood_group: Optional[str] = None
+    last_medical_check: Optional[str] = None
 
 @router.get("/")
 def list_players(institution_id: int = None, db: Session = Depends(get_db)):
@@ -130,6 +132,13 @@ def update_player(player_id: int, player: PlayerUpdate, db: Session = Depends(ge
             player_data["date_of_birth"] = datetime.strptime(dob_str, "%Y-%m-%d").date()
         except ValueError:
             player_data["date_of_birth"] = None
+            
+    lmc_str = player_data.get("last_medical_check")
+    if lmc_str:
+        try:
+            player_data["last_medical_check"] = datetime.strptime(lmc_str, "%Y-%m-%d").date()
+        except ValueError:
+            player_data["last_medical_check"] = None
 
     updated_player = PlayerService.update_player(db, player_id, player_data, actor_id=current_user["id"])
     return updated_player

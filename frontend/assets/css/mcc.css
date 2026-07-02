@@ -4,14 +4,14 @@
 */
 
 :root {
-    --mcc-bg: #111827;
+    --mcc-bg: #0F172A;
     --mcc-card: #111827;
     --mcc-accent: #16A34A;
-    --mcc-text: #f8fafc;
-    --mcc-text-dim: #94a3b8;
+    --mcc-text: #E2E8F0;
+    --mcc-text-dim: #94A3B8;
     --mcc-border: rgba(255, 255, 255, 0.08);
     --mcc-pitch: #064e3b;
-    --mcc-success: #10b981;
+    --mcc-success: #10B981;
 }
 
 .mcc-wrapper {
@@ -140,3 +140,26 @@
 }
 
 @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+/* --- RESPONSIVENESS --- */
+@media (max-width: 1400px) {
+    .mcc-wrapper { padding: 4rem 2rem; }
+}
+
+@media (max-width: 1200px) {
+    .mcc-grid-3 { grid-template-columns: repeat(2, 1fr); }
+    .mcc-grid-squad { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 992px) {
+    .mcc-hero { flex-direction: column; align-items: flex-start; gap: 2rem; }
+    .mcc-grid-2 { grid-template-columns: 1fr; }
+    .mcc-card { padding: 2rem; }
+}
+
+@media (max-width: 768px) {
+    .mcc-wrapper { padding: 2rem 1rem; }
+    .mcc-hero h1 { font-size: 2.5rem; }
+    .mcc-grid-3 { grid-template-columns: 1fr; }
+    .mcc-player-row { padding: 1rem 1.5rem; flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+}

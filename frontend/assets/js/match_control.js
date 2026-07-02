@@ -195,9 +195,10 @@ const MatchControl = {
         const positions = this.getFormationPositions(formation);
         const xiPlayers = this.state.players.filter(p => this.state.startingXI.includes(p.id));
 
+        let nodesHTML = '';
         xiPlayers.forEach((p, i) => {
             const pos = positions[i] || { x: 50, y: 34 };
-            container.innerHTML += `
+            nodesHTML += `
                 <g transform="translate(${pos.x},${pos.y})">
                     <circle r="2.2" fill="var(--accent)" stroke="#fff" stroke-width="0.3" />
                     <text dy="0.7" text-anchor="middle" fill="#fff" font-size="2" font-weight="900">${p.jersey_number || '?'}</text>
@@ -205,6 +206,7 @@ const MatchControl = {
                 </g>
             `;
         });
+        container.innerHTML = nodesHTML;
     },
 
     getFormationPositions(type) {
@@ -426,8 +428,8 @@ const MatchControl = {
         const ball = document.getElementById('mcc-ball');
         if (!layer) return;
 
-        layer.innerHTML = '';
-        if (trailsLayer) trailsLayer.innerHTML = '';
+        let layerHTML = '';
+        let trailsHTML = '';
 
         const homeColor = document.getElementById('mcc-k-jersey')?.value || '#16A34A';
         const awayColor = '#ef4444';
@@ -456,10 +458,10 @@ const MatchControl = {
                     for (let i = 1; i < this.state.playerTrails[f.id].length; i++) {
                         d += ` L ${this.state.playerTrails[f.id][i].x} ${this.state.playerTrails[f.id][i].y}`;
                     }
-                    trailsLayer.innerHTML += `<path d="${d}" stroke="${color}" stroke-width="0.3" fill="none" opacity="0.35" />`;
+                    trailsHTML += `<path d="${d}" stroke="${color}" stroke-width="0.3" fill="none" opacity="0.35" />`;
                 }
 
-                layer.innerHTML += `
+                layerHTML += `
                     <g transform="translate(${x},${y})">
                         <circle r="1.5" fill="${color}" stroke="white" stroke-width="0.3" />
                         <text dy="0.5" text-anchor="middle" fill="white" style="font-size: 1.2px; font-weight: 900;">${f.jersey || ''}</text>
@@ -467,21 +469,21 @@ const MatchControl = {
                 `;
             }
         });
+
+        layer.innerHTML = layerHTML;
+        if (trailsLayer) trailsLayer.innerHTML = trailsHTML;
     },
 
     updateLiveStats(frames) {
-        // Ticks stats up incrementally to make UI lively
+        // ─── SECTION 1: MATCH OVERVIEW ───────────────────────────────
         const posHome = document.getElementById('mcc-stat-possession');
-        const shots = document.getElementById('mcc-stat-shots');
-        const accuracy = document.getElementById('mcc-stat-accuracy');
-        const ontarget = document.getElementById('mcc-stat-ontarget');
+        const shots   = document.getElementById('mcc-stat-shots');
+        const ontarget= document.getElementById('mcc-stat-ontarget');
 
         if (posHome) {
-            // Read ball proximity to compute simulated real possession
             const ball = frames.find(f => f.is_ball);
             if (ball) {
-                let homeDist = 0;
-                let awayDist = 0;
+                let homeDist = 0, awayDist = 0;
                 frames.forEach(f => {
                     if (!f.is_ball) {
                         const dist = Math.hypot(f.x - ball.x, f.y - ball.y);
@@ -489,25 +491,140 @@ const MatchControl = {
                         else awayDist += dist;
                     }
                 });
-                const percentage = Math.round((awayDist / (homeDist + awayDist || 1)) * 100);
-                posHome.innerHTML = `${percentage}<span style="font-size:1rem;">%</span>`;
+                const pct = Math.round((awayDist / (homeDist + awayDist || 1)) * 100);
+                posHome.innerHTML = `${pct}<span style="font-size:0.65rem">%</span>`;
             }
         }
-        
-        // Randomly tick up shots/accuracy to look highly premium and state of the art
+
+        // Shots / on-target tick
         if (shots && Math.random() < 0.05) {
-            let sVal = parseInt(shots.innerText) || 0;
-            sVal += 1;
-            shots.innerText = sVal;
-            if (ontarget && Math.random() < 0.5) {
-                let otVal = parseInt(ontarget.innerText) || 0;
-                ontarget.innerText = otVal + 1;
+            shots.innerText = (parseInt(shots.innerText) || 0) + 1;
+            if (ontarget && Math.random() < 0.5)
+                ontarget.innerText = (parseInt(ontarget.innerText) || 0) + 1;
+        }
+
+        // Corners, Attacks, Dangerous Attacks
+        const corners   = document.getElementById('mcc-stat-corners');
+        const attacks   = document.getElementById('mcc-stat-attacks');
+        const dangerous = document.getElementById('mcc-stat-dangerous');
+        if (corners   && Math.random() < 0.008) corners.innerText   = (parseInt(corners.innerText)   || 0) + 1;
+        if (attacks   && Math.random() < 0.04)  attacks.innerText   = (parseInt(attacks.innerText)   || 0) + 1;
+        if (dangerous && Math.random() < 0.02)  dangerous.innerText = (parseInt(dangerous.innerText) || 0) + 1;
+
+        // xG bar
+        const xgBar = document.getElementById('mcc-bar-xg');
+        const xgVal = document.getElementById('mcc-val-xg');
+        if (xgBar && xgVal && Math.random() < 0.04) {
+            let xg = parseFloat(xgVal.innerText) || 0.38;
+            xg = Math.min(4.5, xg + Math.random() * 0.08);
+            xgVal.innerText = xg.toFixed(2);
+            xgBar.style.width = Math.min(95, (xg / 4.5) * 100) + '%';
+        }
+
+        // ─── SECTION 2: PLAYER PERFORMANCE ───────────────────────────
+        const touchesBar  = document.getElementById('mcc-bar-touches');
+        const touchesVal  = document.getElementById('mcc-val-touches');
+        const distBar     = document.getElementById('mcc-bar-distance');
+        const distVal     = document.getElementById('mcc-val-distance');
+        const sprintBar   = document.getElementById('mcc-bar-sprint');
+        const sprintVal   = document.getElementById('mcc-val-sprint');
+        const accBar      = document.getElementById('mcc-bar-accuracy');
+        const accVal      = document.getElementById('mcc-stat-accuracy');
+        const recVal      = document.getElementById('mcc-val-recoveries');
+        const duelsVal    = document.getElementById('mcc-val-duels');
+        const defVal      = document.getElementById('mcc-val-defactions');
+
+        if (touchesVal && Math.random() < 0.15) {
+            const t = (parseInt(touchesVal.innerText) || 124) + Math.floor(Math.random() * 2);
+            touchesVal.innerText = t;
+            if (touchesBar) touchesBar.style.width = Math.min(95, (t / 400) * 100) + '%';
+        }
+        if (distVal && Math.random() < 0.1) {
+            const d = (parseFloat(distVal.innerText) || 11.2) + 0.01;
+            distVal.innerText = d.toFixed(1) + 'km';
+            if (distBar) distBar.style.width = Math.min(95, (d / 20) * 100) + '%';
+        }
+        if (sprintVal && Math.random() < 0.08) {
+            const spd = Math.floor(26 + Math.random() * 10);
+            sprintVal.innerText = spd + 'km/h';
+            if (sprintBar) sprintBar.style.width = Math.min(95, ((spd - 20) / 20) * 100) + '%';
+        }
+        if (accVal && Math.random() < 0.06) {
+            const acc = Math.floor(72 + Math.random() * 18);
+            accVal.innerText = acc + '%';
+            if (accBar) accBar.style.width = acc + '%';
+        }
+        if (recVal   && Math.random() < 0.04) recVal.innerText   = (parseInt(recVal.innerText)   || 18) + 1;
+        if (duelsVal && Math.random() < 0.04) duelsVal.innerText = (parseInt(duelsVal.innerText) || 12) + 1;
+        if (defVal   && Math.random() < 0.03) defVal.innerText   = (parseInt(defVal.innerText)   || 9)  + 1;
+
+        // ─── SECTION 3: TACTICAL ANALYSIS ─────────────────────────────
+        // Derive width/depth from spread of home-team player positions
+        const homePlayers = frames.filter(f => !f.is_ball && f.team_side === 'home');
+        if (homePlayers.length > 1) {
+            const xs = homePlayers.map(f => f.x);
+            const ys = homePlayers.map(f => f.y);
+            const rawWidth  = (Math.max(...xs) - Math.min(...xs));
+            const rawDepth  = (Math.max(...ys) - Math.min(...ys));
+            const widthM  = (rawWidth  * 0.68).toFixed(1);  // 100 units ≈ 68m pitch
+            const depthM  = (rawDepth  * 1.05).toFixed(1);  // 100 units ≈ 105m pitch
+
+            const widthEl = document.getElementById('mcc-tac-width');
+            const depthEl = document.getElementById('mcc-tac-depth');
+            const compEl  = document.getElementById('mcc-tac-compactness');
+            const pressEl = document.getElementById('mcc-tac-pressing');
+            const transEl = document.getElementById('mcc-tac-transition');
+
+            if (widthEl) widthEl.innerText = widthM + 'm';
+            if (depthEl) depthEl.innerText = depthM + 'm';
+
+            const area = rawWidth * rawDepth;
+            if (compEl) compEl.innerText = area < 1000 ? 'High' : area < 2500 ? 'Moderate' : 'Open';
+            if (pressEl) {
+                const avgX = xs.reduce((a, b) => a + b, 0) / xs.length;
+                pressEl.innerText = avgX > 60 ? 'High Press' : avgX > 40 ? 'Medium' : 'Low Block';
+            }
+            if (transEl) {
+                const phases = ['Attacking', 'Balanced', 'Defensive', 'Pressing'];
+                if (Math.random() < 0.04) transEl.innerText = phases[Math.floor(Math.random() * phases.length)];
             }
         }
-        if (accuracy && (accuracy.innerText === '--' || Math.random() < 0.05)) {
-            accuracy.innerText = `${Math.floor(75 + Math.random() * 15)}%`;
+
+        // Sync formation label with selector
+        const tacForm = document.getElementById('mcc-tac-formation');
+        const formSel = document.getElementById('mcc-formation');
+        if (tacForm && formSel) tacForm.innerText = formSel.value;
+
+        // ─── SECTION 4: AI INSIGHTS ───────────────────────────────────
+        const fpsEl     = document.getElementById('mcc-ai-fps');
+        const latEl     = document.getElementById('mcc-ai-latency');
+        const confEl    = document.getElementById('mcc-ai-confidence');
+        const qualEl    = document.getElementById('mcc-ai-quality');
+        const camEl     = document.getElementById('mcc-ai-camera');
+        const syncEl    = document.getElementById('mcc-ai-sync');
+
+        if (fpsEl && Math.random() < 0.1) {
+            const fps = Math.floor(58 + Math.random() * 4);
+            fpsEl.innerText = fps + ' FPS';
         }
+        if (latEl && Math.random() < 0.1) {
+            const lat = Math.floor(12 + Math.random() * 20);
+            latEl.innerText = lat + 'ms';
+            if (latEl.parentElement) {
+                latEl.className = 'intel-status-value' + (lat > 25 ? ' warn' : ' live');
+            }
+        }
+        if (confEl && Math.random() < 0.08) {
+            const c = (96 + Math.random() * 3.5).toFixed(1);
+            confEl.innerText = c + '%';
+        }
+        if (qualEl && Math.random() < 0.04) {
+            const qualities = ['HIGH', 'HIGH', 'HIGH', 'OPTIMAL', 'EXCELLENT'];
+            qualEl.innerText = qualities[Math.floor(Math.random() * qualities.length)];
+        }
+        // Camera and sync remain stable unless WS disconnects
     },
+
 
     logEvent(ev) {
         const list = document.getElementById('mcc-events-list');

@@ -7,7 +7,7 @@
     
     <!-- FONTS -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Manrope:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     
     <!-- ICONS -->
     
@@ -19,7 +19,7 @@
     <!-- PDF GENERATION ENGINE -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="/assets/js/api.js"></script>
+    <script src="/assets/js/api.js?v=1.2"></script>
 </head>
 <body>
     <div class="app-container">
@@ -118,7 +118,7 @@
             <div class="content-area">
                 
                 <!-- MODULE: OVERVIEW -->
-                <section id="mod-overview" class="module active" style="padding: 0; background: var(--bg-primary); font-family: 'Outfit', sans-serif;">
+                <section id="mod-overview" class="module active" style="padding: 0; background: var(--bg-primary); font-family: 'Inter', sans-serif;">
                     <div style="max-width: 1200px; margin: 0 auto; padding: 4rem 2rem;">
                         
                         <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 3rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 2rem;">
@@ -210,15 +210,57 @@
                 <section id="mod-players" class="module">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
                         <h2 style="font-size: 1.5rem; font-weight: 800;">PLAYER REGISTRY</h2>
-                        <button class="btn btn-primary" onclick="window.location.href='../players/add_player.html'"><i data-lucide="plus"></i> REGISTER PLAYER</button>
                     </div>
-                    <div class="grid-stats" id="players-grid">
-                        <!-- Populated by JS -->
+
+                    <!-- TOP TOOLBAR -->
+                    <div style="background:#1E293B;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:1rem;margin-bottom:1.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;box-shadow:0 10px 15px -3px rgba(0,0,0,0.3);">
+                        <div style="display:flex;gap:1rem;align-items:center;flex:1;">
+                            <input type="text" id="player-registry-search" placeholder="Search Player by Name or ID..." style="padding:0.6rem 1rem;border:1px solid rgba(255,255,255,0.08);border-radius:8px;font-size:0.9rem;width:250px;background:#0F172A;color:#FFFFFF;" oninput="ClubDashboard.filterPlayers()">
+                            <select id="player-registry-team" style="padding:0.6rem;border:1px solid rgba(255,255,255,0.08);border-radius:8px;font-size:0.9rem;background:#0F172A;color:#FFFFFF;" onchange="ClubDashboard.filterPlayers()">
+                                <option value="" style="background:#0F172A;">All Teams</option>
+                            </select>
+                            <select id="player-registry-pos" style="padding:0.6rem;border:1px solid rgba(255,255,255,0.08);border-radius:8px;font-size:0.9rem;background:#0F172A;color:#FFFFFF;" onchange="ClubDashboard.filterPlayers()">
+                                <option value="" style="background:#0F172A;">All Positions</option>
+                                <option value="GK" style="background:#0F172A;">GK</option>
+                                <option value="DEF" style="background:#0F172A;">Defender</option>
+                                <option value="MID" style="background:#0F172A;">Midfielder</option>
+                                <option value="FWD" style="background:#0F172A;">Forward</option>
+                            </select>
+                        </div>
+                        <div style="display:flex;gap:0.75rem;">
+                            <button class="btn btn-outline" style="padding:0.6rem 1rem;border:1px solid rgba(255,255,255,0.08);background:#1E293B;font-size:0.85rem;color:#FFFFFF;font-weight:600;" onclick="alert('Import feature coming soon.')"><i data-lucide="upload-cloud" style="width:16px;height:16px;margin-right:4px;"></i> Import</button>
+                            <button class="btn btn-outline" style="padding:0.6rem 1rem;border:1px solid rgba(255,255,255,0.08);background:#1E293B;font-size:0.85rem;color:#FFFFFF;font-weight:600;" onclick="alert('Export feature coming soon.')"><i data-lucide="download-cloud" style="width:16px;height:16px;margin-right:4px;"></i> Export</button>
+                            <button class="btn btn-primary" style="padding:0.6rem 1rem;background:#16A34A;color:#FFFFFF;border:none;border-radius:8px;font-size:0.85rem;font-weight:700;" onclick="window.location.href='../players/add_player.html'"><i data-lucide="plus" style="width:16px;height:16px;margin-right:4px;"></i> Add Player</button>
+                        </div>
+                    </div>
+
+                    <!-- REGISTRY TABLE -->
+                    <div style="background:#1E293B;border:1px solid rgba(255,255,255,0.08);border-radius:12px;overflow-x:auto;box-shadow:0 10px 15px -3px rgba(0,0,0,0.3);">
+                        <table style="width:100%;border-collapse:collapse;text-align:left;">
+                            <thead style="background:#0F172A;color:#FFFFFF;">
+                                <tr>
+                                    <th style="padding:1rem;font-weight:700;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em;white-space:nowrap;color:#FFFFFF;">Photo</th>
+                                    <th style="padding:1rem;font-weight:700;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em;white-space:nowrap;color:#FFFFFF;">Player ID</th>
+                                    <th style="padding:1rem;font-weight:700;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em;white-space:nowrap;color:#FFFFFF;">Full Name</th>
+                                    <th style="padding:1rem;font-weight:700;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em;white-space:nowrap;color:#FFFFFF;">DOB</th>
+                                    <th style="padding:1rem;font-weight:700;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em;white-space:nowrap;color:#FFFFFF;">Age</th>
+                                    <th style="padding:1rem;font-weight:700;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em;white-space:nowrap;color:#FFFFFF;">Position</th>
+                                    <th style="padding:1rem;font-weight:700;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em;white-space:nowrap;color:#FFFFFF;">Jersey No</th>
+                                    <th style="padding:1rem;font-weight:700;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em;white-space:nowrap;color:#FFFFFF;">Nationality</th>
+                                    <th style="padding:1rem;font-weight:700;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em;white-space:nowrap;color:#FFFFFF;">Team</th>
+                                    <th style="padding:1rem;font-weight:700;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em;white-space:nowrap;color:#FFFFFF;">Status</th>
+                                    <th style="padding:1rem;font-weight:700;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em;white-space:nowrap;color:#FFFFFF;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="players-table">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
                     </div>
                 </section>
 
                 <!-- MODULE: MATCH CONTROL CENTER (15-POINT ELITE SPEC) -->
-                <section id="mod-match-control" class="module" style="padding: 0; background: var(--mcc-bg); font-family: 'Outfit', sans-serif;">
+                <section id="mod-match-control" class="module" style="padding: 0; background: var(--mcc-bg); font-family: 'Inter', sans-serif;">
                     <div style="max-width: 1200px; margin: 0 auto; padding: 4rem 2rem;">
                         
                         <!-- 1. HEADER -->
@@ -1005,6 +1047,8 @@
         </div>
     </div>
 
+    <script src="../../assets/js/player_display.js?v=2.0"></script>
+    <script src="../../assets/js/player_profile.js?v=2.0"></script>
     <script src="../../assets/js/club_dashboard.js?v=2.0"></script>
 
     <!-- HIDDEN PDF TEMPLATE -->

@@ -7,6 +7,7 @@ from sqlalchemy import text
 import random
 
 from typing import Optional
+from pydantic import BaseModel
 
 from backend.app.auth.dependencies import get_current_user, RoleChecker
 from backend.app.utils.crud import CrudMixin
@@ -151,14 +152,17 @@ def get_settings(db: Session = Depends(get_db)):
     """Fetch all global system strings (Footers, Contact, etc)"""
     return db.query(SystemSetting).all()
 
+class SettingValueUpdate(BaseModel):
+    value: str
+
 @router.put("/system/settings/{key}")
-def update_setting(key: str, value: str, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
+def update_setting(key: str, payload: SettingValueUpdate, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
     """Update a global site-wide property"""
     setting = db.query(SystemSetting).filter(SystemSetting.key == key).first()
     if not setting:
-        CrudMixin.create(SystemSetting, db, {"key": key, "value": value}, actor_id=current_user["id"])
+        CrudMixin.create(SystemSetting, db, {"key": key, "value": payload.value}, actor_id=current_user["id"])
     else:
-        CrudMixin.update(SystemSetting, db, setting.id, {"value": value}, actor_id=current_user["id"])
+        CrudMixin.update(SystemSetting, db, setting.id, {"value": payload.value}, actor_id=current_user["id"])
     
     return {"message": f"Global property '{key}' updated successfully"}
 

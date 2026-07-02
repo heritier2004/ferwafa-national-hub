@@ -4,6 +4,7 @@ import time
 import queue
 import threading
 from datetime import datetime
+from pathlib import Path
 from ai_machine.jersey_detector import JerseyDetector
 from ai_machine.event_extractor import EventExtractor
 
@@ -71,7 +72,11 @@ class AIVideoProcessingEngine(threading.Thread):
         if YOLO_AVAILABLE:
             try:
                 self.log("Loading YOLOv8 model...")
-                self.model = YOLO("yolov8n.pt")
+                model_path = Path(__file__).resolve().parent.parent / 'assets' / 'models' / 'yolov8n.pt'
+                if not model_path.exists():
+                    self.log(f"YOLO weights not found at {model_path}, falling back to root 'yolov8n.pt'")
+                    model_path = Path('yolov8n.pt')
+                self.model = YOLO(str(model_path))
                 self.log("✅ YOLO model active")
             except Exception as e:
                 self.log(f"⚠️ YOLO failed: {e}")

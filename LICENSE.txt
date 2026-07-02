@@ -1,0 +1,11 @@
+Welcome to Sportexa Installer
+
+Football Intelligence & Talent Management Platform
+
+Please read the following carefully. By checking the box below, you agree to the installation requirements and software terms:
+
+1. This software requires an internet connection to sync AI and analytics data.
+2. The application relies on system resources for live match analysis.
+3. You agree to use this software in accordance with official organizational rules.
+
+If you agree to the terms, please check the box to continue the installation.

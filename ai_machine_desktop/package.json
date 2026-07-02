@@ -1,0 +1,43 @@
+{
+  "name": "sportexa-ai-pitch-machine",
+  "productName": "SPORTEXA",
+  "version": "1.0.0",
+  "description": "Professional Football Intelligence and AI Synchronization Infrastructure",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist:win": "electron-builder --win",
+    "dist:linux": "electron-builder --linux",
+    "dist:all": "electron-builder --win --linux"
+  },
+  "author": "FERWAFA National Authority",
+  "license": "ISC",
+  "build": {
+    "appId": "com.ferwafa.sportexa",
+    "artifactName": "sportexa-${os}.${ext}",
+    "asar": false,
+    "win": {
+      "target": "nsis",
+      "icon": "../ai_machine/ui/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "SPORTEXA",
+      "installerIcon": "../ai_machine/ui/icon.ico",
+      "uninstallerIcon": "../ai_machine/ui/icon.ico",
+      "installerHeaderIcon": "../ai_machine/ui/icon.ico"
+    },
+    "linux": {
+      "target": ["AppImage", "deb"],
+      "category": "Utility",
+      "icon": "../ai_machine/ui/icon.ico"
+    }
+  },
+  "devDependencies": {
+    "electron": "^30.0.0",
+    "electron-builder": "^24.13.3"
+  }
+}

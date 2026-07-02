@@ -1,0 +1,38 @@
+File: login.html
+  Non-ASCII: ['U+2022 (•)']
+File: assets\css\style.css
+  Non-ASCII: ['U+2014 (—)']
+File: assets\js\ai_pitch_machine.js
+  Non-ASCII: ['U+2500 (─)']
+File: assets\js\api.js
+  Emojis: {'🛡'}
+  Non-ASCII: ['U+FE0F (️)', 'U+1F6E1 (🛡)']
+File: assets\js\app.js
+  Emojis: {'🛠', '🛡', '🗺', '⚙'}
+  Non-ASCII: ['U+2699 (⚙)', 'U+FE0F (️)', 'U+1F5FA (🗺)', 'U+1F6E0 (🛠)', 'U+1F6E1 (🛡)']
+File: assets\js\club_dashboard.js
+  Non-ASCII: ['U+00B7 (·)', 'U+2014 (—)']
+File: assets\js\match_control.js
+  Non-ASCII: ['U+25CF (●)']
+File: assets\js\player_display.js
+  Non-ASCII: ['U+2014 (—)']
+File: assets\js\player_profile.js
+  Non-ASCII: ['U+2014 (—)', 'U+2500 (─)']
+File: assets\templates\report_template.html
+  Non-ASCII: ['U+2022 (•)']
+File: pages\dashboards\academy.html
+  Non-ASCII: ['U+2013 (–)', 'U+2014 (—)']
+File: pages\dashboards\club.html
+  Non-ASCII: ['U+25CF (●)']
+File: pages\dashboards\ferwafa.html
+  Non-ASCII: ['U+00E9 (é)', 'U+2014 (—)', 'U+2022 (•)', 'U+2192 (→)']
+File: pages\dashboards\school.html
+  Non-ASCII: ['U+2013 (–)', 'U+2014 (—)']
+File: pages\match\capability_proof.html
+  Non-ASCII: ['U+2014 (—)']
+File: pages\match\match_control.html
+  Non-ASCII: ['U+25CF (●)']
+File: pages\players\add_player.html
+  Non-ASCII: ['U+25CF (●)']
+File: pages\superadmin\dashboard.html
+  Non-ASCII: ['U+2011 (‑)']

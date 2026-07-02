@@ -8,6 +8,7 @@ Starts a local FastAPI server on port 7777 serving:
 import asyncio
 import sys
 import os
+from dotenv import load_dotenv
 import uvicorn
 import subprocess
 from pathlib import Path
@@ -22,6 +23,7 @@ from ai_machine.connection import AIConnection
 from ai_machine.processor import AIVideoProcessingEngine
 
 # ── App State ──────────────────────────────────────────────────────
+load_dotenv()
 config = Config()
 connection: AIConnection = None
 processor: AIVideoProcessingEngine = None
@@ -37,17 +39,25 @@ UI_DIR = Path(__file__).parent / "ui"
 
 
 # ── Serve UI Routes ────────────────────────────────────────────────
+NO_CACHE = {"Cache-Control": "no-store, no-cache, must-revalidate, max-age=0"}
+
 @app.get("/", response_class=HTMLResponse)
-async def serve_index():
+async def serve_root():
     if not authenticated:
-        return HTMLResponse((UI_DIR / "login.html").read_text(encoding="utf-8"))
+        return HTMLResponse((UI_DIR / "index.html").read_text(encoding="utf-8"), headers=NO_CACHE)
     
     html_path = UI_DIR / "index.html"
     if html_path.exists():
-        response = HTMLResponse(content=html_path.read_text(encoding="utf-8"))
-        return response
+        return HTMLResponse(content=html_path.read_text(encoding="utf-8"), headers=NO_CACHE)
     return HTMLResponse("<h1>Index not found</h1>", status_code=404)
 
+@app.get("/index.html", response_class=HTMLResponse)
+async def serve_index_html():
+    return HTMLResponse((UI_DIR / "index.html").read_text(encoding="utf-8"), headers=NO_CACHE)
+
+@app.get("/login.html", response_class=HTMLResponse)
+async def serve_login_html():
+    return HTMLResponse((UI_DIR / "login.html").read_text(encoding="utf-8"), headers=NO_CACHE)
 
 @app.get("/dashboard", response_class=HTMLResponse)
 async def serve_dashboard():
@@ -59,6 +69,12 @@ async def serve_dashboard():
         return HTMLResponse(content=html_path.read_text(encoding="utf-8"))
     return HTMLResponse("<h1>Control Panel not found</h1>", status_code=404)
 
+@app.get("/control_panel.html", response_class=HTMLResponse)
+async def serve_control_panel_html():
+    if not authenticated:
+        return HTMLResponse((UI_DIR / "login.html").read_text(encoding="utf-8"))
+    return HTMLResponse((UI_DIR / "control_panel.html").read_text(encoding="utf-8"))
+
 
 # ── Auth Endpoints ────────────────────────────────────────────────
 @app.post("/auth/login")
@@ -67,8 +83,10 @@ async def login(data: dict):
     u = data.get("username")
     p = data.get("password")
     
-    # Secure Authority Credentials
-    if u == "admin" and p == "ferwafa2024":
+    # Secure Authority Credentials (configurable via environment)
+    expected_user = os.getenv("AI_USERNAME", "admin")
+    expected_pass = os.getenv("AI_PASSWORD", "ferwafa2024")
+    if u == expected_user and p == expected_pass:
         authenticated = True
         return {"success": True}
     return JSONResponse({"success": False}, status_code=401)
@@ -88,7 +106,15 @@ async def get_status():
     
     # Model Availability
     from ai_machine.processor import YOLO_AVAILABLE, OCR_AVAILABLE
+    import torch
     
+    device_name = "cpu"
+    if torch.cuda.is_available():
+        gpu_name = torch.cuda.get_device_name(0)
+        device_name = f"cuda ({gpu_name})"
+    elif hasattr(torch.backends, 'mps') and torch.backends.mps.is_available():
+        device_name = "mps"
+
     if test_mode:
         test_frames += 24
         if test_frames % 100 == 0: test_events += 1
@@ -112,6 +138,10 @@ async def get_status():
             "device": "MOCK_GPU"
         }
 
+    assets_model = Path(__file__).resolve().parent.parent / 'assets' / 'models' / 'yolov8n.pt'
+    yolo_ok = YOLO_AVAILABLE and (processor.model is not None if processor else (assets_model.exists() or os.path.exists("yolov8n.pt")))
+    ocr_ok = OCR_AVAILABLE
+
     return {
         "configured": config.is_configured(),
         "connected": connection.is_connected if connection else False,
@@ -126,10 +156,10 @@ async def get_status():
         "server_url": config.server_url,
         "kit_home": config.kit_home,
         "kit_away": config.kit_away,
-        "yolo_active": YOLO_AVAILABLE and processor and processor.model is not None,
-        "tracker_active": YOLO_AVAILABLE and processor and processor.is_running,
-        "ocr_active": OCR_AVAILABLE and processor and processor.reader is not None,
-        "device": config.device
+        "yolo_active": yolo_ok,
+        "tracker_active": YOLO_AVAILABLE and (processor.is_running if processor else True),
+        "ocr_active": ocr_ok,
+        "device": device_name
     }
 
 
@@ -332,20 +362,28 @@ def main():
     server_thread.start()
 
     # Start Native Window GUI in Foreground
-    try:
-        import webview
-        import time
-        time.sleep(1)  # small buffer to ensure uvicorn is listening before browser paints
-        print("  🖥️  Opening National Hub Interface...")
-        webview.create_window("National Football Intelligence System", "http://127.0.0.1:7777", width=1280, height=850, background_color="#020509")
-        webview.start()
-    except Exception as e:
-        print(f"\n  ⚠️  Native GUI unavailable: {e}")
-        print("  🚀 Server is still running. Access manually at: http://127.0.0.1:7777")
-        # Keep the main thread alive since uvicorn is in a daemon thread
+    headless_mode = os.environ.get("HEADLESS_AI", "0") == "1"
+    
+    if headless_mode:
+        print("  🖥️  Running in Headless Mode (Managed by Electron GUI).")
         while True:
             import time
             time.sleep(10)
+    else:
+        try:
+            import webview
+            import time
+            time.sleep(1)  # small buffer to ensure uvicorn is listening before browser paints
+            print("  🖥️  Opening National Hub Interface...")
+            webview.create_window("National Football Intelligence System", "http://127.0.0.1:7777", width=1280, height=850, background_color="#020509")
+            webview.start()
+        except Exception as e:
+            print(f"\n  ⚠️  Native GUI unavailable: {e}")
+            print("  🚀 Server is still running. Access manually at: http://127.0.0.1:7777")
+            # Keep the main thread alive since uvicorn is in a daemon thread
+            while True:
+                import time
+                time.sleep(10)
 
 
 if __name__ == "__main__":

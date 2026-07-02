@@ -27,7 +27,8 @@ from backend.app.auth.dependencies import get_current_user
 from backend.app.database.models import SystemError, Match
 import traceback
 from backend.app.database import models
-from sqlalchemy import text
+from sqlalchemy import text, inspect as sa_inspect
+from contextlib import asynccontextmanager
 from backend.app.auth.security import get_password_hash
 from backend.app.database.models import User, SystemSetting
 
@@ -151,22 +152,56 @@ _SESSION_MIGRATIONS = [
     "ALTER TABLE match_sessions ADD COLUMN IF NOT EXISTS status VARCHAR DEFAULT 'INACTIVE'"
 ]
 
-with engine.connect() as conn:
-    for sql in _MATCH_MIGRATIONS + _GLOBAL_MIGRATIONS + _EVENT_MIGRATIONS + _COMPETITION_MIGRATIONS + _CASCADE_MIGRATIONS + _SESSION_MIGRATIONS:
-        try:
-            conn.execute(text(sql))
-        except Exception as e:
-            print(f"[MIGRATION_ERROR] {sql}: {e}")
-            pass
-    conn.commit()
+def _run_safe_migrations():
+    """Run dialect-aware column migrations. Checks column existence via inspect."""
+    is_sqlite = str(engine.url).startswith("sqlite")
+    inspector = sa_inspect(engine)
+    column_cache = {}
+
+    with engine.connect() as conn:
+        for sql in _MATCH_MIGRATIONS + _GLOBAL_MIGRATIONS + _EVENT_MIGRATIONS + _COMPETITION_MIGRATIONS + _SESSION_MIGRATIONS:
+            try:
+                parts = sql.split()
+                table_name = parts[2]
+                if "IF NOT EXISTS" in sql:
+                    col_idx = parts.index("EXISTS") + 1
+                else:
+                    col_idx = parts.index("COLUMN") + 1
+                col_name = parts[col_idx]
+
+                if table_name not in column_cache:
+                    try:
+                        column_cache[table_name] = {c["name"] for c in inspector.get_columns(table_name)}
+                    except Exception:
+                        column_cache[table_name] = set()
+
+                if col_name in column_cache[table_name]:
+                    continue
+
+                clean_sql = sql.replace(" IF NOT EXISTS", "")
+                if is_sqlite:
+                    clean_sql = clean_sql.replace(" UNIQUE", "")
+                conn.execute(text(clean_sql))
+                column_cache[table_name].add(col_name)
+            except Exception:
+                pass
+
+        if not is_sqlite:
+            for sql in _CASCADE_MIGRATIONS:
+                try:
+                    conn.execute(text(sql))
+                except Exception:
+                    pass
+
+        conn.commit()
+
+_run_safe_migrations()
 
 # =====================================================
-# APP
+# APP — Lifespan Context Manager (replaces deprecated @app.on_event)
 # =====================================================
-app = FastAPI(title="National Football Intelligence System")
-
-@app.on_event("startup")
-async def startup_event():
+@asynccontextmanager
+async def lifespan(app_instance):
     """Seed the database on startup without blocking the main event loop."""
     db_seed = SessionLocal()
     try:
@@ -277,12 +312,17 @@ async def startup_event():
         print(f"[SEED] Seeding Error: {e}")
     finally:
         db_seed.close()
+    yield
+
+app = FastAPI(title="National Football Intelligence System", lifespan=lifespan)
 
 # CORS & Security
+_cors_origins_raw = os.getenv("CORS_ALLOWED_ORIGINS", "*")
+_cors_origins = [o.strip() for o in _cors_origins_raw.split(",")]
 app.add_middleware(SecurityMiddleware)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=_cors_origins,
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -487,9 +527,26 @@ async def download_ai_machine(current_user: dict = Depends(get_current_user), os
     )
 
 # =====================================================
-# STATIC FILES (Frontend)
+# STATIC FILES (Frontend) & ROOT ROUTE
 # =====================================================
+# Health check endpoint for Electron startup
+@app.get("/health")
+async def health_check():
+    return {"status": "ok"}
+
 frontend_path = os.path.join(os.getcwd(), "frontend")
+
+@app.get("/")
+async def serve_landing_page():
+    index_path = os.path.join(frontend_path, "index.html")
+    if os.path.exists(index_path):
+        return FileResponse(index_path)
+    return JSONResponse(status_code=404, content={"detail": "Landing page not found"})
+
+if os.path.exists(UPLOAD_DIR):
+    app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads_dir")
+    app.mount("/assets/uploads", StaticFiles(directory=UPLOAD_DIR), name="assets_uploads_dir")
+
 if os.path.exists(frontend_path):
     app.mount("/", StaticFiles(directory=frontend_path, html=True), name="frontend")
 

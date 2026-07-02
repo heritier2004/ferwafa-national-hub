@@ -12,7 +12,7 @@ class User(Base):
     password_hash = Column(String, nullable=False)
     role = Column(String, nullable=False) # SUPER_ADMIN, FERWAFA, CLUB, SCHOOL, ACADEMY, SCOUT
     full_name = Column(String)
-    institution_id = Column(Integer, ForeignKey("institutions.id"), nullable=True)
+    institution_id = Column(Integer, ForeignKey("institutions.id"), nullable=True, index=True)
     photo_url = Column(Text) # For scouts and other officials
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.utcnow)
@@ -22,7 +22,7 @@ class User(Base):
 class UserSession(Base):
     __tablename__ = "user_sessions"
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"))
+    user_id = Column(Integer, ForeignKey("users.id"), index=True)
     session_token = Column(String, unique=True, index=True, nullable=False)
     ip_address = Column(String)
     user_agent = Column(Text)
@@ -64,8 +64,8 @@ class Institution(Base):
 class Player(Base):
     __tablename__ = "players"
     id = Column(Integer, primary_key=True, index=True)
-    institution_id = Column(Integer, ForeignKey("institutions.id"))
-    team_id = Column(Integer, ForeignKey("teams.id"), nullable=True)
+    institution_id = Column(Integer, ForeignKey("institutions.id"), index=True)
+    team_id = Column(Integer, ForeignKey("teams.id"), nullable=True, index=True)
     player_code = Column(String, unique=True, index=True, nullable=False)
     name = Column(String, nullable=False)
     position = Column(String)
@@ -116,7 +116,7 @@ class Team(Base):
     """Institutional Sub-teams (U15, U17, Senior)"""
     __tablename__ = "teams"
     id = Column(Integer, primary_key=True, index=True)
-    institution_id = Column(Integer, ForeignKey("institutions.id"))
+    institution_id = Column(Integer, ForeignKey("institutions.id"), index=True)
     name = Column(String, nullable=False) # e.g., "U17 Elite"
     category = Column(String) # U15, U17, U20, Senior
     coach_name = Column(String)
@@ -130,8 +130,8 @@ class TrainingSession(Base):
     """Training schedule and technical focus"""
     __tablename__ = "training_sessions"
     id = Column(Integer, primary_key=True, index=True)
-    institution_id = Column(Integer, ForeignKey("institutions.id"))
-    team_id = Column(Integer, ForeignKey("teams.id"), nullable=True)
+    institution_id = Column(Integer, ForeignKey("institutions.id"), index=True)
+    team_id = Column(Integer, ForeignKey("teams.id"), nullable=True, index=True)
     date = Column(DateTime, default=datetime.utcnow)
     topic = Column(String) # Tactical, Technical, Physical
     notes = Column(Text)
@@ -143,7 +143,7 @@ class MedicalRecord(Base):
     """Player health and injury tracking"""
     __tablename__ = "medical_records"
     id = Column(Integer, primary_key=True, index=True)
-    player_id = Column(Integer, ForeignKey("players.id"))
+    player_id = Column(Integer, ForeignKey("players.id"), index=True)
     injury_type = Column(String)
     status = Column(String, default="ACTIVE") # ACTIVE, RECOVERED
     start_date = Column(Date)
@@ -156,9 +156,9 @@ class Attendance(Base):
     """Daily training attendance record for Schools and Academies"""
     __tablename__ = "attendance"
     id = Column(Integer, primary_key=True, index=True)
-    institution_id = Column(Integer, ForeignKey("institutions.id"))
-    player_id = Column(Integer, ForeignKey("players.id"))
-    training_session_id = Column(Integer, ForeignKey("training_sessions.id"), nullable=True)
+    institution_id = Column(Integer, ForeignKey("institutions.id"), index=True)
+    player_id = Column(Integer, ForeignKey("players.id"), index=True)
+    training_session_id = Column(Integer, ForeignKey("training_sessions.id"), nullable=True, index=True)
     date = Column(Date, default=datetime.utcnow().date())
     status = Column(String, default="PRESENT") # PRESENT, ABSENT, EXCUSED, INJURED
     notes = Column(Text, nullable=True)
@@ -194,9 +194,9 @@ class Transfer(Base):
     """National Player Transfer Registry"""
     __tablename__ = "transfers"
     id = Column(Integer, primary_key=True, index=True)
-    player_id = Column(Integer, ForeignKey("players.id"))
-    from_institution_id = Column(Integer, ForeignKey("institutions.id"))
-    to_institution_id = Column(Integer, ForeignKey("institutions.id"))
+    player_id = Column(Integer, ForeignKey("players.id"), index=True)
+    from_institution_id = Column(Integer, ForeignKey("institutions.id"), index=True)
+    to_institution_id = Column(Integer, ForeignKey("institutions.id"), index=True)
     transfer_date = Column(DateTime, default=datetime.utcnow)
     fee = Column(Float, default=0.0)
     status = Column(String, default="APPROVED") # PENDING, APPROVED, REJECTED
@@ -211,8 +211,8 @@ class Award(Base):
     """National Honors and Recognition"""
     __tablename__ = "awards"
     id = Column(Integer, primary_key=True, index=True)
-    competition_id = Column(Integer, ForeignKey("competitions.id"), nullable=True)
-    player_id = Column(Integer, ForeignKey("players.id"))
+    competition_id = Column(Integer, ForeignKey("competitions.id"), nullable=True, index=True)
+    player_id = Column(Integer, ForeignKey("players.id"), index=True)
     award_type = Column(String) # POTM, POM, MVP, GOLDEN_BOOT
     season = Column(String)
     timestamp = Column(DateTime, default=datetime.utcnow)
@@ -226,11 +226,11 @@ class PlayerVote(Base):
     """Human & Statistical Voting System"""
     __tablename__ = "player_votes"
     id = Column(Integer, primary_key=True, index=True)
-    player_id = Column(Integer, ForeignKey("players.id"))
-    voter_id = Column(Integer, ForeignKey("users.id"))
+    player_id = Column(Integer, ForeignKey("players.id"), index=True)
+    voter_id = Column(Integer, ForeignKey("users.id"), index=True)
     voter_role = Column(String) # FERWAFA, COACH, SCOUT
     award_category = Column(String) # MVP, POTM, YOUNG_TALENT, TOP_SCORER
-    competition_id = Column(Integer, ForeignKey("competitions.id"), nullable=True)
+    competition_id = Column(Integer, ForeignKey("competitions.id"), nullable=True, index=True)
     ai_validation_score = Column(Float, default=0.0) # Backed by statistical merit
     timestamp = Column(DateTime, default=datetime.utcnow)
     version = Column(Integer, default=1, nullable=False)
@@ -260,9 +260,9 @@ class Competition(Base):
 class Match(Base):
     __tablename__ = "matches"
     id = Column(Integer, primary_key=True, index=True)
-    competition_id = Column(Integer, ForeignKey("competitions.id"), nullable=True)
-    home_team_id = Column(Integer, ForeignKey("institutions.id"))
-    away_team_id = Column(Integer, ForeignKey("institutions.id"))
+    competition_id = Column(Integer, ForeignKey("competitions.id"), nullable=True, index=True)
+    home_team_id = Column(Integer, ForeignKey("institutions.id"), index=True)
+    away_team_id = Column(Integer, ForeignKey("institutions.id"), index=True)
     stadium = Column(String)
     match_date = Column(DateTime)
     status = Column(String, default="SCHEDULED") # SCHEDULED, LIVE, PAUSED, COMPLETED
@@ -306,8 +306,8 @@ class DisciplinaryRecord(Base):
     """Permanent National Record of Infractions"""
     __tablename__ = "disciplinary_history"
     id = Column(Integer, primary_key=True, index=True)
-    match_id = Column(Integer, ForeignKey("matches.id"))
-    player_id = Column(Integer, ForeignKey("players.id"))
+    match_id = Column(Integer, ForeignKey("matches.id"), index=True)
+    player_id = Column(Integer, ForeignKey("players.id"), index=True)
     card_type = Column(String) # YELLOW, RED
     description = Column(String) # reason
     minute = Column(Integer)
@@ -318,8 +318,8 @@ class DisciplinaryRecord(Base):
 class MatchEvent(Base):
     __tablename__ = "match_events"
     id = Column(Integer, primary_key=True, index=True)
-    match_id = Column(Integer, ForeignKey("matches.id", ondelete="CASCADE"))
-    player_id = Column(Integer, ForeignKey("players.id", ondelete="CASCADE"))
+    match_id = Column(Integer, ForeignKey("matches.id", ondelete="CASCADE"), index=True)
+    player_id = Column(Integer, ForeignKey("players.id", ondelete="CASCADE"), index=True)
 
     event_type = Column(String, nullable=False) # goal, card, pass, movement
     timestamp_match = Column(Integer)
@@ -339,7 +339,7 @@ class MatchEvent(Base):
     server_timestamp = Column(DateTime, default=datetime.utcnow) # Authoritative server clock
     
     # --- Immutable Ledger & Audit ---
-    editor_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    editor_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
     audit_reason = Column(String, nullable=True)
     version = Column(Integer, default=1, nullable=False)
     is_deleted = Column(Boolean, default=False)
@@ -352,8 +352,8 @@ class MatchEvent(Base):
 class PlayerStat(Base):
     __tablename__ = "player_stats"
     id = Column(Integer, primary_key=True, index=True)
-    player_id = Column(Integer, ForeignKey("players.id", ondelete="CASCADE"))
-    match_id = Column(Integer, ForeignKey("matches.id", ondelete="CASCADE"))
+    player_id = Column(Integer, ForeignKey("players.id", ondelete="CASCADE"), index=True)
+    match_id = Column(Integer, ForeignKey("matches.id", ondelete="CASCADE"), index=True)
     speed = Column(Float, default=0.0)
     distance = Column(Float, default=0.0)
     rating = Column(Float, default=0.0)
@@ -381,8 +381,8 @@ class PlayerStat(Base):
 class AIAnalysis(Base):
     __tablename__ = "ai_analysis"
     id = Column(Integer, primary_key=True, index=True)
-    player_id = Column(Integer, ForeignKey("players.id", ondelete="CASCADE"))
-    match_id = Column(Integer, ForeignKey("matches.id", ondelete="CASCADE"))
+    player_id = Column(Integer, ForeignKey("players.id", ondelete="CASCADE"), index=True)
+    match_id = Column(Integer, ForeignKey("matches.id", ondelete="CASCADE"), index=True)
     star_rating = Column(Float) # 3.5 - 9.5
     analysis_notes = Column(Text)
     last_updated = Column(DateTime, default=datetime.utcnow)
@@ -396,7 +396,7 @@ class MatchAnalytics(Base):
     """Historical snapshots for trend graphs"""
     __tablename__ = "match_analytics"
     id = Column(Integer, primary_key=True, index=True)
-    match_id = Column(Integer, ForeignKey("matches.id"))
+    match_id = Column(Integer, ForeignKey("matches.id"), index=True)
     minute = Column(Integer)
     possession_home = Column(Float)
     possession_away = Column(Float)
@@ -407,18 +407,18 @@ class MatchAnalytics(Base):
 class Fixture(Base):
     __tablename__ = "fixtures"
     id = Column(Integer, primary_key=True, index=True)
-    match_id = Column(Integer, ForeignKey("matches.id"))
+    match_id = Column(Integer, ForeignKey("matches.id"), index=True)
     status = Column(String, default="PENDING")
     suggested_by_ai = Column(Boolean, default=True)
     approved_by_ferwafa = Column(Boolean, default=False)
-    approved_by_id = Column(Integer, ForeignKey("users.id"))
+    approved_by_id = Column(Integer, ForeignKey("users.id"), index=True)
     version = Column(Integer, default=1, nullable=False)
     is_deleted = Column(Boolean, default=False)
 
 class LiveSession(Base):
     __tablename__ = "live_sessions"
     id = Column(Integer, primary_key=True, index=True)
-    match_id = Column(Integer, ForeignKey("matches.id"))
+    match_id = Column(Integer, ForeignKey("matches.id"), index=True)
     live_link = Column(String, unique=True, index=True)
     status = Column(String, default="INACTIVE")
     websocket_endpoint = Column(String)
@@ -450,8 +450,8 @@ class MatchSquad(Base):
     """Links players to a match session (18-man squad with positions)"""
     __tablename__ = "match_squads"
     id = Column(Integer, primary_key=True, index=True)
-    match_id = Column(Integer, ForeignKey("matches.id"))
-    player_id = Column(Integer, ForeignKey("players.id"))
+    match_id = Column(Integer, ForeignKey("matches.id"), index=True)
+    player_id = Column(Integer, ForeignKey("players.id"), index=True)
     role = Column(String, default="bench")  # "starting", "bench"
     position = Column(String)               # GK, CB, CM, ST, etc.
     jersey_number = Column(Integer)
@@ -465,7 +465,7 @@ class AuditLog(Base):
     __tablename__ = "audit_logs"
     id = Column(Integer, primary_key=True, index=True)
     action = Column(String, nullable=False) # GENERATION, CONNECTION, REJECTION, EXPIRATION, CLOSURE
-    match_id = Column(Integer, ForeignKey("matches.id"), nullable=True)
+    match_id = Column(Integer, ForeignKey("matches.id"), nullable=True, index=True)
     description = Column(Text)
     actor_email = Column(String, nullable=True)
     timestamp = Column(DateTime, default=datetime.utcnow)
@@ -476,7 +476,7 @@ class TrackingFrame(Base):
     """Raw high-frequency tracking data for analysis and replay"""
     __tablename__ = "tracking_frames"
     id = Column(Integer, primary_key=True, index=True)
-    match_id = Column(Integer, ForeignKey("matches.id"))
+    match_id = Column(Integer, ForeignKey("matches.id"), index=True)
     player_id = Column(Integer, ForeignKey("players.id"), nullable=True) # Null for ball
     tracking_id = Column(Integer) # ID from ByteTrack
     x_pos = Column(Float)
@@ -493,7 +493,7 @@ class TacticalSnapshot(Base):
     """Team-level tactical analytics generated every minute or event"""
     __tablename__ = "tactical_snapshots"
     id = Column(Integer, primary_key=True, index=True)
-    match_id = Column(Integer, ForeignKey("matches.id"))
+    match_id = Column(Integer, ForeignKey("matches.id"), index=True)
     minute = Column(Integer)
     possession_home = Column(Float)
     possession_away = Column(Float)
@@ -511,13 +511,13 @@ class MatchSession(Base):
     """Tracks AI Machine connection state per match token"""
     __tablename__ = "match_sessions"
     id = Column(Integer, primary_key=True, index=True)
-    match_id = Column(Integer, ForeignKey("matches.id"), unique=True)
+    match_id = Column(Integer, ForeignKey("matches.id"), unique=True, index=True)
     match_token = Column(String, unique=True, index=True)
     ai_connected = Column(Boolean, default=False)
     
     # --- New Stream Binding Fields ---
     stream_id = Column(String, unique=True, index=True, nullable=True)
-    api_key_id = Column(Integer, ForeignKey("api_keys.id"), nullable=True)
+    api_key_id = Column(Integer, ForeignKey("api_keys.id"), nullable=True, index=True)
     device_type = Column(String, default="UNKNOWN")
     status = Column(String, default="INACTIVE") # INACTIVE, ACTIVE, ERROR
     
@@ -585,7 +585,7 @@ class IdempotencyKey(Base):
     __tablename__ = "idempotency_keys"
     id = Column(Integer, primary_key=True, index=True)
     key = Column(String, unique=True, index=True, nullable=False)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
     request_path = Column(String)
     response_code = Column(Integer)
     response_body = Column(Text)

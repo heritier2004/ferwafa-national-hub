@@ -3,14 +3,22 @@ from typing import Optional, Union, Any
 from jose import jwt
 from passlib.context import CryptContext
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
 
 # Password hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # JWT configuration
-SECRET_KEY = os.getenv("SECRET_KEY", "FERWAFA_SUPER_SECRET_KEY_2026")
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 # 24 hours
+SECRET_KEY = os.getenv("SECRET_KEY")
+if not SECRET_KEY:
+    print("[SECURITY WARNING] 'SECRET_KEY' environment variable not set! Using default insecure key.")
+    SECRET_KEY = "FERWAFA_SUPER_SECRET_KEY_2026"
+
+ALGORITHM = os.getenv("ALGORITHM", "HS256")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "1440"))
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)

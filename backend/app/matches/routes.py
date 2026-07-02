@@ -130,8 +130,9 @@ def create_match(payload: MatchCreate, db: Session = Depends(get_db), current_us
         raise HTTPException(status_code=400, detail=str(e))
 
 @router.get("/")
-def list_matches(status: str = None, db: Session = Depends(get_db)):
+def list_matches(status: str = None, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
     return MatchService.get_matches(db, status)
+
 
 @router.patch("/{match_id}", response_model=dict)
 def update_match(match_id: int, payload: MatchUpdate, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
@@ -254,8 +255,9 @@ def log_manual_event(match_id: int, event_type: str, player_id: int = None, x: f
     return {"status": "logged", "event_id": new_ev.id}
 
 @router.get("/suggest-local/{inst_id}")
-def suggest_local_match(inst_id: int, db: Session = Depends(get_db)):
+def suggest_local_match(inst_id: int, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
     inst = db.query(Institution).filter(Institution.id == inst_id).first()
+
     if not inst: return []
     
     opponents = db.query(Institution).filter(
@@ -282,8 +284,9 @@ def suggest_local_match(inst_id: int, db: Session = Depends(get_db)):
     } for o in opponents]
 
 @router.post("/{match_id}/squad/auto-generate")
-def auto_generate_squad(match_id: int, db: Session = Depends(get_db)):
+def auto_generate_squad(match_id: int, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
     data = MatchService.auto_generate_squad(db, match_id)
+
     if "error" in data:
         raise HTTPException(status_code=400, detail=data["error"])
     return data

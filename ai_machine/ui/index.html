@@ -1,219 +1,372 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>National Football Intelligence System | Executive Summary</title>
+    <title>SPORTEXA AI | Pitch Machine Command Center</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@400;600;800&family=Montserrat:wght@900&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Manrope:wght@700;800;900&display=swap" rel="stylesheet">
     <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
         :root {
-            --bg: #000000;
-            --primary: #2563EB;
-            --text: #FFFFFF;
-            --panel: #0F172A;
-            --border: #1E293B;
+            --bg-primary: #020509;
+            --bg-secondary: #0B1120;
+            --bg-card: #0F172A;
+            --border: rgba(148,163,184,0.08);
+            --border-hover: rgba(16,185,129,0.3);
+            --accent: #10B981;
+            --accent-secondary: #06B6D4;
+            --accent-glow: rgba(16,185,129,0.15);
+            --text-primary: #F1F5F9;
+            --text-secondary: #94A3B8;
+            --text-muted: #475569;
+            --radius-lg: 20px;
+            --radius-md: 12px;
         }
 
-        body,
-        html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            background-color: var(--bg);
-            color: var(--text);
-            font-family: 'Inter', sans-serif;
+        html, body {
+            width: 100%; height: 100%;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            overflow-x: hidden;
             overflow-y: auto;
         }
 
-        /* Tactical Grid Background */
+        /* Ambient glowing background */
         body::before {
             content: '';
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: radial-gradient(circle at center, #1E293B 0%, #000000 80%);
+            inset: 0;
+            background:
+                radial-gradient(ellipse 60% 40% at 50% 0%, rgba(16,185,129,0.07) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 40% at 90% 80%, rgba(6,182,212,0.04) 0%, transparent 50%),
+                radial-gradient(ellipse 40% 40% at 10% 30%, rgba(16,185,129,0.03) 0%, transparent 50%);
+            z-index: -2;
+        }
+
+        /* Tactical Grid Background */
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(148,163,184,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(148,163,184,0.02) 1px, transparent 1px);
+            background-size: 50px 50px;
             z-index: -1;
         }
 
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 4rem 2rem;
+            padding: 5rem 2rem;
+            position: relative;
+            z-index: 1;
         }
 
-        /* Header Summary */
+        /* Top Header */
         .header {
             text-align: center;
-            margin-bottom: 6rem;
+            margin-bottom: 5rem;
         }
 
-        .sup-title {
-            font-family: 'Orbitron';
-            color: var(--primary);
+        .brand-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(16,185,129,0.08);
+            border: 1px solid rgba(16,185,129,0.2);
+            padding: 8px 16px;
+            border-radius: 30px;
+            color: var(--accent);
+            font-size: 0.72rem;
+            font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 10px;
-            font-size: 0.9rem;
-            margin-bottom: 1.5rem;
-            font-weight: 900;
+            letter-spacing: 0.15em;
+            margin-bottom: 2rem;
+            animation: pulseGlow 3s infinite ease-in-out;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 10px rgba(16,185,129,0.05); }
+            50% { box-shadow: 0 0 20px rgba(16,185,129,0.2); border-color: rgba(16,185,129,0.4); }
         }
 
         .main-title {
-            font-family: 'Montserrat';
-            font-size: 4.5rem;
+            font-family: 'Manrope', sans-serif;
+            font-size: 4rem;
             font-weight: 900;
-            line-height: 1;
-            letter-spacing: -2px;
-            margin-bottom: 2rem;
-        }
-
-        .main-title span {
-            color: var(--primary);
-        }
-
-        .summary-desc {
-            max-width: 800px;
-            margin: 0 auto;
-            font-size: 1.2rem;
-            color: #94A3B8;
-            line-height: 1.6;
-        }
-
-        /* System Pillars */
-        .pillars-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 30px;
-            margin-bottom: 6rem;
-        }
-
-        .pillar-card {
-            background: var(--panel);
-            border: 1px solid var(--border);
-            padding: 3rem 2rem;
-            border-radius: 24px;
-            transition: 0.3s;
-            text-align: left;
-        }
-
-        .pillar-card:hover {
-            border-color: var(--primary);
-            transform: translateY(-10px);
-            background: rgba(37, 99, 235, 0.05);
-        }
-
-        .pillar-icon {
-            font-size: 2.5rem;
+            line-height: 1.1;
+            letter-spacing: -0.04em;
             margin-bottom: 1.5rem;
         }
 
-        .pillar-title {
-            font-family: 'Orbitron';
-            font-size: 1.2rem;
-            margin-bottom: 1rem;
-            font-weight: 900;
-            color: #FFF;
+        .main-title span {
+            background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
-        .pillar-text {
-            font-size: 0.95rem;
-            color: #94A3B8;
-            line-height: 1.5;
+        .subtitle {
+            max-width: 760px;
+            margin: 0 auto;
+            font-size: 1.15rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
         }
 
-        /* Start CTA */
-        .cta-section {
-            text-align: center;
-            padding: 4rem;
-            background: var(--panel);
-            border-radius: 32px;
+        /* Features Grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin-bottom: 5rem;
+        }
+
+        .feature-card {
+            background: var(--bg-card);
             border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 3rem 2.25rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
         }
 
-        .btn-enter {
-            display: inline-block;
-            background: var(--primary);
-            color: #FFF;
-            padding: 1.5rem 5rem;
-            font-family: 'Orbitron';
-            font-size: 1.5rem;
-            font-weight: 900;
-            border-radius: 16px;
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle 150px at var(--x, 0px) var(--y, 0px), rgba(16,185,129,0.06) 0%, transparent 100%);
+            opacity: 0;
+            transition: opacity 0.5s;
+            pointer-events: none;
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        .feature-card:hover {
+            border-color: var(--border-hover);
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .feature-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(16,185,129,0.08);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent);
+            margin-bottom: 2rem;
+            border: 1px solid rgba(16,185,129,0.15);
+            transition: all 0.3s;
+        }
+
+        .feature-card:hover .feature-icon {
+            background: var(--accent);
+            color: #fff;
+            transform: scale(1.05);
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .feature-icon svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .feature-title {
+            font-family: 'Manrope', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .feature-desc {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* Action Panel */
+        .action-panel {
+            background: linear-gradient(135deg, var(--bg-card), var(--bg-secondary));
+            border: 1px solid var(--border);
+            border-radius: 28px;
+            padding: 4.5rem 3rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+        }
+
+        .action-panel::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 50% 50%, rgba(16,185,129,0.05) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .action-title {
+            font-family: 'Manrope', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+        }
+
+        .action-desc {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            margin-bottom: 2.5rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .btn-launch {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            background: linear-gradient(135deg, var(--accent), #059669);
+            color: #fff;
+            padding: 18px 48px;
+            border-radius: 14px;
+            font-weight: 800;
+            font-size: 1rem;
             text-decoration: none;
             text-transform: uppercase;
-            letter-spacing: 5px;
-            box-shadow: 0 10px 40px rgba(37, 99, 235, 0.4);
-            transition: 0.3s;
+            letter-spacing: 0.05em;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 10px 30px rgba(16,185,129,0.25);
         }
 
-        .btn-enter:hover {
-            transform: scale(1.05);
-            box-shadow: 0 15px 50px rgba(37, 99, 235, 0.6);
+        .btn-launch:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 15px 40px rgba(16,185,129,0.4);
+        }
+
+        .btn-launch svg {
+            width: 20px;
+            height: 20px;
+            transition: transform 0.3s;
+        }
+
+        .btn-launch:hover svg {
+            transform: translateX(4px);
         }
 
         footer {
-            margin-top: 5rem;
+            margin-top: 6rem;
             text-align: center;
-            color: #475569;
-            font-size: 0.8rem;
-            letter-spacing: 2px;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            letter-spacing: 0.08em;
             text-transform: uppercase;
-            padding-bottom: 4rem;
+            border-top: 1px solid rgba(148,163,184,0.05);
+            padding-top: 2.5rem;
+        }
+
+        /* Responsive Layout */
+        @media (max-width: 968px) {
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            .main-title {
+                font-size: 2.75rem;
+            }
+            .container {
+                padding: 3rem 1.5rem;
+            }
         }
     </style>
-    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-
 <body>
-
     <div class="container">
         <header class="header">
-            <div class="sup-title">Official Authority Release</div>
-            <h1 class="main-title">NATIONAL FOOTBALL<br><span>INTELLIGENCE SYSTEM</span></h1>
-            <p class="summary-desc">A professional-grade AI infrastructure designed for national stadium operations,
-                providing real-time player tracking, tactical analysis, and database synchronization.</p>
+            <div class="brand-badge">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="12 2 2 22 22 22"/>
+                </svg>
+                System Core Active
+            </div>
+            <h1 class="main-title">SPORTEXA AI<br><span>PITCH MACHINE</span></h1>
+            <p class="subtitle">Next-generation football intelligence software suite. Powered by real-time neural vision pipelines, squad databases, and live telemetry control interfaces.</p>
         </header>
 
-        <div class="pillars-grid">
-            <div class="pillar-card">
-                <div class="pillar-icon">📡</div>
-                <div class="pillar-title">MEDIA INTAKE</div>
-                <p class="pillar-text">Multi-infrastructure ingestion supporting USB, RTSP, RTMP, Video Files, and TV
-                    Studio protocols (SDI, NDI, SRT).</p>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="23 7 16 12 23 17 23 7"/>
+                        <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+                    </svg>
+                </div>
+                <h3 class="feature-title">VIDEO TELEMETRY</h3>
+                <p class="feature-desc">High-performance video ingestion. Support for RTSP network feeds, local file streams, and multi-device video capture inputs.</p>
             </div>
-            <div class="pillar-card">
-                <div class="pillar-icon">🧠</div>
-                <div class="pillar-title">AI INTELLIGENCE</div>
-                <p class="pillar-text">Neural engine powered by YOLOv8 for detection and ByteTracker for persistent,
-                    high-accuracy player movement analysis.</p>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="22" y1="12" x2="18" y2="12"/>
+                        <line x1="6" y1="12" x2="2" y2="12"/>
+                        <line x1="12" y1="6" x2="12" y2="2"/>
+                        <line x1="12" y1="22" x2="12" y2="18"/>
+                    </svg>
+                </div>
+                <h3 class="feature-title">NEURAL VISION ENGINE</h3>
+                <p class="feature-desc">Real-time object detection models and visual state trackers. Capable of pinpoint accurate player tracking and ball movement mapping.</p>
             </div>
-            <div class="pillar-card">
-                <div class="pillar-icon">🆔</div>
-                <div class="pillar-title">IDENTITY BINDING</div>
-                <p class="pillar-text">Automated synchronization between live visual data and the National Squad
-                    Database via jersey recognition and OCR.</p>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg>
+                </div>
+                <h3 class="feature-title">COMMAND PORTAL</h3>
+                <p class="feature-desc">Live synchronization with matching control rooms, player identity indexing, game event recording, and security policy checks.</p>
             </div>
         </div>
 
-        <div class="cta-section">
-            <div
-                style="font-family:'Orbitron'; font-size:0.8rem; color:var(--primary); margin-bottom:1.5rem; letter-spacing:3px;">
-                SYSTEM READY FOR OPERATION</div>
-            <a href="/dashboard" class="btn-enter">Enter Control Room</a>
+        <div class="action-panel">
+            <h2 class="action-title">INTELLIGENCE SERVICE ONLINE</h2>
+            <p class="action-desc">All system configurations, local AI pipelines, and database endpoints are verified. Start the tracking interface below.</p>
+            <a href="/dashboard" class="btn-launch">
+                Enter Control Room
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="5" y1="12" x2="19" y2="12"/>
+                    <polyline points="12 5 19 12 12 19"/>
+                </svg>
+            </a>
         </div>
 
         <footer>
-            &copy; 2026 FERWAFA NATIONAL AUTHORITY | SECURED BROADCAST INTERFACE
+            &copy; 2026 SPORTEXA INC. | ENTERPRISE PITCH CONTROL INTERFACE
         </footer>
     </div>
 
-    <script>lucide.createIcons();</script>
+    <script>
+        // Spotlight interaction card effect
+        document.querySelectorAll('.feature-card').forEach(card => {
+            card.addEventListener('mousemove', e => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                card.style.setProperty('--x', `${x}px`);
+                card.style.setProperty('--y', `${y}px`);
+            });
+        });
+    </script>
 </body>
-
 </html>

@@ -49,7 +49,7 @@ call .venv\Scripts\activate.bat
 python -m pip install --upgrade pip >nul 2>&1
 echo      - Package Manager: UP-TO-DATE
 echo      - Downloading PyTorch, YOLOv8, OpenCV, EasyOCR...
-pip install torch torchvision torchaudio psutil ultralytics opencv-python easyocr requests winshell pypiwin32 >nul 2>&1
+pip install torch torchvision torchaudio psutil ultralytics opencv-python easyocr requests winshell pypiwin32 fastapi uvicorn pywebview websockets aiohttp python-dotenv >nul 2>&1
 echo      - AI Modules: INSTALLED
 echo.
 

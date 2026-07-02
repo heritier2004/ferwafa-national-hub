@@ -62,3 +62,8 @@ walkthrough.md
 # OS
 .DS_Store
 Thumbs.db
+# Project build artifacts
+dist_electron/
+node_modules/
+assets/models/
+ai_machine.zip

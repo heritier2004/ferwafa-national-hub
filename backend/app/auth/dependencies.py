@@ -19,6 +19,12 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: orm.Session = Depe
         username: str = payload.get("sub")
         if username is None:
             raise credentials_exception
+            
+        from backend.app.database.models import User
+        user = db.query(User).filter(User.id == payload.get("id"), User.is_deleted == False).first()
+        if user is None or not user.is_active:
+            raise credentials_exception
+
         return {
             "id": payload.get("id"),
             "username": username, 
@@ -27,6 +33,7 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: orm.Session = Depe
         }
     except JWTError:
         raise credentials_exception
+
 
 class RoleChecker:
     def __init__(self, allowed_roles: List[str]):

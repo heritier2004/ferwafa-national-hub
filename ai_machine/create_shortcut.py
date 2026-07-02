@@ -73,7 +73,9 @@ def create_shortcut():
             str(python_exe), "-m", "pip", "install",
             "torch", "torchvision", "torchaudio",
             "ultralytics", "opencv-python", "easyocr",
-            "requests", "winshell", "pypiwin32"
+            "requests", "winshell", "pypiwin32",
+            "fastapi", "uvicorn", "pywebview", "websockets",
+            "aiohttp", "python-dotenv"
         ])
 
     # ---- 5️⃣ Create the .lnk ------------------------------------------------

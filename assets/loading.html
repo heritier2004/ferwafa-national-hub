@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sportexa — Starting</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(145deg, #0a0e1a 0%, #111827 50%, #0f172a 100%);
+      color: #e2e8f0;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      overflow: hidden;
+    }
+
+    /* Animated background grid */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(56, 189, 248, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(56, 189, 248, 0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      animation: gridPulse 4s ease-in-out infinite;
+    }
+
+    @keyframes gridPulse {
+      0%, 100% { opacity: 0.5; }
+      50% { opacity: 1; }
+    }
+
+    .splash-container {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 32px;
+    }
+
+    /* Logo glow ring */
+    .logo-ring {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      border: 2px solid rgba(56, 189, 248, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      animation: ringFloat 3s ease-in-out infinite;
+    }
+
+    .logo-ring::before {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      border-top-color: #38bdf8;
+      border-right-color: #818cf8;
+      animation: ringRotate 2s linear infinite;
+    }
+
+    @keyframes ringFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    @keyframes ringRotate {
+      to { transform: rotate(360deg); }
+    }
+
+    .logo-icon {
+      font-size: 48px;
+    }
+
+    .title {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      background: linear-gradient(135deg, #38bdf8, #818cf8, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-transform: uppercase;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: #64748b;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      margin-top: -16px;
+    }
+
+    /* Progress bar */
+    .progress-track {
+      width: 280px;
+      height: 3px;
+      background: rgba(56, 189, 248, 0.1);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 30%;
+      background: linear-gradient(90deg, #38bdf8, #818cf8);
+      border-radius: 4px;
+      animation: progressSlide 1.8s ease-in-out infinite;
+    }
+
+    @keyframes progressSlide {
+      0% { transform: translateX(-100%); width: 30%; }
+      50% { width: 60%; }
+      100% { transform: translateX(400%); width: 30%; }
+    }
+
+    .status-text {
+      font-size: 12px;
+      color: #475569;
+      animation: statusPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes statusPulse {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
+    }
+
+    /* Version badge */
+    .version {
+      position: fixed;
+      bottom: 20px;
+      right: 24px;
+      font-size: 11px;
+      color: #334155;
+      letter-spacing: 1px;
+    }
+  </style>
+</head>
+<body>
+  <div class="splash-container">
+    <div class="logo-ring">
+      <span class="logo-icon">⚽</span>
+    </div>
+    <div class="title">Sportexa</div>
+    <div class="subtitle">Football Intelligence Platform</div>
+    <div class="progress-track">
+      <div class="progress-bar"></div>
+    </div>
+    <div class="status-text">Initializing backend services…</div>
+  </div>
+  <div class="version">v1.0.0</div>
+</body>
+</html>
