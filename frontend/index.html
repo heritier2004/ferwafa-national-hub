@@ -9,18 +9,14 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         :root {
-    --primary: #0F172A; /* Dark Navy */
-    --primary-glow: rgba(15, 23, 42, 0.5);
-    --bg: #0F172A; /* Using Dark Navy as background */
-    --surface: #1E293B; /* Slate */
-    --text: #FFFFFF; /* White */
-    --secondary: #94A3B8; /* keep for neutral text */
-    --accent: #2563EB; /* Blue */
-    --accent-secondary: #3B82F6; /* Light Blue */
-    --success: #16A34A; /* Success */
-    --warning: #D97706; /* Warning */
-    --danger: #DC2626; /* Danger */
-}
+            --primary: #16A34A;
+            --primary-glow: rgba(22, 163, 74, 0.5);
+            --bg: #0F172A;
+            --surface: #1E293B;
+            --text: #E2E8F0;
+            --secondary: #94A3B8;
+            --accent: #CA8A04;
+        }
         * { margin:0; padding:0; box-sizing:border-box; }
         body { 
             font-family: 'Inter', sans-serif;
@@ -263,7 +259,7 @@
         }
     </style>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="/assets/js/api.js?v=1.2"></script>
+    <script src="/assets/js/api.js"></script>
 </head>
 <body>
 
@@ -272,7 +268,7 @@
         <div class="nav-links">
             <a href="#overview">System Overview</a>
             <a href="#impact">National Impact</a>
-            <a href="login.html" style="color:var(--primary);">Federation Login</a>
+            <a href="pages/auth/login.html" style="color:var(--primary);">Federation Login</a>
         </div>
     </nav>
 
@@ -283,7 +279,7 @@
         <p>A unified, AI-powered ecosystem connecting every club, academy, and player in Rwanda directly to the National Federation.</p>
         
         <div style="display: flex; gap: 1rem; margin-top: 1rem; flex-wrap: wrap; justify-content: center;">
-            <a href="login.html" class="btn-vibrant">
+            <a href="pages/auth/login.html" class="btn-vibrant">
                 Federation Entry <i data-lucide="arrow-right"></i>
             </a>
             <a href="#" class="btn-outline">
@@ -387,7 +383,7 @@
     <section class="cta-section">
         <h2 style="font-size:3rem; font-weight:900; margin-bottom:1.5rem;">Access the Command Center</h2>
         <p style="color:var(--secondary); font-size:1.2rem; max-width:600px; margin:0 auto 3rem;">Authorized federation officials, club administrators, and academy managers can log in below.</p>
-        <a href="login.html" class="btn-vibrant" style="padding:1.5rem 4rem; font-size:1.1rem;">
+        <a href="pages/auth/login.html" class="btn-vibrant" style="padding:1.5rem 4rem; font-size:1.1rem;">
             Secure Login <i data-lucide="lock"></i>
         </a>
     </section>

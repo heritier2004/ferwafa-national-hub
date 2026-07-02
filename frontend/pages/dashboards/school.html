@@ -37,9 +37,7 @@
         .prog-bar-wrap .fill { height: 100%; border-radius: 4px; }
     </style>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="/assets/js/api.js?v=1.2"></script>
-    <script src="/assets/js/player_display.js?v=2.0"></script>
-    <script src="/assets/js/player_profile.js?v=2.0"></script>
+    <script src="/assets/js/api.js"></script>
 </head>
 <body>
 <div class="app-container">
@@ -75,7 +73,7 @@
             <div style="font-weight:900;letter-spacing:0.15em;" id="page-title">INTELLIGENCE HUB</div>
             <div style="display:flex;gap:1.5rem;align-items:center;">
                 <span id="inst-name" style="font-size:0.8rem;font-weight:800;color:var(--text-secondary);"></span>
-                <button class="btn btn-primary" onclick="window.location.href='../players/add_player.html'">
+                <button class="btn btn-primary" style="background:linear-gradient(135deg,var(--accent-secondary),#0891b2);" onclick="window.location.href='../players/add_player.html'">
                     <i data-lucide="plus"></i> ADD STUDENT
                 </button>
             </div>
@@ -130,47 +128,22 @@
             <section id="students" class="tab-pane">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem;">
                     <span class="section-tag" style="margin-bottom:0;">Full Student Registry</span>
-                </div>
-
-                <!-- TOP TOOLBAR -->
-                <div style="background:var(--bg-tertiary);border:1px solid var(--border);border-radius:12px;padding:1rem;margin-bottom:1.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;box-shadow:0 10px 15px -3px rgba(0,0,0,0.3);">
-                    <div style="display:flex;gap:1rem;align-items:center;flex:1;">
-                        <input type="text" id="student-search" placeholder="Search Student by Name or ID..." style="padding:0.6rem 1rem;border:1px solid var(--border);border-radius:8px;font-size:0.9rem;width:250px;background:var(--bg-primary);color:var(--text-primary);" oninput="filterStudents()">
-                        <select id="pos-filter" style="padding:0.6rem;border:1px solid var(--border);border-radius:8px;font-size:0.9rem;background:var(--bg-primary);color:var(--text-primary);" onchange="filterStudents()">
-                            <option value="" style="background:var(--bg-primary);">All Positions</option>
-                            <option value="GK" style="background:var(--bg-primary);">GK</option>
-                            <option value="DEF" style="background:var(--bg-primary);">Defender</option>
-                            <option value="MID" style="background:var(--bg-primary);">Midfielder</option>
-                            <option value="FWD" style="background:var(--bg-primary);">Forward</option>
+                    <div style="display:flex;gap:1rem;">
+                        <select id="pos-filter" class="search-box" style="width:auto;" onchange="filterStudents()">
+                            <option value="">All Positions</option>
+                            <option>GK</option><option>CB</option><option>LB</option><option>RB</option>
+                            <option>CM</option><option>LW</option><option>RW</option><option>ST</option>
                         </select>
-                    </div>
-                    <div style="display:flex;gap:0.75rem;">
-                        <button class="btn btn-outline" style="padding:0.6rem 1rem;border:1px solid var(--border);background:var(--bg-tertiary);font-size:0.85rem;color:var(--text-primary);font-weight:600;" onclick="alert('Import feature coming soon.')"><i data-lucide="upload-cloud" style="width:16px;height:16px;margin-right:4px;"></i> Import</button>
-                        <button class="btn btn-outline" style="padding:0.6rem 1rem;border:1px solid var(--border);background:var(--bg-tertiary);font-size:0.85rem;color:var(--text-primary);font-weight:600;" onclick="alert('Export feature coming soon.')"><i data-lucide="download-cloud" style="width:16px;height:16px;margin-right:4px;"></i> Export</button>
-                        <button class="btn btn-primary" style="padding:0.6rem 1rem;background:var(--accent-primary);color:#FFFFFF;border:none;border-radius:8px;font-size:0.85rem;font-weight:700;" onclick="window.location.href='../players/add_player.html'"><i data-lucide="plus" style="width:16px;height:16px;margin-right:4px;"></i> Add Student</button>
+                        <input class="search-box" type="text" placeholder="Search student..." id="student-search" oninput="filterStudents()">
                     </div>
                 </div>
-
-                <!-- REGISTRY TABLE -->
-                <div style="background:var(--bg-tertiary);border:1px solid var(--border);border-radius:12px;overflow-x:auto;box-shadow:0 10px 15px -3px rgba(0,0,0,0.3);">
-                    <table style="width:100%;border-collapse:collapse;text-align:left;">
-                        <thead style="background:var(--bg-primary);color:var(--text-primary);">
-                            <tr>
-                                <th style="padding:1rem;font-weight:700;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em;white-space:nowrap;color:var(--text-primary);">Photo</th>
-                                <th style="padding:1rem;font-weight:700;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em;white-space:nowrap;color:var(--text-primary);">Player ID</th>
-                                <th style="padding:1rem;font-weight:700;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em;white-space:nowrap;color:var(--text-primary);">Full Name</th>
-                                <th style="padding:1rem;font-weight:700;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em;white-space:nowrap;color:var(--text-primary);">DOB</th>
-                                <th style="padding:1rem;font-weight:700;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em;white-space:nowrap;color:var(--text-primary);">Age</th>
-                                <th style="padding:1rem;font-weight:700;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em;white-space:nowrap;color:var(--text-primary);">Position</th>
-                                <th style="padding:1rem;font-weight:700;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em;white-space:nowrap;color:var(--text-primary);">Jersey No</th>
-                                <th style="padding:1rem;font-weight:700;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em;white-space:nowrap;color:var(--text-primary);">Nationality</th>
-                                <th style="padding:1rem;font-weight:700;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em;white-space:nowrap;color:var(--text-primary);">Team</th>
-                                <th style="padding:1rem;font-weight:700;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em;white-space:nowrap;color:var(--text-primary);">Status</th>
-                                <th style="padding:1rem;font-weight:700;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em;white-space:nowrap;color:var(--text-primary);">Actions</th>
-                            </tr>
-                        </thead>
+                <div class="card" style="padding:0;overflow:hidden;">
+                    <table>
+                        <thead><tr>
+                            <th>CODE</th><th>NAME</th><th>POSITION</th><th>AGE</th><th>NATIONALITY</th><th>FITNESS</th><th>TALENT SCORE</th><th>ELITE</th><th style="text-align:right;">ACTIONS</th>
+                        </tr></thead>
                         <tbody id="students-table">
-                            <tr><td colspan="11"><div class="empty-state"><span class="spinner"></span></div></td></tr>
+                            <tr><td colspan="8"><div class="empty-state"><span class="spinner"></span></div></td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -229,33 +202,13 @@
     const instName = localStorage.getItem('institution_name') || 'SCHOOL';
     document.getElementById('inst-name').textContent = instName;
     document.getElementById('inst-name-sidebar').textContent = instName;
-    const defaultLogo = window.PlayerDisplay ? PlayerDisplay.DEFAULT_LOGO : "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNGI1NTYzIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEyIDIyczgtNCA4LTEwVjVsLTgtMy04IDN2N2MwIDYgOCAxMCA4IDEweiIvPjwvc3ZnPg==";
     const logoUrl = localStorage.getItem('logo_url');
     if (logoUrl && logoUrl !== 'null' && logoUrl !== 'undefined' && logoUrl.trim() !== '') {
-        document.getElementById('logo-wrap').innerHTML = `<img src="${logoUrl}" style="width:100%;height:100%;object-fit:cover;" onerror="this.onerror=null; this.src='${defaultLogo}';">`;
+        document.getElementById('logo-wrap').innerHTML = `<img src="${logoUrl}" style="width:100%;height:100%;object-fit:cover;">`;
     } else {
-        document.getElementById('logo-wrap').innerHTML = `<img src="${defaultLogo}" style="width:100%;height:100%;object-fit:cover;">`;
+        document.getElementById('logo-wrap').innerHTML = `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;"><i data-lucide="shield" style="width:20px;height:20px;color:var(--text-secondary);"></i></div>`;
+        lucide.createIcons();
     }
-
-    window.addEventListener('pageshow', () => {
-        if (localStorage.getItem('player_sync_needed') === 'true') {
-            localStorage.removeItem('player_sync_needed');
-            window.forceRefreshStudents();
-        }
-    });
-    window.addEventListener('storage', (event) => {
-        if (event.key === 'player_sync_needed' && event.newValue === 'true') {
-            localStorage.removeItem('player_sync_needed');
-            window.forceRefreshStudents();
-        }
-    });
-
-    window.forceRefreshStudents = function() {
-        allStudents = [];
-        loadOverview();
-        const activeTab = document.querySelector('.tab-pane.active')?.id;
-        if (activeTab === 'students') loadStudents();
-    };
 
     let allStudents = [];
 
@@ -288,45 +241,34 @@
             const r = await fetch(`/api/ferwafa/players?institution_id=${inst_id}`, { headers: { Authorization: `Bearer ${token}` } });
             if (!r.ok) return;
             const data = await r.json();
-            const raw = Array.isArray(data) ? data : (data.players || []);
-            allStudents = raw.map(p => PlayerDisplay.normalizePlayer(p));
+            allStudents = Array.isArray(data) ? data : (data.players || []);
 
-            const elite = allStudents.filter(p => p.raw.is_elite_prospect).length;
-            const avg = allStudents.length ? (allStudents.reduce((s, p) => s + (p.rating || 0), 0) / allStudents.length).toFixed(1) : '0.0';
+            const elite = allStudents.filter(p => p.is_elite_prospect).length;
+            const avg = allStudents.length ? (allStudents.reduce((s, p) => s + (p.talent_score || 0), 0) / allStudents.length).toFixed(1) : '0.0';
             document.getElementById('kpi-total').textContent = allStudents.length;
             document.getElementById('kpi-elite').textContent = elite;
             document.getElementById('kpi-avg').textContent = avg;
 
             // Top students
-            const top = [...allStudents].sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, 8);
+            const top = [...allStudents].sort((a, b) => (b.talent_score || 0) - (a.talent_score || 0)).slice(0, 8);
             const tbody = document.getElementById('top-students');
-            tbody.innerHTML = top.length ? top.map((p, i) => {
-                const photoHtml = PlayerDisplay.photoHtml(p.photoUrl, 32);
-                return `
-                <tr style="cursor:pointer;" onclick="PlayerProfile.open(${p.id})">
+            tbody.innerHTML = top.length ? top.map((p, i) => `
+                <tr>
                     <td style="color:var(--text-secondary);font-weight:800;">${i + 1}</td>
-                    <td>
-                        <div style="display:flex;align-items:center;gap:10px;">
-                            ${photoHtml}
-                            <div>
-                                <strong>${PlayerDisplay.escapeHtml(p.fullName)}</strong><br>
-                                <small style="color:var(--text-secondary);">${p.playerId}</small>
-                            </div>
-                        </div>
-                    </td>
-                    <td><span class="badge-pos">${p.position}</span></td>
+                    <td><strong>${p.name}</strong></td>
+                    <td><span class="badge-pos">${p.position || '—'}</span></td>
                     <td>
                         <div class="score-bar">
-                            <div class="bar"><div class="fill" style="width:${Math.min((p.rating||0)*10,100)}%"></div></div>
-                            <strong style="font-size:0.85rem;">${(p.rating||0).toFixed(1)}</strong>
+                            <div class="bar"><div class="fill" style="width:${Math.min((p.talent_score||0)*10,100)}%"></div></div>
+                            <strong style="font-size:0.85rem;">${(p.talent_score||0).toFixed(1)}</strong>
                         </div>
                     </td>
                 </tr>
-            `}).join('') : `<tr><td colspan="4"><div class="empty-state"><i data-lucide="user"></i>No students yet.</div></td></tr>`;
+            `).join('') : `<tr><td colspan="4"><div class="empty-state"><i data-lucide="user"></i>No students yet.</div></td></tr>`;
 
             // Position distribution
             const positions = {};
-            allStudents.forEach(p => { const pos = p.position !== '--' ? p.position : 'Unknown'; positions[pos] = (positions[pos] || 0) + 1; });
+            allStudents.forEach(p => { const pos = p.position || 'Unknown'; positions[pos] = (positions[pos] || 0) + 1; });
             const total = allStudents.length || 1;
             const colors = { GK: '#f59e0b', CB: '#16A34A', LB: '#8b5cf6', RB: '#8b5cf6', CM: '#CA8A04', LW: '#10b981', RW: '#10b981', ST: '#ef4444', Unknown: '#94a3b8' };
             document.getElementById('position-chart').innerHTML = Object.entries(positions).sort((a,b) => b[1]-a[1]).map(([pos, count]) => `
@@ -335,7 +277,7 @@
                     <div class="bar"><div class="fill" style="width:${Math.round(count/total*100)}%;background:${colors[pos]||'#94a3b8'};"></div></div>
                 </div>
             `).join('') || '<p style="color:var(--text-secondary);">No data.</p>';
-            if (window.lucide) window.lucide.createIcons();
+
         } catch (e) {}
 
         try {
@@ -352,8 +294,7 @@
         try {
             const r = await fetch(`/api/ferwafa/players?institution_id=${inst_id}`, { headers: { Authorization: `Bearer ${token}` } });
             const data = await r.json();
-            const raw = Array.isArray(data) ? data : (data.players || []);
-            allStudents = raw.map(p => PlayerDisplay.normalizePlayer(p));
+            allStudents = Array.isArray(data) ? data : (data.players || []);
             renderStudents(allStudents);
         } catch (e) {
             document.getElementById('students-table').innerHTML = `<tr><td colspan="8"><div class="empty-state">Failed to load.</div></td></tr>`;
@@ -363,33 +304,38 @@
     function renderStudents(list) {
         const tbody = document.getElementById('students-table');
         if (!list.length) {
-            tbody.innerHTML = `<tr><td colspan="11"><div class="empty-state"><i data-lucide="user"></i>No students registered yet.<br><br><button class="btn btn-primary" onclick="window.location.href='../players/add_player.html'"><i data-lucide="plus"></i> Add First Student</button></div></td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><i data-lucide="user"></i>No students registered yet.<br><br><button class="btn btn-primary" style="background:linear-gradient(135deg,var(--accent-secondary),#0891b2);" onclick="window.location.href='../players/add_player.html'"><i data-lucide="plus"></i> Add First Student</button></div></td></tr>`;
             return;
         }
-        tbody.innerHTML = list.map(rawP => {
-            const p = PlayerDisplay.normalizePlayer(rawP);
-            return PlayerDisplay.rowHtml(
-                p,
-                'PlayerProfile.open(' + p.id + ')',
-                'editPlayer(' + p.id + ')',
-                'PlayerProfile.open(' + p.id + ')',
-                'deletePlayer(' + p.id + ')',
-                'alert(\\'Transfer coming soon.\\')'
-            );
-        }).join('');
-        if (window.lucide) window.lucide.createIcons();
+        tbody.innerHTML = list.map(p => `
+            <tr>
+                <td style="font-family:monospace;color:var(--text-secondary);font-size:0.8rem;">${p.player_code}</td>
+                <td><strong>${p.name}</strong></td>
+                <td><span class="badge-pos">${p.position || '—'}</span></td>
+                <td style="color:var(--text-secondary);">${p.age || '—'}</td>
+                <td style="color:var(--text-secondary);">${p.nationality || '—'}</td>
+                <td>${p.fitness_status === 'Fit' || !p.fitness_status ? '<span class="badge-fit">Fit</span>' : `<span class="badge-injured">${p.fitness_status}</span>`}</td>
+                <td>
+                    <div class="score-bar">
+                        <div class="bar"><div class="fill" style="width:${Math.min((p.talent_score||0)*10,100)}%"></div></div>
+                        <span style="font-size:0.85rem;font-weight:800;">${(p.talent_score||0).toFixed(1)}</span>
+                    </div>
+                </td>
+                <td>${p.is_elite_prospect ? '<span class="badge-elite">Elite</span>' : '—'}</td>
+                <td style="text-align:right;white-space:nowrap;">
+                    <button class="btn btn-outline" style="padding: 4px 8px; font-size: 0.75rem; margin-right: 5px; cursor: pointer; border-color: rgba(255,255,255,0.15);" onclick="editPlayer(${p.id})"><i data-lucide="pen"></i></button>
+                    <button class="btn btn-outline" style="padding: 4px 8px; font-size: 0.75rem; border-color: var(--danger); color: var(--danger); cursor: pointer;" onclick="deletePlayer(${p.id}, '${p.name}')"><i data-lucide="trash"></i></button>
+                </td>
+            </tr>
+        `).join('');
     }
 
     function filterStudents() {
-        const input = document.getElementById('student-search');
-        const posInput = document.getElementById('pos-filter');
-        const q = input ? input.value.toLowerCase() : '';
-        const pos = posInput ? posInput.value : '';
-        
+        const q = document.getElementById('student-search').value.toLowerCase();
+        const pos = document.getElementById('pos-filter').value;
         let list = allStudents;
-        if (q) list = list.filter(p => (p.fullName||'').toLowerCase().includes(q) || (p.playerId||'').toLowerCase().includes(q));
+        if (q) list = list.filter(p => p.name.toLowerCase().includes(q) || (p.player_code||'').toLowerCase().includes(q));
         if (pos) list = list.filter(p => p.position === pos);
-        
         renderStudents(list);
     }
 
@@ -397,9 +343,7 @@
         window.location.href = `../players/add_player.html?id=${id}`;
     }
 
-    async function deletePlayer(id) {
-        const student = allStudents.find(p => p.id === id);
-        const name = student ? (student.fullName || 'student') : 'student';
+    async function deletePlayer(id, name) {
         if (!confirm(`Are you sure you want to release ${name} from the school roster?`)) return;
         try {
             const r = await fetch(`/api/players/${id}`, {
@@ -408,7 +352,6 @@
             });
             if (r.ok) {
                 toast("Student released from roster successfully.");
-                localStorage.setItem('player_sync_needed', 'true');
                 allStudents = []; // Clear local list to trigger refetch
                 loadStudents();   // Real-time sync refetch & render!
                 loadOverview();   // Update overview counts too!
